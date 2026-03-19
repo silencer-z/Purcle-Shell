@@ -1,0 +1,35 @@
+{
+	"appearance": {
+		"animations": {
+			"durations": {
+				"scale": 1
+			}
+		},
+		"fonts": {
+			"family": {
+				"material": "Material Symbols Rounded",
+				"mono": "Maple Mono NF CN",
+				"sans": "Noto Sans CJK SC"
+			},
+			"size": {
+				"scale": 1
+			}
+		}
+	},
+	"colors": {
+		"isDarkMode": true,
+		"matugenConfigPathForDarkColor": "/home/orz/.config/quickshell/dark-colors.json",
+		"matugenConfigPathForLightColor": "/home/orz/.config/quickshell/light-colors.json",
+		"staticColorsPath": "/home/orz/.config/quickshell/colors.json",
+		"useMatugenColor": true,
+		"useStaticColors": false
+	},
+	"wallpaper": {
+		"enabledWallpaper": true,
+		"transition": "circle",
+		"transitionDuration": 500,
+		"transitionLowPerfMode": false,
+		"visibleWallpaper": 3,
+		"wallpaperDir": "/home/orz/Pictures/Wallpapers"
+	}
+}

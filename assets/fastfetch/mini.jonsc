@@ -1,0 +1,17 @@
+{
+  "logo": "none",
+  "showErrors": false,
+  "brightColor": false,
+
+  "modules": [
+    "os",
+    "kernel",
+    "title",
+    "uptime",
+    "packages",
+    "memory",
+    "swap",
+    "disk",
+    "localip"
+  ]
+}

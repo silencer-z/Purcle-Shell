@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圆角矩形 -->
+  <rect x="8" y="8" width="48" height="48" rx="12" fill="#4A90E2"/>
+  
+  <!-- 图标主体 - 抽象的应用窗口 -->
+  <g fill="white">
+    <!-- 窗口边框 -->
+    <rect x="16" y="16" width="32" height="32" rx="4" fill="none" stroke="white" stroke-width="2"/>
+    
+    <!-- 标题栏 -->
+    <rect x="18" y="18" width="28" height="8" rx="2"/>
+    
+    <!-- 窗口内容区域 -->
+    <rect x="22" y="30" width="20" height="10" rx="2" opacity="0.8"/>
+    
+    <!-- 底部按钮 -->
+    <circle cx="26" cy="46" r="2"/>
+    <circle cx="32" cy="46" r="2"/>
+    <circle cx="38" cy="46" r="2"/>
+  </g>
+  
+  <!-- 装饰性元素 -->
+  <circle cx="48" cy="16" r="3" fill="#FFD700" opacity="0.8"/>
+</svg> 
