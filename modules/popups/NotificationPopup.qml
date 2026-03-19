@@ -16,7 +16,7 @@ PanelWindow {
     }
 
     implicitWidth: 360
-    height: popupList.height + 24
+    implicitHeight: popupList.height + 24
 
     aboveWindows:true
     exclusionMode: ExclusionMode.Normal

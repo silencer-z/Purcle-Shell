@@ -1,8 +1,6 @@
 import QtQuick
-import Qt5Compat.GraphicalEffects
 import Quickshell
-import Quickshell.Wayland
-import Quickshell.Hyprland
+import Quickshell.Widgets
 
 import qs.components
 import qs.Configs
@@ -18,14 +16,26 @@ Item{
         console.log("wallpaper selector init");
     }
 
-    implicitWidth: 800
-    implicitHeight: 500
+    implicitWidth: 950
+    implicitHeight: 300
+
+    function setWallpaper(path:string):void{
+        Quickshell.execDetached({
+            command: ["sh", "-c", `printf '%s' ${JSON.stringify(path)} > ${JSON.stringify(ServicePath.currentWallpaperFile)}`]
+        })
+        Quickshell.execDetached({
+            command: ["swww", "img", "-o", "", path,"--transition-type","random"]
+        });
+    }
 
     PathView {
         id: wallpaperPath
 
-        Layout.fillWidth: true
-        Layout.fillHeight: true
+        anchors.fill:parent
+        anchors.topMargin:30
+        anchors.bottomMargin:30
+        anchors.leftMargin:0
+        anchors.rightMargin:0
 
         readonly property real unitWidth: width / (Config.wallpaper.visibleWallpaper + 1)
 
@@ -39,10 +49,16 @@ Item{
         cacheItemCount: Config.wallpaper.visibleWallpaper + 2
 
         Component.onCompleted: {
-            Qt.callLater(() => {
-                const idx = ServiceWallpaper.wallpaperList.indexOf(ServicePath.currentWallpaper);
-                currentIndex = idx !== -1 ? idx : 0;
-            });
+            forceActiveFocus()
+            function trySetIndex() {
+                if (ServiceWallpaper.wallpaperList.length > 0) {
+                    const idx = ServiceWallpaper.wallpaperList.indexOf(ServicePath.currentWallpaper);
+                    currentIndex = idx !== -1 ? idx : 0;
+                } else {
+                    Qt.callLater(trySetIndex);
+                }
+            }
+            trySetIndex();
         }
 
         path: Path {
@@ -71,16 +87,16 @@ Item{
             opacity: isCurrent ? 1.0 : 0.92
 
             Behavior on implicitWidth {
-                NAnim {
-                    duration: Config.appearance.animations.durations.normal
-                    easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
+                NumberAnimation {
+                    duration: Config.appearance.animations.durations.normal;
+                    easing.type: Easing.OutCubic 
                 }
             }
 
             Behavior on opacity {
-                NAnim {
-                    duration: Config.appearance.animations.durations.normal
-                    easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
+                NumberAnimation {
+                    duration: Config.appearance.animations.durations.normal;
+                    easing.type: Easing.OutCubic 
                 }
             }
 
@@ -88,7 +104,6 @@ Item{
                 id: cardRect
 
                 anchors.centerIn: parent
-
                 // Gap between cards scales with unit width so it looks proportional at any count
                 implicitWidth: parent.width - (delegateItem.isCurrent ? Math.max(20, wallpaperPath.unitWidth * 0.3) : Math.max(12, wallpaperPath.unitWidth * 0.2))
                 implicitHeight: parent.height
@@ -98,21 +113,21 @@ Item{
                 color: "transparent"
 
                 Behavior on implicitWidth {
-                    NAnim {
-                        duration: Config.appearance.animations.durations.normal
-                        easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
+                    NumberAnimation {
+                        duration: Config.appearance.animations.durations.normal;
+                        easing.type: Easing.OutCubic 
                     }
                 }
                 Behavior on implicitHeight {
-                    NAnim {
-                        duration: Config.appearance.animations.durations.normal
-                        easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
+                    NumberAnimation {
+                        duration: Config.appearance.animations.durations.normal;
+                        easing.type: Easing.OutCubic 
                     }
                 }
                 Behavior on radius {
-                    NAnim {
-                        duration: Config.appearance.animations.durations.normal
-                        easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
+                    NumberAnimation {
+                        duration: Config.appearance.animations.durations.normal;
+                        easing.type: Easing.OutCubic 
                     }
                 }
 
@@ -123,12 +138,6 @@ Item{
                     fillMode: Image.PreserveAspectCrop
                     asynchronous: true
                     cache: true
-
-                    Elevation {
-                        anchors.fill: parent
-                        z: -1
-                        level: 3
-                    }
                 }
 
                 Rectangle {
@@ -137,13 +146,13 @@ Item{
                     color: Qt.rgba(0, 0, 0, delegateItem.isCurrent ? 0.0 : 0.22)
 
                     Behavior on color {
-                        CAnim {
+                        ColorAnimation {
                             duration: Config.appearance.animations.durations.normal
                         }
                     }
                 }
 
-                MArea {
+                MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
 
@@ -151,9 +160,7 @@ Item{
                         if (!delegateItem.isCurrent) {
                             wallpaperPath.currentIndex = delegateItem.index;
                         } else {
-                            Quickshell.execDetached({
-                                command: ["shell", "ipc", "call", "img", "set", delegateItem.modelData]
-                            });
+                            setWallpaper(delegateItem.modelData)
                         }
                     }
                 }
@@ -162,19 +169,14 @@ Item{
 
         Keys.onPressed: event => {
             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                Quickshell.execDetached({
-                    command: ["shell", "ipc", "call", "img", "set", WallpaperFileModels.filteredWallpaperList[currentIndex]]
-                });
+                setWallpaper(ServiceWallpaper.filteredWallpaperList[currentIndex])
                 event.accepted = true;
             }
             if (event.key === Qt.Key_Escape) {
-                GlobalStates.isWallpaperSwitcherOpen = false;
+                panelWrapper.close();
                 event.accepted = true;
             }
-            if (event.key === Qt.Key_Tab) {
-                searchField.forceActiveFocus();
-                event.accepted = true;
-            }
+
             if (event.key === Qt.Key_Left) {
                 decrementCurrentIndex();
                 event.accepted = true;

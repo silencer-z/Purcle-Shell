@@ -18,9 +18,9 @@
 	},
 	"colors": {
 		"isDarkMode": true,
-		"matugenConfigPathForDarkColor": "/home/orz/.config/quickshell/dark-colors.json",
-		"matugenConfigPathForLightColor": "/home/orz/.config/quickshell/light-colors.json",
-		"staticColorsPath": "/home/orz/.config/quickshell/colors.json",
+		"matugenConfigPathForDarkColor": "/home/orz/.cache/PurcleShell/dark-colors.json",
+		"matugenConfigPathForLightColor": "/home/orz/.cache/PurcleShell/light-colors.json",
+		"staticColorsPath": "/home/orz/.cache/PurcleShell/colors.json",
 		"useMatugenColor": true,
 		"useStaticColors": false
 	},

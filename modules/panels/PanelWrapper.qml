@@ -13,10 +13,12 @@ PanelWindow {
     readonly property int stateLoading: 1
     readonly property int stateOpen: 2
     readonly property int stateClosing: 3
+
     property int panelState: stateClosed
 
     property string contentComponent: ""
     readonly property bool hasCurrent: contentComponent !== ""
+    readonly property bool isReady: panelState === stateOpen
 
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
     WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
@@ -36,26 +38,21 @@ PanelWindow {
     color: "transparent"
     visible: hasCurrent
 
-    /* 使用状态机控制开启与关闭逻辑 */
     function open(sourceComponent, properties = {}) {
         switch (panelState) {
             case stateOpen:
-                // 如果面板是开启的，那么就关闭它
                 if (sourceComponent !== contentComponent) {
                     panelState = stateLoading;
                     contentComponent = sourceComponent;
                     var props = Object.assign({ panelWrapper: root }, properties);
                     contentLoader.setSource(sourceComponent, props);
-                    
                 }else{
                     root.close();
                 }
                 break;
 
             case stateClosed:
-                // 如果面板是关闭的，那么就执行打开流程
                 panelState = stateLoading;
-
                 contentComponent = sourceComponent;
                 var props = Object.assign({ panelWrapper: root }, properties);
                 contentLoader.setSource(sourceComponent, props);
@@ -64,36 +61,36 @@ PanelWindow {
 
             case stateLoading:
             case stateClosing:
-                // 如果在处理过程中，则忽略这个请求
-                // console.log("[NOTE]: Panel is busy, ignoring toggle request.")
                 break;
         }
     }
 
     function close() {
         if (panelState !== stateOpen) {
-            // console.log("[NOTE]: Panel is not open, ignoring close request.")
             return;
         }
-
         panelState = stateClosing;
         panelFrame.opened = false;
 
-        // 先调用组件内部的销毁函数
         if (contentLoader.item && typeof contentLoader.item.close === "function") {
             contentLoader.item.close();
         }
-        // 延迟销毁以保证动画执行
-        Qt.callLater(() => Qt.createQmlObject(`
-            import QtQuick 2.15; Timer { interval: 300; running: true; repeat: false; onTriggered: root.contentDestroy() }`,
-            root, "DelayedClose")
-        );
+
+        closeTimer.start();
     }
 
     function contentDestroy() {
         contentComponent = "";
         contentLoader.source = "";
         panelState = stateClosed;
+    }
+
+    Timer {
+        id: closeTimer
+        interval: 250
+        running: false
+        repeat: false
+        onTriggered: root.contentDestroy()
     }
 
     HyprlandFocusGrab {
@@ -111,7 +108,6 @@ PanelWindow {
         property real panelRadius: 25 
         property bool opened: false 
 
-        // 计算尺寸和执行动画
         implicitWidth: (contentLoader.item?.implicitWidth ?? 0) + panelRadius * 2 
         implicitHeight: opened ? (contentLoader.item?.implicitHeight ?? 0) : 0 
         clip: true 
@@ -120,7 +116,7 @@ PanelWindow {
         layer.effect: DropShadow {
             color: "#80000000"
             radius: 16
-            samples: radius * 2 // 提高阴影质量
+            samples: radius * 2
             cached: true
         }
 
@@ -158,6 +154,9 @@ PanelWindow {
                 if (status === Loader.Ready && panelState === stateLoading) {
                     panelState = stateOpen;
                     panelFrame.opened = true;
+                } else if(status === Loader.Error){
+                    console.error("[ERROR] Failed to load panel:", source);
+                    root.contentDestroy();
                 }
             }
             onLoaded:{

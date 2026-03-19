@@ -7,7 +7,6 @@ import qs.services
 Item {
     id: root
 
-    // 这个属性将由 PanelWrapper 中的 Loader 自动注入
     required property var panelWrapper
     property int currentIndex: 0
 
@@ -141,9 +140,6 @@ Item {
                     AppModel.filterText = text;
                 }
             }
-
         }
-
     }
-
 }

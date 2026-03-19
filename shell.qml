@@ -25,7 +25,7 @@ ShellRoot {
 
                 property int cornerRadius: 20
 
-                WlrLayershell.namespace: "QuickShell-Bar"
+                WlrLayershell.namespace: "PurcleShell"
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
                 color: "transparent"
                 anchors.top: true
@@ -46,11 +46,9 @@ ShellRoot {
 
                     Components.RoundCorner {
                         id: leftCorner
-
                         size: barPanel.cornerRadius
                         color: "#1e1e2e"
                         corner: Components.RoundCorner.CornerEnum.TopLeft
-
                         anchors {
                             top: bar.bottom
                             left: parent.left
@@ -59,11 +57,9 @@ ShellRoot {
 
                     Components.RoundCorner {
                         id: rightCorner
-
                         size: barPanel.cornerRadius
                         color: "#1e1e2e"
                         corner: Components.RoundCorner.CornerEnum.TopRight
-
                         anchors {
                             right: parent.right
                             top: bar.bottom
@@ -105,7 +101,7 @@ ShellRoot {
 
     GlobalShortcut {
         name: "clipboard"
-        description: qsTr("Start a clipboard to execute applications")
+        description: qsTr("Start a clipboard")
         onPressed: {
             panelWrapper.open(Quickshell.shellPath("modules/panels/ClipBoardPanel.qml"), {
             });
@@ -117,6 +113,14 @@ ShellRoot {
         description: qsTr("Start a dashboard for system controls")
         onPressed: {
             panelWrapper.open(Quickshell.shellPath("modules/panels/DashBoardPanel.qml"), {
+            });
+        }
+    }
+    GlobalShortcut {
+        name:"wallpaper"
+        description: qsTr("start a wallpaper selector")
+        onPressed:{
+            panelWrapper.open(Quickshell.shellPath("modules/panels/WallpaperPanel.qml"), {
             });
         }
     }

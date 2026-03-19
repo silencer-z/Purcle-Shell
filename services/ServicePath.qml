@@ -19,7 +19,7 @@ Singleton {
     readonly property string stateDir: `${home}/.local/state`
 
     readonly property string cacheDir: Quickshell.env("XDG_CACHE_DIR") || `${home}/.cache`
-    readonly property string currentWallpaperFile: `${cacheDir}/wall/path.txt`
+    readonly property string currentWallpaperFile: `${cacheDir}/PurcleShell/wallpaper.txt`
     readonly property string currentWallpaper: wallpaperPath.text().trim()
 
     readonly property string wallpaperDir: Config.wallpaper.wallpaperDir
@@ -57,7 +57,7 @@ Singleton {
     FileView {
         id: wallpaperPath
 
-        path: `${root.cacheDir}/wall/path.txt`
+        path: `${root.cacheDir}/PurcleShell/wallpaper.txt`
         watchChanges: true
         onFileChanged: reload()
     }
