@@ -50,7 +50,7 @@ Singleton {
     }
 
     function imagePathFor(id) {
-        return cacheDir + "/" + id + ".png"
+        return "file://" + cacheDir + "/" + id + ".png"
     }
 
     /* ================== Internal ================== */
@@ -103,29 +103,30 @@ Singleton {
 
     // 异步解码图片
     function ensureImageCached(item, index) {
-        // 先检查文件是否已经存在（避免重复解码浪费资源）
-        // 这里只是简单的触发，真正的去重判断比较复杂，现在的逻辑是每次刷新都尝试解码
-        // 更好的方式是用 ls 或者 test -f 检查，但为了性能简单起见，覆盖写入也可以
-        const path = imagePathFor(item.id)
-
+        const path = imagePathFor(item.id).replace("file://", "")
+        const targetIndex = index
+        const targetPath = path
+        
+        // 创建动态对象时，将 model 直接作为属性传入
         const proc = Qt.createQmlObject(`
+            import QtQuick
             import Quickshell.Io
             Process {
-                command: ["bash", "-c", "if [ ! -f '${path}' ]; then cliphist decode ${item.id} > ${path}; fi"]
+                property var targetModel: null
+                command: ["bash", "-c", "if [ ! -f '${targetPath}' ]; then cliphist decode ${item.id} > '${targetPath}' 2>/dev/null; fi"]
                 onExited: (code) => {
-                    // 只有当文件确实存在或解码成功后才更新 UI
-                    if (ClipModel.itemModel.count > index) {
-                        let data = ClipModel.itemModel.get(index)
-                        if (data && data.id === "${item.id}") {
-                            data.cached = true
-                            data.imagePath = "${path}"
-                        }
+                    // 通过传入的 model 属性来访问，避免单例访问问题
+                    if (targetModel && targetModel.count > ${targetIndex}) {
+                        targetModel.setProperty(${targetIndex}, "cached", true)
+                        targetModel.setProperty(${targetIndex}, "imagePath", "file://${targetPath}")
                     }
                     destroy()
                 }
             }
         `, root, "ImageDecoder")
 
+        // 将 model 直接传递给动态对象
+        proc.targetModel = model
         proc.running = true
     }
 

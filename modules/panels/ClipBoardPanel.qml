@@ -8,8 +8,12 @@ Item {
     required property var panelWrapper
     property int currentIndex: 0
 
+    readonly property int maxPanelHeight: 800
+    readonly property int headerHeight: 80  // 标题栏高度
+    readonly property int itemHeight: 66    // 每个列表项的高度(60+6间距)
+
     implicitWidth: 600
-    implicitHeight: Math.max(600, ClipModel.itemModel.count * 80 + 80)
+    implicitHeight: Math.max(600,Math.min(maxPanelHeight, headerHeight + (ClipModel.itemModel?.count || 0) * itemHeight))
 
     function close() {
         currentIndex = 0
@@ -123,7 +127,7 @@ Item {
                 delegate: Rectangle {
                     width: list.width
                     height: 60
-                    radius: 10
+                    radius: 8
                     color: ListView.isCurrentItem ? "#313244" : "transparent"
 
                     // 鼠标悬停交互
@@ -162,14 +166,16 @@ Item {
                         }
 
                         // 2. 内容预览
-                        Item {
+                        Rectangle {
                             Layout.fillWidth: true
-                            Layout.fillHeight: true
+                            height: 40
+                            color: "transparent"
 
                             // 文本/文件路径显示
                             Text {
                                 visible: model.type !== "image"
                                 anchors.fill: parent
+                                anchors.margins: 4
                                 text: {
                                     if (model.type === "file") {
                                         return decodeURIComponent(model.preview.replace("file://", ""))
@@ -179,19 +185,19 @@ Item {
                                 color: "#cdd6f4"
                                 font.pixelSize: 14
                                 elide: Text.ElideRight
-                                verticalAlignment: Text.AlignVCenter // 垂直居中
+                                verticalAlignment: Text.AlignVCenter
                                 maximumLineCount: 2
                             }
 
                             // 图片显示
                             Image {
                                 visible: model.type === "image" && model.cached
-                                source: model.cached ? model.imagePath : ""
-                                anchors.verticalCenter: parent.verticalCenter
-                                height: parent.height
+                                source: model.imagePath || ""
+                                anchors.fill: parent
+                                anchors.margins: 4
                                 fillMode: Image.PreserveAspectFit
                                 asynchronous: true
-                                cache: false // 禁用Qt内部缓存，确保刷新
+                                cache: false
                             }
 
                             // 图片加载中提示
@@ -199,11 +205,10 @@ Item {
                                 visible: model.type === "image" && !model.cached
                                 text: "Loading..."
                                 color: "#6c7086"
-                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.centerIn: parent
                             }
                         }
 
-                        // 3. 提示文本
                         Text {
                             visible: ListView.isCurrentItem
                             text: "↵ Copy"
