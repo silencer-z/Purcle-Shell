@@ -3,6 +3,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 
+// TODO)) 出现问题的缘故在于Popupwindow?
+
 PopupWindow {
     id: trayPopup
     implicitWidth: 160
@@ -16,10 +18,12 @@ PopupWindow {
     property real anchorY: 0
     property int submenuGap: 12
     property var parentMenu: null
+    readonly property bool isHovered: menuHoverHandler.hovered
 
     anchor.item: anchorItem
     anchor.rect.x: anchorX
     anchor.rect.y: anchorY
+
 
     function showAt(item, x, y) {
         if (!item) return;
@@ -27,7 +31,6 @@ PopupWindow {
         anchorX = x;
         anchorY = y;
         visible = true;
-        // forceActiveFocus();
         Qt.callLater(() => trayPopup.anchor.updateAnchor());
     }
 
@@ -36,43 +39,18 @@ PopupWindow {
         destroySubmenus();
     }
 
-    function containsMouse() {
-        return trayPopup.containsMouse;
-    }
-
     function destroySubmenus() {
-        if (!listView.contentItem.children) return;
-        for (let child of listView.contentItem.children) {
-            if (child.subMenu) {
-                child.subMenu.hideMenu();
-                child.subMenu.destroy();
-                child.subMenu = null;
+        if (!listView.contentItem || !listView.contentItem.children) return;
+        let childrenCount = listView.contentItem.children.length;
+        for (let i = 0; i < childrenCount; i++) {
+            let childItem = listView.contentItem.children[i];
+            let loader = childItem["submenuLoader"];
+            if (loader !== undefined && loader.active) {
+                if (loader.item !== null && typeof loader.item["hideMenu"] === "function") {
+                    loader.item["hideMenu"]();
+                }
+                loader.active = false;
             }
-        }
-    }
-
-    function openSubmenu(entry, modelData) {
-        destroySubmenus();
-
-        // 计算位置
-        var globalPos = entry.mapToGlobal(0, 0);
-        var submenuWidth = implicitWidth;
-        var openLeft = (globalPos.x + entry.width + submenuWidth > Screen.width);
-        var offsetX = openLeft ? -submenuWidth - submenuGap : entry.width + submenuGap;
-
-        // 使用 Qt.createComponent 创建新的 TrayPopup
-        var comp = Qt.createComponent("TrayPopup.qml");
-        if (comp.status === Component.Ready) {
-            entry.subMenu = comp.createObject(trayPopup, {
-                menu: modelData,
-                anchorItem: entry,
-                anchorX: offsetX,
-                anchorY: 0,
-                parentMenu: trayPopup
-            });
-            entry.subMenu.showAt(entry, offsetX, 0);
-        } else {
-            console.error("Failed to create submenu component");
         }
     }
 
@@ -82,6 +60,9 @@ PopupWindow {
         border.color: "#cba6f7"
         border.width: 1
         radius: 12
+        HoverHandler {
+            id: menuHoverHandler
+        }
     }
 
     QsMenuOpener {
@@ -105,12 +86,46 @@ PopupWindow {
         delegate: Rectangle {
             id: entry
             required property var modelData
-            property var subMenu: null
+
+            property alias submenuLoader: internalLoader
 
             width: listView.width
             height: (modelData?.isSeparator) ? 6 : 28
             color: "transparent"
             radius: 12
+
+            Loader {
+                id: internalLoader
+                active: false
+                source: "TrayPopup.qml"
+
+                onLoaded: {
+                    var globalPos = entry.mapToGlobal(0, 0);
+                    var submenuWidth = trayPopup.implicitWidth;
+                    var openLeft = (globalPos.x + entry.width + submenuWidth > Screen.width);
+                    var offsetX = openLeft ? -submenuWidth - trayPopup.submenuGap : entry.width + trayPopup.submenuGap;
+
+                    item.menu = modelData;
+                    item.anchorItem = entry;
+                    item.anchorX = offsetX;
+                    item.anchorY = 0;
+                    item.parentMenu = trayPopup;
+                    item.showAt(entry, offsetX, 0);
+                }
+            }
+
+            Timer {
+                id: closeTimer
+                interval: 300
+                running: !mouseArea.containsMouse && internalLoader.active && internalLoader.item !== null && !internalLoader.item["isHovered"]
+                repeat: false
+                onTriggered: {
+                    if (internalLoader.active && internalLoader.item) {
+                        internalLoader.item.hideMenu();
+                        internalLoader.active = false;
+                    }
+                }
+            }
 
             // 分隔线
             Rectangle {
@@ -180,33 +195,15 @@ PopupWindow {
 
                     onEntered: {
                         if (!trayPopup.visible) return;
+
+                        trayPopup.destroySubmenus();
                         if (modelData?.hasChildren) {
-                            trayPopup.openSubmenu(entry, modelData);
-                        } else {
-                            trayPopup.destroySubmenus(listView);
+                            internalLoader.active = true;
                         }
                     }
-
-                    onExited: {
-                        if (subMenu && !subMenu.containsMouse()) {
-                            subMenu.hideMenu();
-                            subMenu.destroy();
-                            subMenu = null;
-                        }
-                    }
-                }
-            }
-
-            function containsMouse() {
-                return mouseArea.containsMouse;
-            }
-
-            Component.onDestruction: {
-                if (subMenu) {
-                    subMenu.destroy();
-                    subMenu = null;
                 }
             }
         }
     }
+
 }
