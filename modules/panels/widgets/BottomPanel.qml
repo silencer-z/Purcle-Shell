@@ -10,8 +10,7 @@ PanelWidget {
     // { icon: "bedtime", text: "Suspend", color: "#cba6f7", command: "systemctl suspend" }
 
     id: root
-    color: "#313244"
-    border.color: "#45475a"
+    // color: "#313244"
     radius: 20
     
 

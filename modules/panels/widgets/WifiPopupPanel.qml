@@ -30,29 +30,8 @@ Popup {
 
     // Popup 打开时自动扫描网络
     onOpened: {
-        console.log("WiFi Popup opened");
-        console.log("Popup width:", width);
-        console.log("Popup height:", height);
-        console.log("Popup visible:", visible);
-        console.log("Network.isScanning:", Network.isScanning);
-        console.log("Available networks count:", Network.availableNetworksCount);
-
         if (!Network.isScanning) {
-            console.log("Triggering network scan...");
             Network.scanNetworks();
-        } else {
-            console.log("Already scanning, skipping...");
-        }
-    }
-
-    // 监听扫描状态变化
-    Connections {
-        target: Network
-        function onIsScanningChanged() {
-            console.log("Scan status changed:", Network.isScanning);
-        }
-        function onAvailableNetworksCountChanged() {
-            console.log("Available networks changed, count:", Network.availableNetworksCount);
         }
     }
 
@@ -68,6 +47,7 @@ Popup {
     contentItem: ColumnLayout {
         id: contentColumn
         width: parent.width
+        height:parent.height
         spacing: 8
 
         // 扫描状态指示器
@@ -157,45 +137,12 @@ Popup {
             clip: true
             boundsBehavior: Flickable.StopAtBounds
 
-            // 调试信息
-            Component.onCompleted: {
-                console.log("ListView loaded");
-                console.log("  model:", model);
-                console.log("  count:", model.count);
-                console.log("  visible:", visible);
-                console.log("  Network.isScanning:", Network.isScanning);
-                console.log("  Network.availableNetworksCount:", Network.availableNetworksCount);
-                console.log("  ListView width:", width);
-            }
-
-            Connections {
-                target: Network
-                function onAvailableNetworksCountChanged() {
-                    console.log("Network count changed to:", Network.availableNetworksCount);
-                    console.log("  ListView count:", model.count);
-                    console.log("  ListView visible:", visible);
-                    console.log("  Popup width:", root.width);
-                    console.log("  Popup height:", root.height);
-                    console.log("  contentColumn.implicitHeight:", contentColumn.implicitHeight);
-                }
-            }
-
             delegate: Rectangle {
                 width: ListView.view ? ListView.view.width : 0
                 height: 55
                 radius: 8
                 color: Network.networkName === model.ssid ? "#45475a" : "#313244"
                 visible: true
-
-                // 调试信息
-                Component.onCompleted: {
-                    console.log("Delegate created:");
-                    console.log("  model:", model);
-                    console.log("  model.ssid:", model.ssid);
-                    console.log("  model.signal:", model.signal);
-                    console.log("  index:", index);
-                    console.log("  visible:", visible);
-                }
 
                 RowLayout {
                     anchors.fill: parent
@@ -361,21 +308,6 @@ Popup {
             Layout.preferredHeight: 60
             verticalAlignment: Text.AlignVCenter
             visible: !Network.isScanning && Network.availableNetworksCount === 0
-        }
-
-        // 调试信息 - 显示模型状态
-        Rectangle {
-            Layout.fillWidth: true
-            height: 40
-            radius: 8
-            color: "#45475a"
-
-            StyledText {
-                anchors.centerIn: parent
-                text: `调试: 模型数量=${Network.availableNetworksCount}, 扫描状态=${Network.isScanning}, ListView可见=${availableNetworksList.visible}`
-                font.pixelSize: 11
-                color: "#a6adc8"
-            }
         }
     }
 

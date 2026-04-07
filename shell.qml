@@ -2,7 +2,6 @@ import "./components" as Components
 import "./modules/bar"
 import "./modules/panels" as Panels
 import "./modules/popups" as Popups
-import "./services" as Services
 import Qt5Compat.GraphicalEffects
 import QtQuick
 import Quickshell
@@ -17,14 +16,10 @@ ShellRoot {
 
         Scope {
             id: scope
-
             required property ShellScreen modelData
-
             PanelWindow {
                 id: barPanel
-
                 property int cornerRadius: 20
-
                 WlrLayershell.namespace: "PurcleShell"
                 WlrLayershell.exclusionMode: ExclusionMode.Ignore
                 color: "transparent"
@@ -36,14 +31,13 @@ ShellRoot {
                 exclusiveZone: bar.implicitHeight
 
                 Item {
-                    anchors.fill: parent // 填充整个窗口
+                    anchors.fill: parent
                     layer.enabled: true
 
                     Bar {
                         id: bar
                         screen: scope.modelData
                     }
-
                     Components.RoundCorner {
                         id: leftCorner
                         size: barPanel.cornerRadius
@@ -54,7 +48,6 @@ ShellRoot {
                             left: parent.left
                         }
                     }
-
                     Components.RoundCorner {
                         id: rightCorner
                         size: barPanel.cornerRadius
@@ -65,7 +58,6 @@ ShellRoot {
                             top: bar.bottom
                         }
                     }
-
                     layer.effect: DropShadow {
                         color: "#80000000"
                         radius: 16
@@ -73,7 +65,6 @@ ShellRoot {
                         cached: true
                     }
                 }
-
                 mask: Region {
                     x: bar.x
                     y: bar.y
@@ -118,7 +109,7 @@ ShellRoot {
     }
     GlobalShortcut {
         name:"wallpaper"
-        description: qsTr("start a wallpaper selector")
+        description: qsTr("Start a wallpaper selector")
         onPressed:{
             panelWrapper.open(Quickshell.shellPath("modules/panels/WallpaperPanel.qml"), {
             });

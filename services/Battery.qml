@@ -1,70 +1,116 @@
 pragma Singleton
 
-import QtQuick
 import Quickshell
-import Quickshell.Io
 import Quickshell.Services.UPower
+import QtQuick
+import Quickshell.Io
+
+import qs.services
 
 Singleton {
     id: root
+    property bool available: UPower.displayDevice.isLaptopBattery
+    property var chargeState: UPower.displayDevice.state
+    property bool isCharging: chargeState == UPowerDeviceState.Charging
+    property bool isPluggedIn: isCharging || chargeState == UPowerDeviceState.PendingCharge
+    property real percentage: UPower.displayDevice?.percentage ?? 1
+    readonly property bool allowAutomaticSuspend: true
+    readonly property bool soundEnabled: false
 
-    readonly property bool charging: UPower.displayDevice.state == UPowerDeviceState.Charging
-    property int foundBattery: 0
-    property var batteries: []
-    property real totalDesignCapacity: 0
-    property real totalCurrentCapacity: 0
-    property real overallBatteryHealth: 0
+    property bool isLow: available && (percentage <= 20 / 100)
+    property bool isCritical: available && (percentage <= 5 / 100)
+    property bool isSuspending: available && (percentage <= 1 / 100)
+    property bool isFull: available && (percentage >= 98 / 100)
 
-    function formatCapacity(microWh) {
-        return (microWh / 1000000).toFixed(2) + " Wh";
+    property bool isLowAndNotCharging: isLow && !isCharging
+    property bool isCriticalAndNotCharging: isCritical && !isCharging
+    property bool isSuspendingAndNotCharging: allowAutomaticSuspend && isSuspending && !isCharging
+    property bool isFullAndCharging: isFull && isCharging
+
+    property real energyRate: UPower.displayDevice.changeRate
+    property real timeToEmpty: UPower.displayDevice.timeToEmpty
+    property real timeToFull: UPower.displayDevice.timeToFull
+
+    property real health: (function() {
+        const devList = UPower.devices.values;
+        for (let i = 0; i < devList.length; ++i) {
+            const dev = devList[i];
+            if (dev.isLaptopBattery && dev.healthSupported) {
+                const health = dev.healthPercentage;
+                if (health === 0) {
+                    return 0.01;
+                } else if (health < 1) {
+                    return health * 100;
+                } else {
+                    return health;
+                }
+            }
+        }
+        return 0;
+    })()
+
+
+    onIsLowAndNotChargingChanged: {
+        if (!root.available || !isLowAndNotCharging) return;
+        Quickshell.execDetached([
+            "notify-send", 
+            "Low battery", 
+            "Consider plugging in your device", 
+            "-u", "critical",
+            "-a", "Shell",
+            "--hint=int:transient:1",
+        ])
+
     }
 
-    Process {
-        command: ["sh", "-c", "ls -d /sys/class/power_supply/BAT* | wc -l"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.foundBattery = parseInt(text.trim());
-            }
+    onIsCriticalAndNotChargingChanged: {
+        if (!root.available || !isCriticalAndNotCharging) return;
+        Quickshell.execDetached([
+            "notify-send", 
+            "Critically low battery", 
+            "Please charge!\nAutomatic suspend triggers at 1%", 
+            "-u", "critical",
+            "-a", "Shell",
+            "--hint=int:transient:1",
+        ]);
+
+    }
+
+    onIsSuspendingAndNotChargingChanged: {
+        if (root.available && isSuspendingAndNotCharging) {
+            Quickshell.execDetached(["bash", "-c", `systemctl suspend || loginctl suspend`]);
         }
     }
 
-    Process {
-        id: batteryHealthProc
+    onIsFullAndChargingChanged: {
+        if (!root.available || !isFullAndCharging) return;
+        Quickshell.execDetached([
+            "notify-send",
+            "Battery full",
+            "Please unplug the charger",
+            "-a", "Shell",
+            "--hint=int:transient:1",
+        ]);
+    }
 
-        command: ["sh", "-c", "for bat in /sys/class/power_supply/BAT*; do echo $(basename $bat); cat $bat/energy_full_design; cat $bat/energy_full; done"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const lines = text.trim().split('\n');
-                const batteryArray = [];
-                let totalDesign = 0;
-                let totalCurrent = 0;
-
-                for (var i = 0; i < lines.length; i += 3) {
-                    if (i + 2 < lines.length) {
-                        const name = lines[i];
-                        const designCapacity = parseInt(lines[i + 1]);
-                        const currentCapacity = parseInt(lines[i + 2]);
-                        const health = ((currentCapacity / designCapacity) * 100).toFixed(2);
-
-                        batteryArray.push({
-                            name: name,
-                            designCapacity: designCapacity,
-                            currentCapacity: currentCapacity,
-                            health: parseFloat(health)
-                        });
-
-                        totalDesign += designCapacity;
-                        totalCurrent += currentCapacity;
-                    }
-                }
-
-                root.batteries = batteryArray;
-                root.totalDesignCapacity = totalDesign;
-                root.totalCurrentCapacity = totalCurrent;
-                root.overallBatteryHealth = ((totalCurrent / totalDesign) * 100).toFixed(2);
-            }
+    onIsPluggedInChanged: {
+        if (!root.available || !root.soundEnabled) return;
+        if (isPluggedIn) {
+            Quickshell.execDetached([
+                "notify-send",
+                "Battery starts charging",
+                "Charger plugged in, charging started.",
+                "-a", "Shell",
+                "--hint=int:transient:1",
+            ]);
+        } else {
+            Quickshell.execDetached([
+                "notify-send",
+                "Battery Stop charging",
+                "Charger removed.",
+                "-a", "Shell",
+                "--hint=int:transient:1",
+            ]);
         }
     }
 }

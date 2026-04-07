@@ -8,12 +8,13 @@ Item {
     required property var panelWrapper
     property int currentIndex: 0
 
+    // 最大高度限制为800像素，防止超出GPU纹理限制
     readonly property int maxPanelHeight: 800
     readonly property int headerHeight: 80  // 标题栏高度
     readonly property int itemHeight: 66    // 每个列表项的高度(60+6间距)
 
     implicitWidth: 600
-    implicitHeight: Math.max(600,Math.min(maxPanelHeight, headerHeight + (ClipModel.itemModel?.count || 0) * itemHeight))
+    implicitHeight: Math.min(maxPanelHeight, headerHeight + (ClipModel.itemModel?.count || 0) * itemHeight)
 
     function close() {
         currentIndex = 0
@@ -99,6 +100,8 @@ Item {
                 id: list
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                highlightFollowsCurrentItem:true
+                highlightMoveDuration:100
 
                 model: ClipModel.itemModel
                 currentIndex: root.currentIndex
@@ -112,15 +115,20 @@ Item {
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Escape) {
                         root.close()
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
                         decrementCurrentIndex()
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
                         incrementCurrentIndex()
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         ClipModel.copy(model.get(currentIndex))
                         root.close()
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Delete) {
                         ClipModel.deleteItem(model.get(currentIndex))
+                        event.accepted = true
                     }
                 }
 
@@ -209,6 +217,7 @@ Item {
                             }
                         }
 
+                        // 3. 提示文本
                         Text {
                             visible: ListView.isCurrentItem
                             text: "↵ Copy"

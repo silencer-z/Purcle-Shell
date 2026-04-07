@@ -10,8 +10,7 @@ PanelWidget {
     id: root
     height: 600
     width: 400
-    color: "#313244"
-    border.color: "#45475a"
+    // color: "#313244"
     radius: 20
 
     // ---------------- 主要布局 ----------------

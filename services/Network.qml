@@ -38,6 +38,7 @@ Singleton {
         }
     }
 
+    // 是否连接网络或者WIFI
     Process {
         id: updateConnectionType
         property string buffer
@@ -67,6 +68,7 @@ Singleton {
         }
     }
 
+    // 网络名称
     Process {
         id: updateNetworkName
         command: ["sh", "-c", "nmcli -t -f NAME c show --active | head -1"]
@@ -78,10 +80,11 @@ Singleton {
         }
     }
 
+    // 信号强度
     Process {
         id: updateNetworkStrength
         running: true
-        command: ["sh", "-c", "nmcli -f IN-USE,SIGNAL,SSID device wifi | awk '/^\*/{if (NR!=1) {print $2}}'"]
+        command: ["sh", "-c", "nmcli -f IN-USE,SIGNAL,SSID device wifi | awk '/^\\*/{if (NR!=1) {print $2}}'"]
         stdout: SplitParser {
             onRead: data => {
                 root.networkStrength = parseInt(data);
@@ -204,7 +207,6 @@ Singleton {
         running: false
 
         onExited: (exitCode, exitStatus) => {
-            // 连接完成后更新状态
             root.update();
         }
     }

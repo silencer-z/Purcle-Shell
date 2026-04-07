@@ -63,7 +63,7 @@ Item {
                     ControlSlider {
                         id: volumeSlider
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 120
+                        Layout.preferredHeight: 100
                     }
 
                     MediaWidget {
@@ -79,8 +79,6 @@ Item {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignCenter
                     }
-
-
                 }
 
                 ColumnLayout {

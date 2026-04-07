@@ -8,7 +8,6 @@ PanelWidget {
     id: root
 
     color: "#313244"
-    border.color: "#45475a"
     radius: 20
     height: 300
 

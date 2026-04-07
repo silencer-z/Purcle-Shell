@@ -1,22 +1,24 @@
 import QtQuick
 import Quickshell
-import Quickshell.Widgets
 
 import qs.components
 import qs.Configs
 import qs.services
 
 Item{
+    id:root
+
     required property var panelWrapper
+
     function close() {
         console.log("wallpaper selector close");
     }
 
     function init() {
-        console.log("wallpaper selector init");
+        wallpaperPath.forceActiveFocus();
     }
 
-    implicitWidth: 950
+    implicitWidth: 1150
     implicitHeight: 300
 
     function setWallpaper(path:string):void{
@@ -24,7 +26,7 @@ Item{
             command: ["sh", "-c", `printf '%s' ${JSON.stringify(path)} > ${JSON.stringify(ServicePath.currentWallpaperFile)}`]
         })
         Quickshell.execDetached({
-            command: ["swww", "img", "-o", "", path,"--transition-type","random"]
+            command: ["awww", "img", "-o", "", path,"--transition-type","random"]
         });
     }
 
@@ -37,19 +39,19 @@ Item{
         anchors.leftMargin:0
         anchors.rightMargin:0
 
-        readonly property real unitWidth: width / (Config.wallpaper.visibleWallpaper + 1)
+        readonly property real unitWidth: width / 5
 
         model: ScriptModel {
             values: ServiceWallpaper.filteredWallpaperList
         }
-        pathItemCount: Config.wallpaper.visibleWallpaper
+        pathItemCount: 3
         preferredHighlightBegin: 0.5
         preferredHighlightEnd: 0.5
-        clip: true
-        cacheItemCount: Config.wallpaper.visibleWallpaper + 2
+        clip:true
+        focus:true
+        cacheItemCount: 5
 
         Component.onCompleted: {
-            forceActiveFocus()
             function trySetIndex() {
                 if (ServiceWallpaper.wallpaperList.length > 0) {
                     const idx = ServiceWallpaper.wallpaperList.indexOf(ServicePath.currentWallpaper);
@@ -79,38 +81,58 @@ Item{
 
             readonly property bool isCurrent: PathView.isCurrentItem
 
-            // Center card = 2 units wide, side cards = 1 unit wide
-            implicitWidth: isCurrent ? wallpaperPath.unitWidth * 2 : wallpaperPath.unitWidth
+            implicitWidth: isCurrent ? wallpaperPath.unitWidth * 3 : wallpaperPath.unitWidth*2
             implicitHeight: wallpaperPath.height
 
             z: isCurrent ? 100 : 1
-            opacity: isCurrent ? 1.0 : 0.92
+            opacity: isCurrent ? 1.0 : 0.85
 
             Behavior on implicitWidth {
                 NumberAnimation {
-                    duration: Config.appearance.animations.durations.normal;
+                    duration: 150;
                     easing.type: Easing.OutCubic 
                 }
             }
 
             Behavior on opacity {
                 NumberAnimation {
-                    duration: Config.appearance.animations.durations.normal;
+                    duration: 150;
                     easing.type: Easing.OutCubic 
                 }
             }
 
-            ClippingRectangle {
-                id: cardRect
 
-                anchors.centerIn: parent
-                // Gap between cards scales with unit width so it looks proportional at any count
-                implicitWidth: parent.width - (delegateItem.isCurrent ? Math.max(20, wallpaperPath.unitWidth * 0.3) : Math.max(12, wallpaperPath.unitWidth * 0.2))
-                implicitHeight: parent.height
+            Rectangle {
+                id: cardRect;
+                anchors.centerIn: parent;
+                implicitWidth: parent.width - (delegateItem.isCurrent ? Math.max(20, wallpaperPath.unitWidth * 1) : Math.max(10, wallpaperPath.unitWidth * 0.5))
+                implicitHeight: parent.height;
+                scale:delegateItem.isCurrent?1:0.8
+                clip:true;
+                layer.enabled:true;
+                radius: delegateItem.isCurrent ? 20 : 20;
 
-                radius: delegateItem.isCurrent ? Config.appearance.rounding.large : 20
+                Image {
+                    id:wallpaperImg
+                    anchors.fill: parent
+                    source: "file://" + delegateItem.modelData
+                    sourceSize: Qt.size(200, 200)
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    cache: true
+                }
 
-                color: "transparent"
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if (!delegateItem.isCurrent) {
+                            wallpaperPath.currentIndex = delegateItem.index;
+                        } else {
+                            setWallpaper(delegateItem.modelData)
+                        }
+                    }
+                }
 
                 Behavior on implicitWidth {
                     NumberAnimation {
@@ -124,67 +146,29 @@ Item{
                         easing.type: Easing.OutCubic 
                     }
                 }
-                Behavior on radius {
+                Behavior on scale {
                     NumberAnimation {
                         duration: Config.appearance.animations.durations.normal;
                         easing.type: Easing.OutCubic 
                     }
                 }
-
-                Image {
-                    anchors.fill: parent
-                    source: "file://" + delegateItem.modelData
-                    sourceSize: Qt.size(200, 200)
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                    cache: true
-                }
-
-                Rectangle {
-                    anchors.fill: parent
-                    radius: cardRect.radius
-                    color: Qt.rgba(0, 0, 0, delegateItem.isCurrent ? 0.0 : 0.22)
-
-                    Behavior on color {
-                        ColorAnimation {
-                            duration: Config.appearance.animations.durations.normal
-                        }
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: {
-                        if (!delegateItem.isCurrent) {
-                            wallpaperPath.currentIndex = delegateItem.index;
-                        } else {
-                            setWallpaper(delegateItem.modelData)
-                        }
-                    }
-                }
             }
         }
+    }
 
-        Keys.onPressed: event => {
-            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                setWallpaper(ServiceWallpaper.filteredWallpaperList[currentIndex])
-                event.accepted = true;
-            }
-            if (event.key === Qt.Key_Escape) {
-                panelWrapper.close();
-                event.accepted = true;
-            }
-
-            if (event.key === Qt.Key_Left) {
-                decrementCurrentIndex();
-                event.accepted = true;
-            }
-            if (event.key === Qt.Key_Right) {
-                incrementCurrentIndex();
-                event.accepted = true;
-            }
+    Keys.onPressed: (event) => {
+        if (event.key === Qt.Key_Escape) {
+            panelWrapper.close();
+            event.accepted = true;
+        }else if (event.key === Qt.Key_Left) {
+            wallpaperPath.decrementCurrentIndex();
+            event.accepted = true;
+        }else if (event.key === Qt.Key_Right) {
+            wallpaperPath.incrementCurrentIndex();
+            event.accepted = true;
+        }else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            setWallpaper(ServiceWallpaper.filteredWallpaperList[wallpaperPath.currentIndex])
+            event.accepted = true;
         }
     }
 }

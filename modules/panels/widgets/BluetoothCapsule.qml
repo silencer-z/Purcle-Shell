@@ -57,12 +57,9 @@ Item {
     // 胶囊背景
     Rectangle {
         id: capsule
-
         anchors.fill: parent
         radius: 20
         color: "#313244"
-        border.color: "#45475a"
-        border.width: 1
     }
 
     RowLayout {

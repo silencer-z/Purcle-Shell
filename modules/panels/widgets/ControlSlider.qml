@@ -10,16 +10,15 @@ PanelWidget {
     id: root
 
     color: "#313244"
-    border.color: "#45475a"
-    height: 60
+    height: 40
     radius: 20
     ColumnLayout{
         anchors.fill:parent
         anchors.margins:10
         RowLayout {
-            // anchors.fill: parent
-            anchors.margins: 5
-            spacing: 12
+
+            anchors.margins: 4
+            spacing: 8
 
             // Volume icon
             IconText {
@@ -28,11 +27,10 @@ PanelWidget {
                     if (!AudioService.sink?.audio) return "volume_off";
                     const volume = AudioService.sink.audio.volume;
                     if (volume === 0) return "volume_off";
-                    if (volume < 0.33) return "volume_mute";
-                    if (volume < 0.66) return "volume_down";
+
                     return "volume_up";
                 }
-                size: 30
+                size: 25
                 color: "#89b4fa"
                 Layout.alignment: Qt.AlignVCenter
             }
@@ -40,9 +38,9 @@ PanelWidget {
             StyledSlider {
                 id: volumeSlider
                 Layout.fillWidth: true
-                Layout.preferredHeight: 30
+                Layout.preferredHeight: 20
                 value: AudioService.sink?.audio?.volume ?? 0
-                configuration: StyledSlider.Configuration.M
+                configuration: StyledSlider.Configuration.S
                 highlightColor: "#89b4fa"
                 trackColor: "#45475a"
                 handleColor: "#89b4fa"
@@ -98,9 +96,8 @@ PanelWidget {
         }
 
         RowLayout {
-            // anchors.fill: parent
             anchors.margins: 5
-            spacing: 12
+            spacing: 8
 
             // Brightness icon
             IconText {
@@ -109,7 +106,7 @@ PanelWidget {
                     const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
                     return focusedMonitor?.iconName ?? "brightness_6";
                 }
-                size: 30
+                size: 25
                 color: "#f9e2af"
                 Layout.alignment: Qt.AlignVCenter
             }
@@ -118,12 +115,12 @@ PanelWidget {
             StyledSlider {
                 id: brightnessSlider
                 Layout.fillWidth: true
-                Layout.preferredHeight: 30
+                Layout.preferredHeight: 20
                 value: {
                     const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
                     return focusedMonitor?.brightness ?? 0.5;
                 }
-                configuration: StyledSlider.Configuration.M
+                configuration: StyledSlider.Configuration.S
                 highlightColor: "#f9e2af"
                 trackColor: "#45475a"
                 handleColor: "#f9e2af"

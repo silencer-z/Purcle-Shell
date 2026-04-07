@@ -27,14 +27,12 @@ Item {
         anchors.fill: parent
         radius: 20
         color: "#313244"
-        border.color: "#45475a"
-        border.width: 1
     }
 
     RowLayout {
         anchors.fill: parent
         anchors.margins: 15
-        spacing: 12
+        spacing: 8
 
         // WiFi图标
         IconText {
@@ -91,13 +89,10 @@ Item {
                 onClicked: {
                     expanded = !expanded;
                     if (expanded && Network.availableNetworksCount === 0) {
-                        console.log("Expanding WiFi capsule, triggering scan...");
                         Network.scanNetworks();
                     }
                 }
             }
-
         }
-
     }
 }

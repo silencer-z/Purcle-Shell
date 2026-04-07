@@ -12,7 +12,6 @@ PanelWidget {
     height: 200
     radius: 20
     color: "#313244"
-    border.color: "#45475a"
 
     layer.enabled: true
     layer.effect: OpacityMask {
@@ -36,7 +35,7 @@ PanelWidget {
         radius: 14
         property string iconName
         signal clicked()
-        color: ma.hovered ? "#E0D6F0" : "#E8DEF8"
+        color: ma.hovered ? "#E0D6F0" : "transparent"
         Behavior on color { ColorAnimation { duration: 150 } }
 
         IconText {
@@ -54,25 +53,6 @@ PanelWidget {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: parent.clicked()
-        }
-    }
-
-
-    // === 背景模糊封面 ===
-    Image {
-        id: blurredArt
-        anchors.fill: parent
-        source: root.displayArt
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            source: blurredArt
-            saturation: 0.2
-            blurEnabled: true
-            blurMax: 100
-            blur: 1
         }
     }
 
@@ -107,7 +87,7 @@ PanelWidget {
                 id: trackTitle
                 Layout.fillWidth: true
                 font.pixelSize: 18
-                color: "#1D1B20"
+                color: "#cdd6f4"
                 elide: Text.ElideRight
                 text: MprisService.trackTitle
             }
@@ -116,7 +96,7 @@ PanelWidget {
                 id: trackArtist
                 Layout.fillWidth: true
                 font.pixelSize: 13
-                color: "#49454F"
+                color: "#bac2de"
                 elide: Text.ElideRight
                 text: MprisService.trackArtist
             }
