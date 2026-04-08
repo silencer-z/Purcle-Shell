@@ -8,9 +8,8 @@ Item {
     required property var panelWrapper
     property int currentIndex: 0
 
-    // 最大高度限制为800像素，防止超出GPU纹理限制
     readonly property int maxPanelHeight: 800
-    readonly property int headerHeight: 80  // 标题栏高度
+    readonly property int headerHeight: 80
     readonly property int itemHeight: 66    // 每个列表项的高度(60+6间距)
 
     implicitWidth: 600
@@ -56,7 +55,7 @@ Item {
                 }
 
                 Text {
-                    text: "Clipboard History"
+                    text: "Clipboard"
                     font.pixelSize: 20
                     font.bold: true
                     color: "#cdd6f4"

@@ -8,10 +8,6 @@ import Quickshell.Services.UPower
 Singleton{
     id:root
 
-    /* 电量 */
-    property bool batteryAvailable: UPower.displayDevice.isLaptopBattery
-    property var  chargeState: UPower.displayDevice.state
-    property real batteryPercentage: UPower.displayDevice.percentage
 
     /* 用户信息 */
     property string userName: ""

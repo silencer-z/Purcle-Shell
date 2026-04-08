@@ -30,10 +30,10 @@ Item {
     }
 
     function calculateContentHeight() {
-        var totalHeight = 70;
+        var totalHeight =90;
         var itemCount = AppModel.appModel.count;
         if (itemCount === 0)
-            return 85;
+            return 90;
 
         for (var i = 0; i < itemCount; i++) {
             var item = AppModel.appModel.values[i];
@@ -43,8 +43,8 @@ Item {
                 totalHeight += 60;
             totalHeight += 2;
         }
-        totalHeight += 20;
-        return Math.max(150, Math.min(totalHeight, 700));
+        totalHeight += 15;
+        return Math.max(90, Math.min(totalHeight, 725));
     }
 
     implicitWidth: 600
@@ -98,8 +98,7 @@ Item {
             left: parent.left
             right: parent.right
             bottom: searchBar.top
-            margins: 16
-            topMargin: 10
+            margins: 15
         }
 
     }
@@ -107,13 +106,13 @@ Item {
     Rectangle {
         id: searchBar
 
-        height: 50
-        radius: 15
+        height: 60
+        radius: 20
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: 10
-        color: "#181825"
+        anchors.margins: 15
+        color: "#313244"
 
         RowLayout {
             anchors.fill: parent

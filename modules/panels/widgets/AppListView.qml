@@ -18,11 +18,11 @@ ListView {
     currentIndex: 0
 
     highlight: Rectangle {
-        color: "#313244"
-        radius: 8
+        color: "#cba6f7"
+        radius: 20
     }
 
-    highlightMoveDuration: 100
+    highlightMoveDuration: 500
     highlightResizeDuration: 0
 
     onCurrentIndexChanged: indexChanged(currentIndex)
@@ -31,6 +31,7 @@ ListView {
         id: listViewDelegate
         required property var modelData
         required property int index
+        property bool selected: index === ListView.view.currentIndex
         width: listView.width
         height: modelData.isHeader?32:60
 
@@ -103,6 +104,7 @@ ListView {
 
                 RowLayout {
                     anchors.fill: parent
+                    anchors.margins:4
                     spacing: 12
 
                     Image {
@@ -111,7 +113,6 @@ ListView {
                         sourceSize.height: 42
                         Layout.preferredWidth: 42
                         Layout.preferredHeight: 42
-                        // scale: appMouseArea.containsMouse ? 1.1 : 1.0
                         Behavior on scale {
                             NumberAnimation {
                                 duration: 200
@@ -123,28 +124,24 @@ ListView {
 
                     Column {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: 1
 
                         StyledText {
                             width: parent.width
                             text: listViewDelegate.modelData.highlightedName
-                            font.pixelSize: 15
+                            font.pixelSize: 16
                             elide: Text.ElideRight
                             textFormat: TextEdit.RichText
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 200
-                                    easing.type: Easing.OutCubic
-                                }
-                            }
+                            color:listViewDelegate.selected?"#181825":"#cdd6f4"
                         }
 
                         StyledText {
                             width: parent.width
                             text: listViewDelegate.modelData.genericName || listViewDelegate.modelData.comment
-                            font.pixelSize: 10
+                            font.pixelSize: 12
                             elide: Text.ElideRight
                             visible: text.length > 0
+                            color:listViewDelegate.selected?"#181825":"#cdd6f4"
                             opacity: 0.7
                         }
                     }
