@@ -35,7 +35,7 @@ Item {
         spacing: 8
 
         // WiFi图标
-        IconText {
+        MaterialSymbol {
             text: Network.materialSymbol
             size: 24
             color: Network.networkName.length > 0 && Network.networkName !== "lo" ? "#a6e3a1" : "#f38ba8"
@@ -70,7 +70,7 @@ Item {
             radius: 15
             color: expanded ? "#89b4fa" : "#45475a"
 
-            IconText {
+            MaterialSymbol {
                 anchors.centerIn: parent
                 text: expanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
                 size: 18

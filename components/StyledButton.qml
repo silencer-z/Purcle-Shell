@@ -30,7 +30,7 @@ Rectangle {
         anchors.margins: 12
         spacing: 10
 
-        IconText {
+        MaterialSymbol {
             id: iconText
 
             iconSize: 18

@@ -21,7 +21,7 @@ PanelWidget {
             spacing: 8
 
             // Volume icon
-            IconText {
+            MaterialSymbol {
                 id: volumeIcon
                 text: {
                     if (!AudioService.sink?.audio) return "volume_off";
@@ -100,7 +100,7 @@ PanelWidget {
             spacing: 8
 
             // Brightness icon
-            IconText {
+            MaterialSymbol {
                 id: brightnessIcon
                 text: {
                     const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);

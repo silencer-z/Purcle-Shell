@@ -119,7 +119,7 @@ Item {
             anchors.margins: 10
             spacing: 10
 
-            IconText {
+            MaterialSymbol {
                 text: "search"
                 size: 24
                 color: "#cdd6f4"

@@ -25,7 +25,7 @@ PanelWidget {
             Layout.bottomMargin: 10
             spacing: 8
 
-            IconText {
+            MaterialSymbol {
                 text: "notifications"
                 size: 20;
                 color: NoticeService.historyModel.count > 0 ? "#f9e2af" : "#a6adc8"
@@ -54,7 +54,7 @@ PanelWidget {
                 RowLayout {
                     anchors.centerIn: parent
                     spacing: 4
-                    IconText {
+                    MaterialSymbol {
                         text: NoticeService.doNotDisturb ? "notifications_off" : "notifications_none"
                         size: 20
                         color: NoticeService.doNotDisturb ? "#1e1e2e" : "#cdd6f4"
@@ -79,7 +79,7 @@ PanelWidget {
                 Behavior on color { ColorAnimation { duration: 200 } }
 
             
-                IconText {
+                MaterialSymbol {
                     anchors.centerIn: parent
                     text: "delete_sweep"
                     size: 20
@@ -109,7 +109,7 @@ PanelWidget {
                 opacity: visible ? 1.0 : 0.0
                 Behavior on opacity { NumberAnimation { duration: 300 } }
 
-                IconText {
+                MaterialSymbol {
                     text: NoticeService.doNotDisturb ? "notifications_off" : "notifications_none"
                     size: 48
                     color: "#585b70"

@@ -63,7 +63,7 @@ Popup {
                 anchors.margins: 10
                 spacing: 8
 
-                IconText {
+                MaterialSymbol {
                     text: "wifi_find"
                     size: 18
                     color: "#a6e3a1"
@@ -90,7 +90,7 @@ Popup {
                 anchors.margins: 10
                 spacing: 8
 
-                IconText {
+                MaterialSymbol {
                     text: "refresh"
                     size: 18
                     color: "#a6e3a1"
@@ -149,7 +149,7 @@ Popup {
                     anchors.margins: 10
                     spacing: 10
 
-                    IconText {
+                    MaterialSymbol {
                         text: model.signal > 80 ? "signal_wifi_4_bar" :
                               model.signal > 60 ? "network_wifi_3_bar" :
                               model.signal > 30 ? "network_wifi_2_bar" :
@@ -179,7 +179,7 @@ Popup {
                                 color: "#a6adc8"
                             }
 
-                            IconText {
+                            MaterialSymbol {
                                 text: model.security && model.security !== "--" ? "lock" : "lock_open"
                                 size: 12
                                 color: "#f9e2af"

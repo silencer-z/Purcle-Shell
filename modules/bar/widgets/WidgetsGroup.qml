@@ -21,7 +21,7 @@ BarWidget {
             width: 3
         }
 
-        IconText {
+        MaterialSymbol {
             id: volumeIcon
             property bool hovered: audioHoverHandler.hovered
             font.pixelSize: 22
@@ -66,7 +66,7 @@ BarWidget {
 
         }
 
-        IconText {
+        MaterialSymbol {
             id: brightnessIcon
 
             property bool hovered: brightnessHoverHandler.hovered
@@ -94,7 +94,7 @@ BarWidget {
 
         }
 
-        IconText {
+        MaterialSymbol {
             id: netIcon
             property bool hovered: networkHoverHandler.hovered
             text: Network.materialSymbol
@@ -107,7 +107,7 @@ BarWidget {
             }
         }
 
-        IconText {
+        MaterialSymbol {
             id: blueToothIcon
 
             text: Bluetooth.getIcon()
@@ -115,7 +115,7 @@ BarWidget {
             visible: Bluetooth.available
         }
 
-        IconText {
+        MaterialSymbol {
             id:batteryIcon
 
             visible: Battery.available

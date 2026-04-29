@@ -29,7 +29,7 @@ PanelWidget {
                 color:"transparent"
 
 
-                IconText{
+                MaterialSymbol{
                     anchors.centerIn:parent
                     text:"arrow_back_ios"
                     size:20
@@ -61,7 +61,7 @@ PanelWidget {
                 radius:10
                 color:"transparent"
 
-                IconText{
+                MaterialSymbol{
                     anchors.centerIn:parent
                     text:"arrow_forward_ios"
                     size:20

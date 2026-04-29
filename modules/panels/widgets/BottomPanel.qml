@@ -88,7 +88,7 @@ PanelWidget {
                     color: "#cba6f7"
                     Layout.leftMargin:10
 
-                    IconText {
+                    MaterialSymbol {
                         anchors.centerIn: parent
                         text: "person"
                         size: 25
@@ -148,7 +148,7 @@ PanelWidget {
                             radius: 10
                             color: mouseArea.containsMouse ? Qt.lighter(modelData.color, 1.2) : (currentPowerProfile === modelData.profile ? modelData.color : "#45475a")
 
-                            IconText {
+                            MaterialSymbol {
                                 anchors.centerIn: parent
                                 text: modelData.icon
                                 size: 22
@@ -214,7 +214,7 @@ PanelWidget {
                             radius: 10
                             color: mouseArea.containsMouse ? modelData.color : "#45475a"
 
-                            IconText {
+                            MaterialSymbol {
                                 anchors.centerIn: parent
                                 text: modelData.icon
                                 size: 22

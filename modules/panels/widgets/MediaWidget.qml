@@ -38,7 +38,7 @@ PanelWidget {
         color: ma.hovered ? "#E0D6F0" : "transparent"
         Behavior on color { ColorAnimation { duration: 150 } }
 
-        IconText {
+        MaterialSymbol {
             anchors.centerIn: parent
             size: 22
             fill: 1
@@ -130,7 +130,7 @@ PanelWidget {
                         ? (hovered ? "#705AAB" : "#6750A4")
                         : (hovered ? "#E0D6F0" : "#E8DEF8")
 
-                    IconText {
+                    MaterialSymbol {
                         anchors.centerIn: parent
                         size: 24
                         color: playPauseButton.isPlaying ? "#FFFFFF" : "#49454F"

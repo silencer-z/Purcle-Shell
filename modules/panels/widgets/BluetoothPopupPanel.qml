@@ -51,7 +51,7 @@ Popup {
                 anchors.margins: 10
                 spacing: 12
 
-                IconText {
+                MaterialSymbol {
                     text: "bluetooth"
                     size: 20
                     color: Bluetooth.enabled ? "#a6e3a1" : "#f38ba8"
@@ -112,7 +112,7 @@ Popup {
                 anchors.margins: 10
                 spacing: 8
 
-                IconText {
+                MaterialSymbol {
                     text: "sync"
                     size: 16
                     color: "#a6e3a1"
@@ -158,7 +158,7 @@ Popup {
                     anchors.margins: 10
                     spacing: 10
 
-                    IconText {
+                    MaterialSymbol {
                         text: Bluetooth.getDeviceIcon(modelData)
                         size: 20
                         color: modelData.connected ? "#a6e3a1" : "#a6adc8"

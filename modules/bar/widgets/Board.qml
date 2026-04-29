@@ -9,7 +9,7 @@ Components.BarWidget {
     paddingLeft: 0
     paddingRight: 0
 
-    Components.IconText {
+    Components.MaterialSymbol {
         anchors.fill: parent
         text: "planet"
         font.pixelSize: 21
