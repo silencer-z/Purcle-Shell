@@ -19,7 +19,7 @@ Variants {
         PanelWindow {
             id: win
 
-            readonly property int barHeight: 52
+            readonly property int barHeight: 32
             readonly property int borderThickness: Config.appearance.border.thickness
             readonly property bool needsKeyboard: Visibilities.launcher || Visibilities.clipboard || Visibilities.wallpaper || Visibilities.dashboard
 

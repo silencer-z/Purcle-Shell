@@ -92,4 +92,16 @@ Components.BarWidget {
             }
         }
     }
+
+    // 滚轮切换工作区（NoButton 不拦截点击）
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.NoButton
+        onWheel: (wheel) => {
+            if (wheel.angleDelta.y > 0)
+                Hyprland.dispatch("workspace r-1");
+            else if (wheel.angleDelta.y < 0)
+                Hyprland.dispatch("workspace r+1");
+        }
+    }
 }

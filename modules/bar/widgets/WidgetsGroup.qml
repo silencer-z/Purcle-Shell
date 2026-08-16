@@ -66,6 +66,7 @@ BarWidget {
 
             MouseArea {
                 anchors.fill: parent
+                onClicked: AudioService.toggleMute()
                 onWheel: (wheel) => {
                     if (!AudioService.sink || !AudioService.sink.audio)
                         return;
@@ -85,7 +86,7 @@ BarWidget {
             font.pixelSize: 22
 
             StyledTooltip {
-                content: "亮度: " + Math.round(monitor.brightness * 100) + "%"
+                content: "亮度: " + Math.round(monitor.brightness * 100) + "%\n点击打开控制面板"
             }
 
             HoverHandler {
@@ -94,6 +95,7 @@ BarWidget {
 
             MouseArea {
                 anchors.fill: parent
+                onClicked: Visibilities.togglePanel("dashboard")
                 onWheel: (wheel) => {
                     if (wheel.angleDelta.y > 0)
                         Brightness.increaseBrightness();
@@ -110,10 +112,14 @@ BarWidget {
             text: Network.materialSymbol
             font.pixelSize: 22
             StyledTooltip {
-                content: ""+Network.networkName + ":"+ Network.networkStrength + "%"
+                content: ""+Network.networkName + ":"+ Network.networkStrength + "%\n点击打开控制面板"
             }
             HoverHandler {
                 id: networkHoverHandler
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: Visibilities.togglePanel("dashboard")
             }
         }
 
@@ -123,6 +129,14 @@ BarWidget {
             text: Bluetooth.getIcon()
             font.pixelSize: 22
             visible: Bluetooth.available
+
+            StyledTooltip {
+                content: "蓝牙\n点击打开控制面板"
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: Visibilities.togglePanel("dashboard")
+            }
         }
 
         MaterialSymbol {
@@ -135,11 +149,16 @@ BarWidget {
             font.pixelSize: 22
 
             StyledTooltip {
-                content: "电量: " + Math.round(Battery.percentage * 100) + "%"
+                content: "电量: " + Math.round(Battery.percentage * 100) + "%\n点击打开控制面板"
             }
 
             HoverHandler {
                 id: batteryHoverHandler
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: Visibilities.togglePanel("dashboard")
             }
         }
 

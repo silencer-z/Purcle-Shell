@@ -6,9 +6,9 @@ Components.BarWidget {
     id: root
 
     property string time: Qt.locale("en_US").toString(clock.date, "ddd hh:mm AP")
+    property string dateText: Qt.locale("en_US").toString(clock.date, "yyyy-MM-dd")
 
     color: "transparent"
-    // padding:0
     paddingLeft: 0
     paddingRight: 0
 
@@ -23,6 +23,10 @@ Components.BarWidget {
         anchors.bottomMargin: 2
         font.pixelSize: 18
         text: time
+
+        Components.StyledTooltip {
+            content: root.dateText
+        }
     }
 
 }

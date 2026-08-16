@@ -1,18 +1,35 @@
 import QtQuick
-import "root:/components" as Components
+import qs.components as Components
+import qs.services
 
 Components.BarWidget {
     id: root
 
     color: "transparent"
-    // padding:0
     paddingLeft: 0
     paddingRight: 0
 
+    property bool hovered: false
+
+    // Logo 按钮：点击打开启动器
     Components.MaterialSymbol {
-        anchors.fill: parent
+        id: icon
+        anchors.centerIn: parent
         text: "planet"
         font.pixelSize: 21
+        opacity: root.hovered ? 1 : 0.75
+
+        Behavior on opacity {
+            NumberAnimation { duration: 150 }
+        }
     }
 
+    MouseArea {
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onEntered: root.hovered = true
+        onExited: root.hovered = false
+        onClicked: Visibilities.togglePanel("launcher")
+    }
 }
