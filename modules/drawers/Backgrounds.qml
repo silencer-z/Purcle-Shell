@@ -5,6 +5,7 @@ import qs.modules.panels.launcher as Launcher
 import qs.modules.panels.clipboard as Clipboard
 import qs.modules.panels.wallpaper as Wallpaper
 import qs.modules.panels.dashboard as Dashboard
+import qs.services
 import QtQuick
 import QtQuick.Shapes
 
@@ -13,7 +14,7 @@ Shape {
 
     required property var panels
     required property int barHeight
-    property color surfaceColor: "#1e1e2e"
+    property color surfaceColor: Theme.base
 
     anchors.fill: parent
     anchors.margins: Config.appearance.border.thickness

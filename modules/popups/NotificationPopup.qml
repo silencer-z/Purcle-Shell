@@ -68,8 +68,8 @@ PanelWindow {
                 height: innerLayout.implicitHeight + 24
                 radius: 16
                 
-                color: mouseArea.containsMouse ? "#262638" : "#1e1e2e" // Base
-                border.color: "#313244" // Surface0
+                color: mouseArea.containsMouse ? Qt.lighter(Theme.base, 1.1) : Theme.base // Base
+                border.color: Theme.surface0 // Surface0
 
                 Behavior on color {
                     ColorAnimation { duration: 150 }
@@ -103,7 +103,7 @@ PanelWindow {
                             Layout.preferredWidth: 42
                             Layout.preferredHeight: 42
                             radius: 12
-                            color: "#313244" // Surface0 backdrop for icon
+                            color: Theme.surface0 // Surface0 backdrop for icon
                             clip: true
 
                             Image {
@@ -126,20 +126,20 @@ PanelWindow {
                                     text: n.appName
                                     font.bold: true
                                     font.pixelSize: 11
-                                    color: "#89b4fa" // Blue
+                                    color: Theme.blue // Blue
                                     Layout.fillWidth: true
                                 }
                                 Text {
                                     text: n.timeStr
                                     font.pixelSize: 10
-                                    color: "#6c7086" // Overlay0
+                                    color: Theme.overlay0 // Overlay0
                                 }
                             }
 
                             Text {
                                 text: n.summary
                                 Layout.fillWidth: true
-                                color: "#cdd6f4" // Text
+                                color: Theme.text // Text
                                 font.bold: true
                                 font.pixelSize: 13
                                 elide: Text.ElideRight
@@ -153,7 +153,7 @@ PanelWindow {
                         text: n.body
                         Layout.fillWidth: true
                         Layout.leftMargin: 54 // 对齐文字部分
-                        color: "#a6adc8" // Subtext0
+                        color: Theme.subtext1 // Subtext0
                         font.pixelSize: 12
                         wrapMode: Text.WordWrap
                         maximumLineCount: 2
@@ -166,7 +166,7 @@ PanelWindow {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 100
                         Layout.topMargin: 4
-                        color: "#313244"
+                        color: Theme.surface0
                         radius: 8
                         clip: true
 
@@ -190,15 +190,15 @@ PanelWindow {
                                 Layout.preferredHeight: 24
                                 Layout.preferredWidth: actionLabel.implicitWidth + 16
                                 radius: 6
-                                color: actionMouse.containsMouse ? "#45475a" : "transparent"
-                                border.color: "#45475a"
+                                color: actionMouse.containsMouse ? Theme.surface1 : "transparent"
+                                border.color: Theme.surface1
                                 
                                 Text {
                                     id: actionLabel
                                     anchors.centerIn: parent
                                     text: modelData.label
                                     font.pixelSize: 11
-                                    color: "#89b4fa"
+                                    color: Theme.blue
                                 }
                                 MouseArea {
                                     id: actionMouse

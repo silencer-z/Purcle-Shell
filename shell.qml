@@ -24,13 +24,21 @@ ShellRoot {
                 anchors.top: true
                 anchors.left: true
                 anchors.right: true
-                implicitHeight: bar.implicitHeight
+                // 可视高度 32；窗口加高以容纳下方 tooltip，输入区用 mask 限定在 32px
+                implicitHeight: 100
                 screen: modelData
-                exclusiveZone: barPanel.implicitHeight
+                exclusiveZone: 32
 
                 Bar {
                     id: bar
                     screen: scope.modelData
+                }
+
+                mask: Region {
+                    x: bar.x
+                    y: bar.y
+                    width: bar.width
+                    height: bar.height
                 }
             }
         }

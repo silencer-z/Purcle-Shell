@@ -1,13 +1,14 @@
 import Qt5Compat.GraphicalEffects
 import QtQuick
 import Quickshell
+import qs.services
 
 PopupWindow {
     id: root
 
     // 定义动画参数
     property int animationDuration: 150
-    property color backgroundColor: "#1e1e2e"
+    property color backgroundColor: Theme.base
     property int cornerRadius: 8
     property point transformOrigin: Qt.point(width / 2, 0)
     property alias content: contentContainer.children
@@ -123,7 +124,7 @@ PopupWindow {
             radius: 12
             spread: 0.1
             samples: 16
-            color: "#20000000"
+            color: Qt.alpha(Theme.shadow, 0.125)
         }
 
     }

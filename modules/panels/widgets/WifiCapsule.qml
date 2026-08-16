@@ -26,7 +26,7 @@ Item {
 
         anchors.fill: parent
         radius: 20
-        color: "#313244"
+        color: Theme.surface0
     }
 
     RowLayout {
@@ -38,7 +38,7 @@ Item {
         MaterialSymbol {
             text: Network.materialSymbol
             size: 24
-            color: Network.networkName.length > 0 && Network.networkName !== "lo" ? "#a6e3a1" : "#f38ba8"
+            color: Network.networkName.length > 0 && Network.networkName !== "lo" ? Theme.green : Theme.danger
             Layout.preferredWidth: 30
         }
 
@@ -51,14 +51,14 @@ Item {
                 text: Network.networkName.length > 0 && Network.networkName !== "lo" ? Network.networkName : "未连接"
                 font.pixelSize: 14
                 font.bold: true
-                color: "#cdd6f4"
+                color: Theme.text
                 elide: Text.ElideRight
             }
 
             StyledText {
                 text: Network.networkName.length > 0 && Network.networkName !== "lo" ? `信号: ${Network.networkStrength}%` : "无网络连接"
                 font.pixelSize: 11
-                color: "#a6adc8"
+                color: Theme.subtext1
             }
 
         }
@@ -68,23 +68,23 @@ Item {
             Layout.preferredWidth: 30
             Layout.preferredHeight: 30
             radius: 15
-            color: expanded ? "#89b4fa" : "#45475a"
+            color: expanded ? Theme.blue : Theme.surface1
 
             MaterialSymbol {
                 anchors.centerIn: parent
                 text: expanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
                 size: 18
-                color: "#cdd6f4"
+                color: Theme.text
             }
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
                 onEntered: {
-                    parent.color = expanded ? "#74c7ec" : "#585b70";
+                    parent.color = expanded ? Theme.sky : Theme.surface2;
                 }
                 onExited: {
-                    parent.color = expanded ? "#89b4fa" : "#45475a";
+                    parent.color = expanded ? Theme.blue : Theme.surface1;
                 }
                 onClicked: {
                     expanded = !expanded;

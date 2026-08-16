@@ -3,6 +3,7 @@ import QtQuick
 import Quickshell
 import QtQuick.Layouts
 import qs.services as Service
+import qs.services
 import qs.components
 
 ListView {
@@ -18,7 +19,7 @@ ListView {
     currentIndex: 0
 
     highlight: Rectangle {
-        color: "#cba6f7"
+        color: Theme.mauve
         radius: 20
     }
 
@@ -87,7 +88,7 @@ ListView {
                 text: modelData.name || "Other"
                 font.pixelSize: 15
                 antialiasing: true
-                color: "#cdd6f4"
+                color: Theme.text
             }
         }
 
@@ -132,7 +133,7 @@ ListView {
                             font.pixelSize: 16
                             elide: Text.ElideRight
                             textFormat: TextEdit.RichText
-                            color:listViewDelegate.selected?"#181825":"#cdd6f4"
+                            color:listViewDelegate.selected?Theme.mantle:Theme.text
                         }
 
                         StyledText {
@@ -141,7 +142,7 @@ ListView {
                             font.pixelSize: 12
                             elide: Text.ElideRight
                             visible: text.length > 0
-                            color:listViewDelegate.selected?"#181825":"#cdd6f4"
+                            color:listViewDelegate.selected?Theme.mantle:Theme.text
                             opacity: 0.7
                         }
                     }

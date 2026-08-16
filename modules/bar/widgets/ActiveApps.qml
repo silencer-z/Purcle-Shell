@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs.components
+import qs.services
 
 BarWidget {
     id: root
@@ -88,10 +89,10 @@ BarWidget {
                         // 动态染色：激活 / 运行中 / 未运行
                         color: {
                             if (delegateRoot.isActive)
-                                return "#cba6f7";
+                                return Theme.mauve;
                             if (root.runningApps.indexOf(modelData.appId) >= 0)
-                                return "#89b4fa";
-                            return "#6c7086";
+                                return Theme.blue;
+                            return Theme.overlay0;
                         }
 
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -120,17 +121,17 @@ BarWidget {
                 id: activeApp
                 StyledText {
                     text: "[ "
-                    color: "#cba6f7"
+                    color: Theme.mauve
                     font.bold: true
                 }
                 StyledText {
                     text: root.displayName(root.currentApp)
-                    color: "#cba6f7"
+                    color: Theme.mauve
                     font.bold: true
                 }
                 StyledText {
                     text: " ]"
-                    color: "#cba6f7"
+                    color: Theme.mauve
                     font.bold: true
                 }
             }
@@ -144,7 +145,7 @@ BarWidget {
             y: parent.height - height + 2
             height: 3
             radius: 1.5
-            color: "#cba6f7"
+            color: Theme.mauve
             width: targetWidth
 
             Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.InOutCubic } }

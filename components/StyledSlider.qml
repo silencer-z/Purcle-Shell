@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell.Widgets
+import qs.services
 
  
 Slider {
@@ -23,11 +24,11 @@ Slider {
     property real handleDefaultWidth: 3
     property real handlePressedWidth: 1.5
 
-    property color highlightColor: "#89b4fa"
-    property color trackColor: "#313244"
-    property color handleColor: "#cba6f7"
-    property color dotColor: "#6c7086"
-    property color dotColorHighlighted: "#89b4fa"
+    property color highlightColor: Theme.blue
+    property color trackColor: Theme.surface0
+    property color handleColor: Theme.mauve
+    property color dotColor: Theme.overlay0
+    property color dotColorHighlighted: Theme.blue
 
     property real unsharpenRadius: 6
     property real trackWidth: configuration

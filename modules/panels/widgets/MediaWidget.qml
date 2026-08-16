@@ -11,7 +11,7 @@ PanelWidget {
     id: root
     height: 200
     radius: 20
-    color: "#313244"
+    color: Theme.surface0
 
     layer.enabled: true
     layer.effect: OpacityMask {
@@ -87,7 +87,7 @@ PanelWidget {
                 id: trackTitle
                 Layout.fillWidth: true
                 font.pixelSize: 18
-                color: "#cdd6f4"
+                color: Theme.text
                 elide: Text.ElideRight
                 text: MprisService.trackTitle
             }
@@ -96,7 +96,7 @@ PanelWidget {
                 id: trackArtist
                 Layout.fillWidth: true
                 font.pixelSize: 13
-                color: "#bac2de"
+                color: Theme.subtext1
                 elide: Text.ElideRight
                 text: MprisService.trackArtist
             }

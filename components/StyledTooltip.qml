@@ -1,9 +1,11 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import qs.services
 
 ToolTip {
     id: root
+
     property string content
     property bool extraVisibleCondition: true
     property bool alternativeVisibleCondition: false
@@ -12,8 +14,13 @@ ToolTip {
         return ans
     }
 
-    verticalPadding: 5
+    // 定位：水平居中于父控件，垂直在父控件下方
+    x: parent ? (parent.width - implicitWidth) / 2 : 0
+    y: parent ? parent.height + 4 : 0
+
+    verticalPadding: 6
     horizontalPadding: 10
+    delay: 200
     opacity: internalVisibleCondition ? 1 : 0
     visible: opacity > 0
 
@@ -21,36 +28,17 @@ ToolTip {
         NumberAnimation { duration: 150 }
     }
 
-    background: null
+    background: Rectangle {
+        color: Theme.surface1
+        radius: 7
+        border.color: Theme.surface2
+        border.width: 1
+    }
 
-    contentItem: Item {
-        id: contentItemBackground
-        // anchors.top: parent.bottom   // ⬅ 贴在父控件底部
-        anchors.horizontalCenter: parent.horizontalCenter
-        implicitWidth: tooltipTextObject.width + 2 * root.horizontalPadding
-        implicitHeight: tooltipTextObject.height + 2 * root.verticalPadding
-
-        Rectangle {
-            id: backgroundRectangle
-            anchors.bottom: contentItemBackground.bottom
-            anchors.horizontalCenter: contentItemBackground.horizontalCenter
-            color: "#3C4043"   // 固定颜色
-            radius: 7
-            width: internalVisibleCondition ? (tooltipTextObject.width + 2 * root.horizontalPadding) : 0
-            height: internalVisibleCondition ? (tooltipTextObject.height + 2 * root.verticalPadding) : 0
-            clip: true
-
-            Behavior on width { NumberAnimation { duration: 150 } }
-            Behavior on height { NumberAnimation { duration: 150 } }
-
-            Text {
-                id: tooltipTextObject
-                anchors.centerIn: parent
-                text: root.content
-                font.pixelSize: 14
-                color: "white"
-                wrapMode: Text.Wrap
-            }
-        }
+    contentItem: Text {
+        text: root.content
+        color: Theme.text
+        font.pixelSize: 14
+        wrapMode: Text.Wrap
     }
 }

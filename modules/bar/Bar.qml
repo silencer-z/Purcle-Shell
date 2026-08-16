@@ -31,7 +31,7 @@ Item {
         anchors.right: parent.right
         anchors.leftMargin: root.barHMargin
         anchors.rightMargin: root.barHMargin
-        color: "#1e1e2e"
+        color: Theme.base
         radius: root.barRadius
 
         Item {

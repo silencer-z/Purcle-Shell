@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
 import qs.components
+import qs.services
 
 Rectangle {
     id: root
@@ -15,7 +16,7 @@ Rectangle {
 
     signal clicked()
 
-    color: "#313244"
+    color: Theme.surface0
     radius: 8
 
     Process {
@@ -34,7 +35,7 @@ Rectangle {
             id: iconText
 
             iconSize: 18
-            color: "#89b4fa"
+            color: Theme.blue
         }
 
         StyledText {
@@ -42,7 +43,7 @@ Rectangle {
 
             Layout.fillWidth: true
             font.pixelSize: 14
-            color: "#cdd6f4"
+            color: Theme.text
         }
 
     }
@@ -53,10 +54,10 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         onEntered: {
-            parent.color = "#45475a";
+            parent.color = Theme.surface1;
         }
         onExited: {
-            parent.color = "#313244";
+            parent.color = Theme.surface0;
         }
         onClicked: {
             root.clicked();

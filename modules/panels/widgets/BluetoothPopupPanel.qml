@@ -28,8 +28,8 @@ Popup {
     // 背景和边框
     background: Rectangle {
         radius: 12
-        color: "#1e1e2e"
-        border.color: "#45475a"
+        color: Theme.base
+        border.color: Theme.surface1
         border.width: 1
     }
 
@@ -44,7 +44,7 @@ Popup {
             Layout.fillWidth: true
             height: 45
             radius: 8
-            color: "#313244"
+            color: Theme.surface0
 
             RowLayout {
                 anchors.fill: parent
@@ -54,14 +54,14 @@ Popup {
                 MaterialSymbol {
                     text: "bluetooth"
                     size: 20
-                    color: Bluetooth.enabled ? "#a6e3a1" : "#f38ba8"
+                    color: Bluetooth.enabled ? Theme.green : Theme.danger
                 }
 
                 StyledText {
                     text: "蓝牙"
                     font.pixelSize: 14
                     font.bold: true
-                    color: "#cdd6f4"
+                    color: Theme.text
                 }
 
                 Item {
@@ -72,13 +72,13 @@ Popup {
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 20
                     radius: 10
-                    color: Bluetooth.enabled ? "#89b4fa" : "#45475a"
+                    color: Bluetooth.enabled ? Theme.blue : Theme.surface1
 
                     Rectangle {
                         width: 16
                         height: 16
                         radius: 8
-                        color: "#cdd6f4"
+                        color: Theme.text
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: Bluetooth.enabled ? 22 : 2
@@ -104,7 +104,7 @@ Popup {
             Layout.fillWidth: true
             height: 40
             radius: 8
-            color: "#313244"
+            color: Theme.surface0
             visible: Bluetooth.enabled && Bluetooth.discovering
 
             RowLayout {
@@ -115,14 +115,14 @@ Popup {
                 MaterialSymbol {
                     text: "sync"
                     size: 16
-                    color: "#a6e3a1"
+                    color: Theme.green
                 }
 
                 StyledText {
                     text: "正在搜索设备..."
                     Layout.fillWidth: true
                     font.pixelSize: 13
-                    color: "#cdd6f4"
+                    color: Theme.text
                 }
             }
         }
@@ -132,7 +132,7 @@ Popup {
             text: "可用设备"
             font.pixelSize: 13
             font.bold: true
-            color: "#cdd6f4"
+            color: Theme.text
             visible: Bluetooth.enabled && (Bluetooth.pairedDevices.length > 0 || (Bluetooth.devices && Bluetooth.devices.values.length > 0))
         }
 
@@ -151,7 +151,7 @@ Popup {
                 width: ListView.view.width
                 height: 55
                 radius: 8
-                color: modelData.connected ? "#45475a" : "#313244"
+                color: modelData.connected ? Theme.surface1 : Theme.surface0
 
                 RowLayout {
                     anchors.fill: parent
@@ -161,7 +161,7 @@ Popup {
                     MaterialSymbol {
                         text: Bluetooth.getDeviceIcon(modelData)
                         size: 20
-                        color: modelData.connected ? "#a6e3a1" : "#a6adc8"
+                        color: modelData.connected ? Theme.green : Theme.subtext1
                     }
 
                     ColumnLayout {
@@ -172,21 +172,21 @@ Popup {
                             text: modelData.name || modelData.deviceName || "未知设备"
                             font.pixelSize: 13
                             font.bold: modelData.connected
-                            color: "#cdd6f4"
+                            color: Theme.text
                             elide: Text.ElideRight
                         }
 
                         StyledText {
                             text: getDeviceStatusText(modelData)
                             font.pixelSize: 11
-                            color: "#a6adc8"
+                            color: Theme.subtext1
                         }
                     }
 
                     StyledText {
                         text: modelData.connected ? "已连接" : modelData.paired ? "已配对" : "连接"
                         font.pixelSize: 12
-                        color: modelData.connected ? "#a6e3a1" : "#89b4fa"
+                        color: modelData.connected ? Theme.green : Theme.blue
                         visible: !connectBtn.visible
                     }
 
@@ -196,22 +196,22 @@ Popup {
                         Layout.preferredWidth: 50
                         Layout.preferredHeight: 25
                         radius: 12
-                        color: "#89b4fa"
+                        color: Theme.blue
                         visible: !modelData.connected && !modelData.paired
 
                         StyledText {
                             anchors.centerIn: parent
                             text: "连接"
                             font.pixelSize: 11
-                            color: "#cdd6f4"
+                            color: Theme.text
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             hoverEnabled: true
                             enabled: !Bluetooth.isDeviceBusy(modelData)
-                            onEntered: { parent.color = "#74c7ec"; }
-                            onExited: { parent.color = "#89b4fa"; }
+                            onEntered: { parent.color = Theme.sky; }
+                            onExited: { parent.color = Theme.blue; }
                             onClicked: {
                                 if (modelData && Bluetooth.canConnect(modelData))
                                     Bluetooth.connectDeviceWithTrust(modelData);
@@ -225,10 +225,10 @@ Popup {
                     hoverEnabled: true
                     enabled: !Bluetooth.isDeviceBusy(modelData)
                     onEntered: {
-                        parent.color = modelData.connected ? "#585b70" : "#45475a";
+                        parent.color = modelData.connected ? Theme.surface2 : Theme.surface1;
                     }
                     onExited: {
-                        parent.color = modelData.connected ? "#45475a" : "#313244";
+                        parent.color = modelData.connected ? Theme.surface1 : Theme.surface0;
                     }
                     onClicked: {
                         if (modelData) {
@@ -248,7 +248,7 @@ Popup {
         StyledText {
             text: "未找到设备"
             font.pixelSize: 13
-            color: "#a6adc8"
+            color: Theme.subtext1
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
             Layout.preferredHeight: 60

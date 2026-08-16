@@ -1,5 +1,6 @@
 import qs.components
 import qs.Configs
+import qs.services
 import QtQuick
 import QtQuick.Shapes
 
@@ -7,7 +8,7 @@ ShapePath {
     id: root
 
     required property Item wrapper
-    property color surfaceColor: "#1e1e2e"
+    property color surfaceColor: Theme.base
 
     readonly property real rounding: Config.appearance.border.rounding
     readonly property bool flatten: wrapper.height < rounding * 2

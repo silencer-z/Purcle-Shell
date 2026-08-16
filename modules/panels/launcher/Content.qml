@@ -126,7 +126,7 @@ ClippingRectangle {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 15
-        color: "#313244"
+        color: Theme.surface0
 
         RowLayout {
             anchors.fill: parent
@@ -136,7 +136,7 @@ ClippingRectangle {
             MaterialSymbol {
                 text: "search"
                 size: 24
-                color: "#cdd6f4"
+                color: Theme.text
             }
 
             StyledTextInput {
@@ -148,7 +148,7 @@ ClippingRectangle {
 
                 focus: true
                 Layout.fillWidth: true
-                color: "#cdd6f4"
+                color: Theme.text
                 onTextChanged: {
                     AppModel.filterText = text;
                 }

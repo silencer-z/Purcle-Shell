@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import qs.services
 
 
 ProgressBar {
@@ -7,8 +8,8 @@ ProgressBar {
     property real valueBarWidth: 120
     property real valueBarHeight: 4
     property real valueBarGap: 4
-    property color highlightColor: "#685496"
-    property color trackColor: "#F1D3F9"
+    property color highlightColor: Theme.mauve
+    property color trackColor: Theme.surface0
     property bool sperm: false
     property bool animateSperm: true
     property real spermAmplitudeMultiplier: sperm ? 0.5 : 0

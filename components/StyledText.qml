@@ -1,10 +1,11 @@
 // 统一设计风格
 import QtQuick
+import qs.services
 
 Text {
     renderType: Text.NativeRendering
     verticalAlignment: Text.AlignVCenter
-    color: "#FFFFFF"
+    color: Theme.text
 
     font {
         hintingPreference: Font.PreferFullHinting

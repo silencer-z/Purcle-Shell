@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import qs.services
 
 Text {
     property real fill: 0
@@ -8,7 +9,7 @@ Text {
 
     renderType: Text.NativeRendering
     verticalAlignment: Text.AlignVCenter
-    color: "#FFFFFF"
+    color: Theme.text
 
     font {
         hintingPreference: Font.PreferFullHinting

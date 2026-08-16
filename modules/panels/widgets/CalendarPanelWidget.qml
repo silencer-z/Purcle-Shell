@@ -3,11 +3,12 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import qs.components
+import qs.services
 
 PanelWidget {
     id: root
 
-    color: "#313244"
+    color: Theme.surface0
     radius: 20
     height: 300
 
@@ -96,7 +97,7 @@ PanelWidget {
                     horizontalAlignment: Text.AlignHCenter
                     font.pixelSize: 16
                     font.bold: true
-                    color: "#a6adc8"
+                    color: Theme.subtext1
                 }
             }
         }
@@ -121,13 +122,13 @@ PanelWidget {
                     height:width
                     radius: width/2
                     visible:model.today
-                    color:"#89b4fa"
+                    color:Theme.blue
                 }
 
                 StyledText {
                     anchors.centerIn: parent
                     text: model.day
-                    color: model.today ? "#1e1e2e" : "white"
+                    color: model.today ? Theme.base : "white"
                     opacity: model.month === grid.month ? 1 : 0.4
                     font.pixelSize: 16
                     font.bold: model.today

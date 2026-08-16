@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell.Hyprland
-
 import qs.components as Components
+import qs.services
 
 Components.BarWidget {
     id: root
@@ -64,7 +64,7 @@ Components.BarWidget {
                 Rectangle {
                     id: workspaceRect
 
-                    color: {if (isActive) return "#cba6f7";if (isPlaceholder) return "#6c7086";return "#89b4fa";}
+                    color: {if (isActive) return Theme.mauve;if (isPlaceholder) return Theme.overlay0;return Theme.blue;}
 
                     width: calculateWidth()
                     height: workspaceRow.height * 0.8 + 1

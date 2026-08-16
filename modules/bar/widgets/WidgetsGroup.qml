@@ -10,7 +10,7 @@ BarWidget {
     required property var monitor
 
     color: "transparent"
-    widgetColor: "#313244"
+    widgetColor: Theme.surface0
     widgetRadius: 8
 
     function batteryIconName(): string {

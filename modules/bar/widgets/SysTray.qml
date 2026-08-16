@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 
 import qs.components as Components
+import qs.services
 
 Components.BarWidget {
 
@@ -37,7 +38,7 @@ Components.BarWidget {
             id: toggleBtn
             Layout.preferredWidth: arrowIcon.width
             Layout.preferredHeight: parent.height
-            color: toggleBtnMouseArea.containsMouse ? "#11c1c1c1" : "transparent"
+            color: toggleBtnMouseArea.containsMouse ? Qt.alpha(Theme.surface1, 0.5) : "transparent"
             radius: 5
 
             MouseArea {
@@ -54,7 +55,7 @@ Components.BarWidget {
                 id: arrowIcon
                 anchors.centerIn: parent
                 text: "◀"
-                color: "#cdd6f4"
+                color: Theme.text
                 font.pixelSize: 12
                 rotation: root.trayExpanded ? 180 : 0
 

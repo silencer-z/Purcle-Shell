@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import qs.services
 
 // TODO)) 出现问题的缘故在于Popupwindow?
 
@@ -56,8 +57,8 @@ PopupWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: "#1e1e2e"
-        border.color: "#cba6f7"
+        color: Theme.base
+        border.color: Theme.mauve
         border.width: 1
         radius: 12
         HoverHandler {
@@ -132,7 +133,7 @@ PopupWindow {
                 anchors.centerIn: parent
                 width: parent.width - 20
                 height: 2
-                color: "#585b70"
+                color: Theme.surface2
                 visible: modelData?.isSeparator ?? false
             }
 
@@ -140,10 +141,10 @@ PopupWindow {
             Rectangle {
                 id: bg
                 anchors.fill: parent
-                color: mouseArea.containsMouse ? "#cba6f7" : "transparent"
+                color: mouseArea.containsMouse ? Theme.mauve : "transparent"
                 radius: 8
                 visible: !(modelData?.isSeparator ?? false)
-                property color hoverTextColor: mouseArea.containsMouse ? "#FFFFFF" : "#cdd6f4"
+                property color hoverTextColor: mouseArea.containsMouse ? Theme.text : Theme.text
 
                 RowLayout {
                     anchors.fill: parent
@@ -153,7 +154,7 @@ PopupWindow {
 
                     Text {
                         Layout.fillWidth: true
-                        color: (modelData?.enabled ?? true) ? bg.hoverTextColor : "#585b70"
+                        color: (modelData?.enabled ?? true) ? bg.hoverTextColor : Theme.surface2
                         text: modelData?.text ?? ""
                         font.family: "更纱终端书呆简体-黑"
                         font.pixelSize: 16
@@ -175,7 +176,7 @@ PopupWindow {
                         font.pixelSize: 16
                         verticalAlignment: Text.AlignVCenter
                         visible: modelData?.hasChildren ?? false
-                        color: "#cdd6f4"
+                        color: Theme.text
                     }
                 }
 

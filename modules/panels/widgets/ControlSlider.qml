@@ -9,7 +9,7 @@ import qs.services
 PanelWidget {
     id: root
 
-    color: "#313244"
+    color: Theme.surface0
     height: 40
     radius: 20
     ColumnLayout{
@@ -30,7 +30,7 @@ PanelWidget {
                     return "volume_down";
                 }
                 size: 25
-                color: "#89b4fa"
+                color: Theme.blue
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -40,11 +40,11 @@ PanelWidget {
                 Layout.preferredHeight: 20
                 value: AudioService.volume
                 configuration: StyledSlider.Configuration.S
-                highlightColor: "#89b4fa"
-                trackColor: "#45475a"
-                handleColor: "#89b4fa"
-                dotColor: "#6c7086"
-                dotColorHighlighted: "#89b4fa"
+                highlightColor: Theme.blue
+                trackColor: Theme.surface1
+                handleColor: Theme.blue
+                dotColor: Theme.overlay0
+                dotColorHighlighted: Theme.blue
 
                 property bool userUpdating:false
 
@@ -105,7 +105,7 @@ PanelWidget {
                     return focusedMonitor?.iconName ?? "brightness_6";
                 }
                 size: 25
-                color: "#f9e2af"
+                color: Theme.yellow
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -119,11 +119,11 @@ PanelWidget {
                     return focusedMonitor?.brightness ?? 0.5;
                 }
                 configuration: StyledSlider.Configuration.S
-                highlightColor: "#f9e2af"
-                trackColor: "#45475a"
-                handleColor: "#f9e2af"
-                dotColor: "#6c7086"
-                dotColorHighlighted: "#f9e2af"
+                highlightColor: Theme.yellow
+                trackColor: Theme.surface1
+                handleColor: Theme.yellow
+                dotColor: Theme.overlay0
+                dotColorHighlighted: Theme.yellow
 
                 property bool userUpdating:false
 

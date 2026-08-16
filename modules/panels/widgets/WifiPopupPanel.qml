@@ -38,8 +38,8 @@ Popup {
     // 背景和边框
     background: Rectangle {
         radius: 12
-        color: "#1e1e2e"
-        border.color: "#45475a"
+        color: Theme.base
+        border.color: Theme.surface1
         border.width: 1
     }
 
@@ -55,7 +55,7 @@ Popup {
             Layout.fillWidth: true
             height: 40
             radius: 8
-            color: "#313244"
+            color: Theme.surface0
             visible: Network.isScanning
 
             RowLayout {
@@ -66,13 +66,13 @@ Popup {
                 MaterialSymbol {
                     text: "wifi_find"
                     size: 18
-                    color: "#a6e3a1"
+                    color: Theme.green
                 }
 
                 StyledText {
                     text: "正在扫描网络..."
                     font.pixelSize: 13
-                    color: "#cdd6f4"
+                    color: Theme.text
                 }
             }
         }
@@ -82,7 +82,7 @@ Popup {
             Layout.fillWidth: true
             height: 40
             radius: 8
-            color: "#313244"
+            color: Theme.surface0
             visible: !Network.isScanning
 
             RowLayout {
@@ -93,22 +93,22 @@ Popup {
                 MaterialSymbol {
                     text: "refresh"
                     size: 18
-                    color: "#a6e3a1"
+                    color: Theme.green
                 }
 
                 StyledText {
                     text: `刷新网络列表 (${Network.availableNetworksCount})`
                     Layout.fillWidth: true
                     font.pixelSize: 13
-                    color: "#cdd6f4"
+                    color: Theme.text
                 }
             }
 
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
-                onEntered: { parent.color = "#45475a"; }
-                onExited: { parent.color = "#313244"; }
+                onEntered: { parent.color = Theme.surface1; }
+                onExited: { parent.color = Theme.surface0; }
                 onClicked: {
                     console.log("Manual scan triggered");
                     Network.scanNetworks();
@@ -121,7 +121,7 @@ Popup {
             text: "可用网络"
             font.pixelSize: 13
             font.bold: true
-            color: "#cdd6f4"
+            color: Theme.text
             visible: !Network.isScanning && Network.availableNetworksCount > 0
         }
 
@@ -141,7 +141,7 @@ Popup {
                 width: ListView.view ? ListView.view.width : 0
                 height: 55
                 radius: 8
-                color: Network.networkName === model.ssid ? "#45475a" : "#313244"
+                color: Network.networkName === model.ssid ? Theme.surface1 : Theme.surface0
                 visible: true
 
                 RowLayout {
@@ -155,7 +155,7 @@ Popup {
                               model.signal > 30 ? "network_wifi_2_bar" :
                               model.signal > 15 ? "network_wifi_1_bar" : "signal_wifi_0_bar"
                         size: 20
-                        color: "#a6e3a1"
+                        color: Theme.green
                     }
 
                     ColumnLayout {
@@ -166,7 +166,7 @@ Popup {
                             text: model.ssid || "未知网络"
                             font.pixelSize: 13
                             font.bold: Network.networkName === model.ssid
-                            color: "#cdd6f4"
+                            color: Theme.text
                             elide: Text.ElideRight
                         }
 
@@ -176,13 +176,13 @@ Popup {
                             StyledText {
                                 text: `${model.signal}%`
                                 font.pixelSize: 11
-                                color: "#a6adc8"
+                                color: Theme.subtext1
                             }
 
                             MaterialSymbol {
                                 text: model.security && model.security !== "--" ? "lock" : "lock_open"
                                 size: 12
-                                color: "#f9e2af"
+                                color: Theme.yellow
                                 visible: model.security && model.security !== "--"
                             }
                         }
@@ -192,7 +192,7 @@ Popup {
                     StyledText {
                         text: Network.networkName === model.ssid ? "已连接" : "连接"
                         font.pixelSize: 12
-                        color: Network.networkName === model.ssid ? "#a6e3a1" : "#89b4fa"
+                        color: Network.networkName === model.ssid ? Theme.green : Theme.blue
                     }
 
                     Rectangle {
@@ -201,21 +201,21 @@ Popup {
                         Layout.preferredWidth: 50
                         Layout.preferredHeight: 25
                         radius: 12
-                        color: "#89b4fa"
+                        color: Theme.blue
                         visible: Network.networkName !== model.ssid
 
                         StyledText {
                             anchors.centerIn: parent
                             text: "连接"
                             font.pixelSize: 11
-                            color: "#cdd6f4"
+                            color: Theme.text
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             hoverEnabled: true
-                            onEntered: { parent.color = "#74c7ec"; }
-                            onExited: { parent.color = "#89b4fa"; }
+                            onEntered: { parent.color = Theme.sky; }
+                            onExited: { parent.color = Theme.blue; }
                             onClicked: {
                                 if (model.security && model.security !== "--") {
                                     // 加密网络 - 显示密码输入对话框
@@ -237,21 +237,21 @@ Popup {
                         Layout.preferredWidth: 50
                         Layout.preferredHeight: 25
                         radius: 12
-                        color: "#f38ba8"
+                        color: Theme.danger
                         visible: Network.networkName === model.ssid
 
                         StyledText {
                             anchors.centerIn: parent
                             text: "断开"
                             font.pixelSize: 11
-                            color: "#cdd6f4"
+                            color: Theme.text
                         }
 
                         MouseArea {
                             anchors.fill: parent
                             hoverEnabled: true
-                            onEntered: { parent.color = "#eba0ac"; }
-                            onExited: { parent.color = "#f38ba8"; }
+                            onEntered: { parent.color = Qt.lighter(Theme.danger, 1.1); }
+                            onExited: { parent.color = Theme.danger; }
                             onClicked: { Network.disconnectNetwork(); }
                         }
                     }
@@ -264,11 +264,11 @@ Popup {
                         propagateComposedEvents: true
 
                         onEntered: {
-                            parent.color = Network.networkName === model.ssid ? "#585b70" : "#45475a";
+                            parent.color = Network.networkName === model.ssid ? Theme.surface2 : Theme.surface1;
                         }
 
                         onExited: {
-                            parent.color = Network.networkName === model.ssid ? "#45475a" : "#313244";
+                            parent.color = Network.networkName === model.ssid ? Theme.surface1 : Theme.surface0;
                         }
 
                         // 点击时触发连接/断开（如果没有点击到按钮）
@@ -302,7 +302,7 @@ Popup {
         StyledText {
             text: "未找到可用网络"
             font.pixelSize: 13
-            color: "#a6adc8"
+            color: Theme.subtext1
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
             Layout.preferredHeight: 60
@@ -321,9 +321,9 @@ Popup {
         height: 200
 
         background: Rectangle {
-            color: "#1e1e2e"
+            color: Theme.base
             radius: 16
-            border.color: "#45475a"
+            border.color: Theme.surface1
             border.width: 1
         }
 
@@ -336,13 +336,13 @@ Popup {
                 text: "输入 WiFi 密码"
                 font.pixelSize: 16
                 font.bold: true
-                color: "#cdd6f4"
+                color: Theme.text
             }
 
             StyledText {
                 text: pendingSsid
                 font.pixelSize: 13
-                color: "#a6adc8"
+                color: Theme.subtext1
                 elide: Text.ElideRight
             }
 
@@ -354,11 +354,11 @@ Popup {
                 echoMode: TextInput.Password
                 selectByMouse: true
                 font.pixelSize: 14
-                color: "#cdd6f4"
+                color: Theme.text
                 background: Rectangle {
-                    color: "#313244"
+                    color: Theme.surface0
                     radius: 8
-                    border.color: passwordInput.activeFocus ? "#89b4fa" : "#45475a"
+                    border.color: passwordInput.activeFocus ? Theme.blue : Theme.surface1
                     border.width: 1
                 }
 
@@ -379,14 +379,14 @@ Popup {
                     Layout.preferredHeight: 36
 
                     background: Rectangle {
-                        color: parent.hovered ? "#585b70" : "#45475a"
+                        color: parent.hovered ? Theme.surface2 : Theme.surface1
                         radius: 8
                     }
 
                     contentItem: StyledText {
                         text: "取消"
                         font.pixelSize: 13
-                        color: "#cdd6f4"
+                        color: Theme.text
                         anchors.centerIn: parent
                     }
 
@@ -398,14 +398,14 @@ Popup {
                     Layout.preferredHeight: 36
 
                     background: Rectangle {
-                        color: parent.hovered ? "#74c7ec" : "#89b4fa"
+                        color: parent.hovered ? Theme.sky : Theme.blue
                         radius: 8
                     }
 
                     contentItem: StyledText {
                         text: "连接"
                         font.pixelSize: 13
-                        color: "#cdd6f4"
+                        color: Theme.text
                         anchors.centerIn: parent
                     }
 

@@ -10,7 +10,7 @@ PanelWidget {
     id: root
     height: 600
     width: 400
-    // color: "#313244"
+    // color: Theme.surface0
     radius: 20
 
     // ---------------- 主要布局 ----------------
@@ -28,14 +28,14 @@ PanelWidget {
             MaterialSymbol {
                 text: "notifications"
                 size: 20;
-                color: NoticeService.historyModel.count > 0 ? "#f9e2af" : "#a6adc8"
+                color: NoticeService.historyModel.count > 0 ? Theme.yellow : Theme.subtext1
             }
 
             Text {
                 text: "Notifications"
                 font.pixelSize: 16
                 font.bold: true
-                color: "#cdd6f4"
+                color: Theme.text
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -46,7 +46,7 @@ PanelWidget {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
                 radius: 14
-                color: NoticeService.doNotDisturb ? "#f38ba8" : "#45475a"
+                color: NoticeService.doNotDisturb ? Theme.danger : Theme.surface1
                 
                 // 添加简单的过渡动画
                 Behavior on color { ColorAnimation { duration: 200 } }
@@ -57,7 +57,7 @@ PanelWidget {
                     MaterialSymbol {
                         text: NoticeService.doNotDisturb ? "notifications_off" : "notifications_none"
                         size: 20
-                        color: NoticeService.doNotDisturb ? "#1e1e2e" : "#cdd6f4"
+                        color: NoticeService.doNotDisturb ? Theme.base : Theme.text
 
                     }
                 }
@@ -74,7 +74,7 @@ PanelWidget {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
                 radius: 14
-                color: NoticeService.historyModel.count ? "#f38ba8" : "#45475a"
+                color: NoticeService.historyModel.count ? Theme.danger : Theme.surface1
                 
                 Behavior on color { ColorAnimation { duration: 200 } }
 
@@ -83,7 +83,7 @@ PanelWidget {
                     anchors.centerIn: parent
                     text: "delete_sweep"
                     size: 20
-                    color: NoticeService.historyModel.count? "#1e1e2e" : "#cdd6f4"
+                    color: NoticeService.historyModel.count? Theme.base : Theme.text
 
                 }
                 
@@ -112,12 +112,12 @@ PanelWidget {
                 MaterialSymbol {
                     text: NoticeService.doNotDisturb ? "notifications_off" : "notifications_none"
                     size: 48
-                    color: "#585b70"
+                    color: Theme.surface2
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Text {
                     text: "No New Notifications"
-                    color: "#585b70"
+                    color: Theme.surface2
                     font.pixelSize: 14
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
@@ -163,7 +163,7 @@ PanelWidget {
                                 Text{
                                     text:n.summary
                                     Layout.fillWidth:true
-                                    color:"#cdd6f4"
+                                    color:Theme.text
                                     font.bold:true
                                     font.pixelSize:13
                                     elide:Text.ElideRight                
@@ -171,7 +171,7 @@ PanelWidget {
 
                                 Text{
                                     text:n.timeStr
-                                    color:"#a6adc8"
+                                    color:Theme.subtext1
                                     font.pixelSize:11
                                 }
 
@@ -182,7 +182,7 @@ PanelWidget {
                                     Text{
                                         anchors.centerIn:parent
                                         text:"x"
-                                        color:parent.containsMouse ? "#f38ba8" : "#6c7086"
+                                        color:parent.containsMouse ? Theme.danger : Theme.overlay0
                                     }
                                     onClicked: NoticeService.removeSeq(n.seq)
                                 }
@@ -191,7 +191,7 @@ PanelWidget {
                                 visible:text !== ""
                                 text:n.body
                                 Layout.fillWidth:true
-                                color:"#cdd6f4"
+                                color:Theme.text
                                 font.pixelSize:12
                                 wrapMode:Text.WordWrap
                                 maximumLineCount:10

@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import qs.Configs
 import qs.components
+import qs.services
 import QtQuick
 import QtQuick.Effects
 
@@ -14,7 +15,7 @@ Item {
 
     StyledRect {
         anchors.fill: parent
-        color: "#45475a"
+        color: Theme.surface1
 
         layer.enabled: true
         layer.effect: MultiEffect {

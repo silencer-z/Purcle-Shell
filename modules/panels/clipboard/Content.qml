@@ -82,7 +82,7 @@ ClippingRectangle {
             Rectangle {
                 width: 40; height: 40
                 radius: 12
-                color: "#313244"
+                color: Theme.surface0
                 Text {
                     anchors.centerIn: parent
                     text: "📋"
@@ -94,7 +94,7 @@ ClippingRectangle {
                 text: "Clipboard"
                 font.pixelSize: 20
                 font.bold: true
-                color: "#cdd6f4"
+                color: Theme.text
                 Layout.alignment: Qt.AlignVCenter
             }
 
@@ -103,13 +103,13 @@ ClippingRectangle {
             Rectangle {
                 width: 80; height: 30
                 radius: 8
-                color: "#f38ba8"
+                color: Theme.danger
                 opacity: clearMouse.containsMouse ? 1.0 : 0.8
 
                 Text {
                     anchors.centerIn: parent
                     text: "Clear All"
-                    color: "#11111b"
+                    color: Theme.onPrimary
                     font.bold: true
                 }
                 MouseArea {
@@ -129,7 +129,7 @@ ClippingRectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: searchHeight
             radius: 20
-            color: "#313244"
+            color: Theme.surface0
 
             RowLayout {
                 anchors.fill: parent
@@ -139,14 +139,14 @@ ClippingRectangle {
                 MaterialSymbol {
                     text: "search"
                     size: 24
-                    color: "#cdd6f4"
+                    color: Theme.text
                 }
 
                 StyledTextInput {
                     id: searchInput
                     Layout.fillWidth: true
                     focus: true
-                    color: "#cdd6f4"
+                    color: Theme.text
                     font.pixelSize: 14
                     verticalAlignment: Text.AlignVCenter
                     onTextChanged: {
@@ -166,7 +166,7 @@ ClippingRectangle {
         Rectangle {
             Layout.fillWidth: true
             height: 1
-            color: "#313244"
+            color: Theme.surface0
         }
 
         ListView {
@@ -231,7 +231,7 @@ ClippingRectangle {
                 Rectangle {
                     anchors.fill: parent
                     radius: 8
-                    color: ListView.isCurrentItem ? "#313244" : (model.pinned ? "#2a2a3c" : "transparent")
+                    color: ListView.isCurrentItem ? Theme.surface0 : (model.pinned ? Theme.surface0 : "transparent")
                 }
 
                 RowLayout {
@@ -242,7 +242,7 @@ ClippingRectangle {
                     Rectangle {
                         width: 40; height: 40
                         radius: 8
-                        color: "#45475a"
+                        color: Theme.surface1
                         Layout.alignment: Qt.AlignVCenter
 
                         Text {
@@ -273,7 +273,7 @@ ClippingRectangle {
                                 }
                                 return model.preview
                             }
-                            color: "#cdd6f4"
+                            color: Theme.text
                             font.pixelSize: 14
                             elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
@@ -293,7 +293,7 @@ ClippingRectangle {
                         Text {
                             visible: model.type === "image" && !model.cached
                             text: "Loading..."
-                            color: "#6c7086"
+                            color: Theme.overlay0
                             anchors.centerIn: parent
                         }
                     }
@@ -301,14 +301,14 @@ ClippingRectangle {
                          Rectangle {
                              width: 70; height: 28
                              radius: 6
-                             color: model.pinned ? "#fab387" : "#45475a"
+                             color: model.pinned ? Theme.peach : Theme.surface1
                              Layout.alignment: Qt.AlignVCenter
 
                              MaterialSymbol {
                                  text: model.pinned ? "push_pin" : "push_pin_off"
                                  anchors.centerIn: parent
                                  font.pixelSize: 16
-                                 color: model.pinned ? "#11111b" : "#cdd6f4"
+                                 color: model.pinned ? Theme.onPrimary : Theme.text
                              }
                              MouseArea {
                                  anchors.fill: parent
@@ -336,7 +336,7 @@ ClippingRectangle {
                 visible: parent.count === 0
                 anchors.centerIn: parent
                 text: searchText ? "No results found" : "No clipboard history"
-                color: "#6c7086"
+                color: Theme.overlay0
                 font.pixelSize: 14
             }
         }

@@ -6,11 +6,11 @@ import qs.components
 import qs.services
 
 PanelWidget {
-    // { icon: "lock", text: "Lock", color: "#89b4fa", command: "loginctl lock-session" },
-    // { icon: "bedtime", text: "Suspend", color: "#cba6f7", command: "systemctl suspend" }
+    // { icon: "lock", text: "Lock", color: Theme.blue, command: "loginctl lock-session" },
+    // { icon: "bedtime", text: "Suspend", color: Theme.mauve, command: "systemctl suspend" }
 
     id: root
-    // color: "#313244"
+    // color: Theme.surface0
     radius: 20
     
 
@@ -19,31 +19,31 @@ PanelWidget {
     readonly property var powerProfiles: [{
         "icon": "eco",
         "profile": "power-saver",
-        "color": "#a6e3a1"
+        "color": Theme.green
     }, {
         "icon": "balance",
         "profile": "balanced",
-        "color": "#89b4fa"
+        "color": Theme.blue
     }, {
         "icon": "speed",
         "profile": "performance",
-        "color": "#f38ba8"
+        "color": Theme.danger
     }]
     // Session commands
     readonly property var sessionActions: [{
         "icon": "logout",
         "text": "Logout",
-        "color": "#fab387",
+        "color": Theme.peach,
         "command": "hyprctl dispatch exit"
     }, {
         "icon": "restart_alt",
         "text": "Reboot",
-        "color": "#a6e3a1",
+        "color": Theme.green,
         "command": "systemctl reboot"
     }, {
         "icon": "power_settings_new",
         "text": "Shutdown",
-        "color": "#f38ba8",
+        "color": Theme.danger,
         "command": "systemctl poweroff"
     }]
 
@@ -80,14 +80,14 @@ PanelWidget {
                     width: 50
                     height: 50
                     radius: 25
-                    color: "#cba6f7"
+                    color: Theme.mauve
                     Layout.leftMargin:10
 
                     MaterialSymbol {
                         anchors.centerIn: parent
                         text: "person"
                         size: 25
-                        color: "#cdd6f4"
+                        color: Theme.text
                     }
                 }
 
@@ -99,13 +99,13 @@ PanelWidget {
                         text: SysInfo.userName || "User"
                         font.pixelSize: 22
                         font.bold: true
-                        color: "#cdd6f4"
+                        color: Theme.text
                     }
 
                     StyledText {
                         text: "Uptime: " + (SysInfo.uptime || "Unknown") + " | Packs: " + (SysInfo.packages || "0")
                         font.pixelSize: 13
-                        color: "#a6adc8"
+                        color: Theme.subtext1
                     }
                 }
             }
@@ -141,7 +141,7 @@ PanelWidget {
                             Layout.preferredWidth: 45
                             Layout.preferredHeight: 45
                             radius: 10
-                            color: mouseArea.containsMouse ? Qt.lighter(modelData.color, 1.2) : (currentPowerProfile === modelData.profile ? modelData.color : "#45475a")
+                            color: mouseArea.containsMouse ? Qt.lighter(modelData.color, 1.2) : (currentPowerProfile === modelData.profile ? modelData.color : Theme.surface1)
 
                             MaterialSymbol {
                                 anchors.centerIn: parent
@@ -182,7 +182,7 @@ PanelWidget {
                 Layout.fillHeight: true
                 Layout.topMargin: 15
                 Layout.bottomMargin: 15
-                color: "#45475a"
+                color: Theme.surface1
             }
 
             Rectangle {
@@ -207,7 +207,7 @@ PanelWidget {
                             Layout.preferredWidth: 45
                             Layout.preferredHeight: 45
                             radius: 10
-                            color: mouseArea.containsMouse ? modelData.color : "#45475a"
+                            color: mouseArea.containsMouse ? modelData.color : Theme.surface1
 
                             MaterialSymbol {
                                 anchors.centerIn: parent

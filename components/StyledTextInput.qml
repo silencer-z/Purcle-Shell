@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.Controls
+import qs.services
 
 TextInput {
     renderType: Text.NativeRendering
-    selectedTextColor: "#000000"
-    selectionColor: "#FFFFFF"
+    selectedTextColor: Theme.onPrimary
+    selectionColor: Theme.mauve
 
     font {
         family: "更纱终端书呆简体-黑"
