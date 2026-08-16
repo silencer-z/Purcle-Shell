@@ -27,17 +27,27 @@ ShellRoot {
                 anchors.top: true
                 anchors.left: true
                 anchors.right: true
-                implicitHeight: bar.height + barPanel.cornerRadius + 20
+                // 连续色块高度 = 内容(32) + 圆角(20)，与 drawer 的 barHeight 对齐
+                implicitHeight: bar.height + barPanel.cornerRadius
                 screen: modelData
-                exclusiveZone: bar.implicitHeight
+                exclusiveZone: barPanel.implicitHeight
 
                 Item {
                     anchors.fill: parent
                     layer.enabled: true
 
+                    // 连续背景：填充圆角之间的中心区域，使顶栏与 drawer 无缝衔接
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#1e1e2e"
+                    }
+
                     Bar {
                         id: bar
                         screen: scope.modelData
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
                     }
                     Components.RoundCorner {
                         id: leftCorner
@@ -59,12 +69,6 @@ ShellRoot {
                             top: bar.bottom
                         }
                     }
-                    layer.effect: DropShadow {
-                        color: "#80000000"
-                        radius: 16
-                        samples: radius * 2
-                        cached: true
-                    }
                 }
                 mask: Region {
                     x: bar.x
@@ -84,7 +88,7 @@ ShellRoot {
         name: "launcher"
         description: qsTr("Start a launcher to execute applications")
         onPressed: {
-            Visibilities.launcher = !Visibilities.launcher;
+            Visibilities.togglePanel("launcher");
         }
     }
 
@@ -92,7 +96,7 @@ ShellRoot {
         name: "clipboard"
         description: qsTr("Start a clipboard")
         onPressed: {
-            Visibilities.clipboard = !Visibilities.clipboard;
+            Visibilities.togglePanel("clipboard");
         }
     }
 
@@ -100,7 +104,7 @@ ShellRoot {
         name: "dashboard"
         description: qsTr("Start a dashboard for system controls")
         onPressed: {
-            Visibilities.dashboard = !Visibilities.dashboard;
+            Visibilities.togglePanel("dashboard");
         }
     }
 
@@ -108,7 +112,7 @@ ShellRoot {
         name: "wallpaper"
         description: qsTr("Start a wallpaper selector")
         onPressed: {
-            Visibilities.wallpaper = !Visibilities.wallpaper;
+            Visibilities.togglePanel("wallpaper");
         }
     }
 }

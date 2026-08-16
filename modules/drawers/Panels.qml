@@ -4,6 +4,7 @@ import qs.modules.panels.launcher as Launcher
 import qs.modules.panels.clipboard as Clipboard
 import qs.modules.panels.wallpaper as Wallpaper
 import qs.modules.panels.dashboard as Dashboard
+import qs.services
 import QtQuick
 
 Item {
@@ -20,6 +21,12 @@ Item {
     anchors.fill: parent
     anchors.margins: root.borderThickness
     anchors.topMargin: root.barHeight
+
+    // 全局 Esc：关闭所有面板（未被子项消费时触发）
+    focus: true
+    Keys.onEscapePressed: {
+        Visibilities.hideAll();
+    }
 
     Launcher.Wrapper {
         id: launcher

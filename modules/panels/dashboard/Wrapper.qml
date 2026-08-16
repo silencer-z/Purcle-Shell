@@ -36,11 +36,19 @@ Item {
             root.contentHeight = content.item?.implicitHeight ?? 0;
             hideAnim.stop();
             showAnim.start();
-            Qt.callLater(() => content.item?.focusInput?.());
+            focusTimer.restart();
         } else {
             showAnim.stop();
             hideAnim.start();
         }
+    }
+
+    Timer {
+        id: focusTimer
+
+        interval: 120
+        repeat: false
+        onTriggered: content.item?.focusInput?.()
     }
 
     SequentialAnimation {
