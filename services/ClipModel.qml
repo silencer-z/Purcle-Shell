@@ -21,36 +21,30 @@ Singleton {
 
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", cacheDir])
-        loadPinnedIds()
+        loadPinsProc.running = true
         refresh()
     }
 
-    function loadPinnedIds() {
-        const proc = Qt.createQmlObject(`
-            import QtQuick
-            import Quickshell.Io
-            Process {
-                command: ["bash", "-c", "cat '${pinsFile}' 2>/dev/null || echo '[]'"]
-                onExited: (code) => {
-                    try {
-                        const data = JSON.parse(readAll())
-                        pinnedIds = data
-                    } catch(e) {
-                        pinnedIds = []
-                    }
-                    destroy()
+    Process {
+        id: loadPinsProc
+
+        command: ["bash", "-c", `cat ${JSON.stringify(root.pinsFile)} 2>/dev/null || echo '[]'`]
+
+        stdout: SplitParser {
+            onRead: data => {
+                try {
+                    root.pinnedIds = JSON.parse(data.trim())
+                } catch(e) {
+                    root.pinnedIds = []
                 }
             }
-        `, root, "LoadPins")
-        proc.running = true
+        }
     }
 
     function savePinnedIds() {
-        const data = JSON.stringify(pinnedIds)
-        Quickshell.execDetached([
-            "bash", "-c",
-            `mkdir -p '${Quickshell.cacheDir}' && echo '${data}' > '${pinsFile}'`
-        ])
+        Quickshell.execDetached({
+            command: ["sh", "-c", `mkdir -p ${JSON.stringify(Quickshell.cacheDir)} && printf '%s' ${JSON.stringify(JSON.stringify(root.pinnedIds))} > ${JSON.stringify(root.pinsFile)}`]
+        })
     }
 
     function isPinned(id) {
@@ -93,7 +87,7 @@ Singleton {
         if (isPinned(item.id)) {
             togglePin(item.id)
         }
-        deleteProc.targetId = item.id
+        deleteProc.command = ["cliphist", "delete", item.id]
         deleteProc.running = true
     }
 
@@ -150,34 +144,51 @@ Singleton {
 
     function ensureImageCached(item, index) {
         const path = imagePathFor(item.id).replace("file://", "")
-        const targetIndex = index
-        const targetPath = path
+        root._cacheQueue.push({ id: item.id, index: index, path: path })
+        processCacheQueue()
+    }
 
-        const proc = Qt.createQmlObject(`
-            import QtQuick
-            import Quickshell.Io
-            Process {
-                property var targetModel: null
-                command: ["bash", "-c", "if [ ! -f '${targetPath}' ]; then cliphist decode ${item.id} > '${targetPath}' 2>/dev/null; fi"]
-                onExited: (code) => {
-                    if (targetModel && targetModel.count > ${targetIndex}) {
-                        targetModel.setProperty(${targetIndex}, "cached", true)
-                        targetModel.setProperty(${targetIndex}, "imagePath", "file://${targetPath}")
-                    }
-                    destroy()
-                }
+    // ---- 图片缓存队列（串行，避免大量并发进程） ----
+    property var _cacheQueue: []
+
+    function processCacheQueue() {
+        if (cacheProc.running || root._cacheQueue.length === 0)
+            return;
+
+        const task = root._cacheQueue.shift()
+        const targetId = JSON.stringify(task.id)
+        const targetPath = JSON.stringify(task.path)
+        cacheProc.targetId = task.id
+        cacheProc.targetPath = task.path
+        cacheProc.targetIndex = task.index
+        cacheProc.command = ["bash", "-c", `if [ ! -f ${targetPath} ]; then cliphist decode ${targetId} > ${targetPath} 2>/dev/null; fi`]
+        cacheProc.running = true
+    }
+
+    Process {
+        id: cacheProc
+        property string targetId: ""
+        property string targetPath: ""
+        property int targetIndex: -1
+
+        command: []
+
+        onExited: (code) => {
+            if (code === 0 && cacheProc.targetIndex >= 0 && cacheProc.targetIndex < model.count) {
+                model.setProperty(cacheProc.targetIndex, "cached", true)
+                model.setProperty(cacheProc.targetIndex, "imagePath", "file://" + cacheProc.targetPath)
             }
-        `, root, "ImageDecoder")
-
-        proc.targetModel = model
-        proc.running = true
+            cacheProc.targetId = ""
+            cacheProc.targetPath = ""
+            cacheProc.targetIndex = -1
+            processCacheQueue()
+        }
     }
 
     Process {
         id: deleteProc
-        property string targetId: ""
 
-        command: ["cliphist", "delete", targetId]
+        command: []
 
         onExited: refresh()
     }

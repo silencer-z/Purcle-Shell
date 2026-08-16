@@ -153,4 +153,11 @@ Singleton{
         }
     }
 
+    // 定期刷新系统信息（开机时间/内存/负载等会变化）
+    Timer {
+        interval: 60000
+        repeat: true
+        onTriggered: root.loadUserInfo()
+    }
+
 }

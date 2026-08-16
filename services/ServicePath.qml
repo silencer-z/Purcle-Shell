@@ -10,17 +10,32 @@ Singleton {
     id: root
 
     readonly property string home: Quickshell.env("HOME")
-    readonly property string pictures: Quickshell.env("XDG_PICTURES_DIR") || `${home}/Pictures`
-    readonly property string videos: Quickshell.env("XDG_VIDEOS_DIR") || `${home}/Videos`
+
+    readonly property string pictures: {
+        const dir = Quickshell.env("XDG_PICTURES_DIR");
+        if (!dir)
+            return `${home}/Pictures`;
+        return dir.startsWith("/") ? dir : `${home}/${dir}`;
+    }
+    readonly property string videos: {
+        const dir = Quickshell.env("XDG_VIDEOS_DIR");
+        if (!dir)
+            return `${home}/Videos`;
+        return dir.startsWith("/") ? dir : `${home}/${dir}`;
+    }
 
     readonly property string rootDir: Quickshell.shellDir
-    readonly property string configDir: Quickshell.env("XDG_CONFIG_DIR") || `${home}/.config`
-    readonly property string shellDir: `${configDir}/shell`
-    readonly property string stateDir: `${home}/.local/state`
+    readonly property string configDir: Quickshell.env("XDG_CONFIG_HOME") || `${home}/.config`
+    readonly property string shellDir: `${configDir}/quickshell`
+    readonly property string stateDir: Quickshell.env("XDG_STATE_HOME") || `${home}/.local/state`
 
-    readonly property string cacheDir: Quickshell.env("XDG_CACHE_DIR") || `${home}/.cache`
+    readonly property string cacheDir: Quickshell.env("XDG_CACHE_HOME") || `${home}/.cache`
     readonly property string currentWallpaperFile: `${cacheDir}/PurcleShell/wallpaper.txt`
-    readonly property string currentWallpaper: wallpaperPath.text().trim()
+    property int wallpaperVersion: 0
+    readonly property string currentWallpaper: {
+        root.wallpaperVersion; // 依赖文件重载信号，保证响应 wallpaper.txt 变化
+        return wallpaperPath.text().trim();
+    }
 
     readonly property string wallpaperDir: Config.wallpaper.wallpaperDir
 
@@ -60,5 +75,7 @@ Singleton {
         path: `${root.cacheDir}/PurcleShell/wallpaper.txt`
         watchChanges: true
         onFileChanged: reload()
+        onLoaded: root.wallpaperVersion++
+        onLoadFailed: root.wallpaperVersion++
     }
 }

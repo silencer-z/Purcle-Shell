@@ -30,9 +30,11 @@ Singleton {
 
     readonly property bool muted: !!sink?.audio?.muted
     readonly property real volume: sink?.audio?.volume ?? 0
+    readonly property int volumePercent: Math.round(root.volume * 100)
 
     readonly property bool sourceMuted: !!source?.audio?.muted
     readonly property real sourceVolume: source?.audio?.volume ?? 0
+    readonly property int sourceVolumePercent: Math.round(root.sourceVolume * 100)
 
 
     PwObjectTracker {
@@ -45,5 +47,16 @@ Singleton {
 
     function setAudioSource(newSource: PwNode): void {
         Pipewire.preferredDefaultAudioSource = newSource;
+    }
+
+    function setVolume(percent: real): void {
+        const v = Math.max(0, Math.min(1, percent));
+        if (sink?.audio)
+            sink.audio.volume = v;
+    }
+
+    function toggleMute(): void {
+        if (sink?.audio)
+            sink.audio.mute = !sink.audio.mute;
     }
 }

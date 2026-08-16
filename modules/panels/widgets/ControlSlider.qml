@@ -24,11 +24,10 @@ PanelWidget {
             MaterialSymbol {
                 id: volumeIcon
                 text: {
-                    if (!AudioService.sink?.audio) return "volume_off";
-                    const volume = AudioService.sink.audio.volume;
-                    if (volume === 0) return "volume_off";
-
-                    return "volume_up";
+                    if (!AudioService.sink || !AudioService.sink.audio) return "volume_off";
+                    if (AudioService.muted || AudioService.volume <= 0) return "volume_off";
+                    if (AudioService.volume >= 0.5) return "volume_up";
+                    return "volume_down";
                 }
                 size: 25
                 color: "#89b4fa"
@@ -39,7 +38,7 @@ PanelWidget {
                 id: volumeSlider
                 Layout.fillWidth: true
                 Layout.preferredHeight: 20
-                value: AudioService.sink?.audio?.volume ?? 0
+                value: AudioService.volume
                 configuration: StyledSlider.Configuration.S
                 highlightColor: "#89b4fa"
                 trackColor: "#45475a"
@@ -51,14 +50,14 @@ PanelWidget {
 
                 onValueChanged: {
                     if (pressed && AudioService.sink?.audio) {
-                        AudioService.sink.audio.volume = value;
+                        AudioService.setVolume(value);
                     }
                 }
 
                 onPressedChanged: {
                     userUpdating = pressed;
                     if (pressed && AudioService.sink?.audio) {
-                        AudioService.sink.audio.volume = value;
+                        AudioService.setVolume(value);
                     }
                 }
 
@@ -72,19 +71,18 @@ PanelWidget {
                         if (!AudioService.sink?.audio) return;
 
                         const delta = wheel.angleDelta.y / 120;
-                        const stepSize = 0.02;
-                        const newVol = Math.max(0, Math.min(1, AudioService.sink.audio.volume + delta * stepSize));
-                        AudioService.sink.audio.volume = newVol;
+                        const newVol = AudioService.volume + delta * 0.02;
+                        AudioService.setVolume(newVol);
                         volumeSlider.value = newVol;
                         wheel.accepted = true;
                     }
                 }
 
                 Connections {
-                    target: AudioService.sink?.audio
-                    function onVolumeChanged() {
+                    target: AudioService.sink ? AudioService.sink.audio : null
+                    function onVolumesChanged() {
                         if (!volumeSlider.pressed && !volumeSlider.userUpdating) {
-                            const systemVolume = AudioService.sink?.audio?.volume ?? 0;
+                            const systemVolume = AudioService.volume;
                             if (Math.abs(volumeSlider.value - systemVolume) > 0.005) {
                                 volumeSlider.value = systemVolume;
                             }

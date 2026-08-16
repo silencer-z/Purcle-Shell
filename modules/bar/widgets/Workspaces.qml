@@ -9,7 +9,7 @@ Components.BarWidget {
     readonly property bool ready : Hyprland.workspaces && Hyprland.workspaces.values && Hyprland.focusedWorkspace
 
     readonly property int realWorkspaceCount: ready ? Hyprland.workspaces.values.length:1
-    readonly property int maxWorkspaceCount: ready ? Hyprland.workspaces.values[realWorkspaceCount-1]?.id:1
+    readonly property int maxWorkspaceCount: ready ? Hyprland.workspaces.values.reduce((max, ws) => Math.max(max, ws?.id ?? 0), 0) : 1
     readonly property int showWorkspaceCount: ready ? Math.max(5, maxWorkspaceCount):5
 
 

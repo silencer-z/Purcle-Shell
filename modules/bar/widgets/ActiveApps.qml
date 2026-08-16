@@ -1,24 +1,50 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs.components
-
-
-// TODO)) 添加对应用名称的处理，不显示原始id名而是显示更为通用的名字
 
 BarWidget {
     id: root
     color: "transparent"
 
-    property var appList: ToplevelManager.toplevels.values
-
-    property var runningApps: []
+    property var runningApps: {
+        const apps = new Set();
+        for (let app of ToplevelManager.toplevels.values) {
+            if (app && app.appId)
+                apps.add(app.appId);
+        }
+        return Array.from(apps);
+    }
 
     property var pinnedApps: [
         { appId: "zen-browser", name: "Zen Browser",        icon: "zenbrowser.svg",launch: "zen-browser" },
         { appId: "code",        name: "Visual Studio Code", icon: "code.svg",      launch: "code" },
         { appId: "kitty",       name: "Terminal",           icon: "gnubash.svg",   launch: "kitty" }
     ]
+
+    // 常见 appId -> 显示名映射，避免显示原始 id
+    property var appNameMap: {
+        "zen-browser": "Zen Browser",
+        "code": "Code",
+        "kitty": "Terminal",
+        "org.kde.dolphin": "Dolphin",
+        "firefox": "Firefox",
+        "chromium": "Chromium",
+        "google-chrome": "Chrome",
+        "com.obsproject.Studio": "OBS Studio",
+        "org.gnome.Nautilus": "Files",
+        "org.gnome.TextEditor": "Text Editor"
+    }
+
+    function displayName(appId: string): string {
+        if (appNameMap[appId])
+            return appNameMap[appId];
+        if (!appId)
+            return "Desktop";
+        return appId.charAt(0).toUpperCase() + appId.slice(1).replace(/[-_]/g, " ");
+    }
 
     property string currentApp: ToplevelManager?.activeToplevel?.appId ?? "Desktop"
 
@@ -36,20 +62,19 @@ BarWidget {
         implicitHeight: appRowLayout.implicitHeight
 
         RowLayout {
-            id:appRowLayout
+            id: appRowLayout
             spacing: 15
             Layout.alignment: Qt.AlignVCenter
 
             Repeater {
-                id:appRepeater
+                id: appRepeater
                 model: root.pinnedApps
 
                 delegate: Item {
                     id: delegateRoot
 
-                    // spacing: 4
-                    Layout.fillHeight:true
-                    Layout.preferredWidth:20
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 20
 
                     property bool isActive: root.activeIndex === index
 
@@ -59,8 +84,8 @@ BarWidget {
                         source: modelData.icon
                         width: 20
                         height: 20
-                        
-                        // 动态染色逻辑保持不变
+
+                        // 动态染色：激活 / 运行中 / 未运行
                         color: {
                             if (delegateRoot.isActive)
                                 return "#cba6f7";
@@ -78,36 +103,35 @@ BarWidget {
                         }
                     }
 
-                    // MouseArea 现在覆盖整个 ColumnLayout
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
                         onClicked: {
-                            // console.log("You clicked App ", modelData.name)
-                            // 可以添加启动应用的逻辑
-                            // Hyprland.dispatch("exec [workspace special] " + modelData.launch)
+                            const cmd = modelData.launch || modelData.appId;
+                            if (cmd)
+                                Hyprland.dispatch("exec", cmd);
                         }
                     }
                 }
             }
 
             Row {
-                id:activeApp
+                id: activeApp
                 StyledText {
                     text: "[ "
                     color: "#cba6f7"
-                    font.bold:true
+                    font.bold: true
                 }
                 StyledText {
-                    text: root.currentApp
+                    text: root.displayName(root.currentApp)
                     color: "#cba6f7"
-                    font.bold:true
-
+                    font.bold: true
                 }
                 StyledText {
                     text: " ]"
                     color: "#cba6f7"
-                    font.bold:true
+                    font.bold: true
                 }
             }
         }
@@ -117,23 +141,14 @@ BarWidget {
             property var activeItem: root.activeIndex !== -1 ? appRepeater.itemAt(root.activeIndex) : activeApp
             readonly property real targetWidth: activeItem ? activeItem.width * 0.9 : 0
             x: activeItem ? activeItem.x + (activeItem.width - targetWidth) / 2 : 0
-            y: parent.height - height +2
+            y: parent.height - height + 2
             height: 3
-            radius: 1.5 // 圆角
-            color: "#cba6f7" // 使用活动状态的颜色
-            width:targetWidth
+            radius: 1.5
+            color: "#cba6f7"
+            width: targetWidth
 
             Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.InOutCubic } }
             Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.InOutCubic } }
         }
-    }
-    onAppListChanged: {
-        let apps = new Set();
-        for (let app of ToplevelManager.toplevels.values) {
-            if (app && app.appId) {
-                apps.add(app.appId);
-            }
-        }
-        runningApps = Array.from(apps);
     }
 }
