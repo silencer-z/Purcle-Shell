@@ -67,6 +67,22 @@ Singleton {
         readProc.running = true
     }
 
+    // 剪贴板内容变化时自动刷新历史（防抖）
+    Connections {
+        target: Quickshell
+
+        function onClipboardTextChanged() {
+            autoRefreshTimer.restart()
+        }
+    }
+
+    Timer {
+        id: autoRefreshTimer
+        interval: 300
+        repeat: false
+        onTriggered: root.refresh()
+    }
+
     function copy(item) {
         if (!item || !item.id) return
 

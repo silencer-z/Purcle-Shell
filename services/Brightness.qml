@@ -30,14 +30,8 @@ Singleton {
         const focusedName = Hyprland.focusedMonitor.name;
         const monitor = monitors.find(m => focusedName === m.screen.name);
 
-        if (monitor){
-            monitor.ready = false
-            monitor.doAfterRefresh = function() {
-                monitor.setBrightness(monitor.realValue + 0.05);
-                monitor.ready = true;
-            };
-            monitor.freshProc.running = true;
-        }
+        if (monitor)
+            monitor.setBrightness(monitor.brightness + 0.05);
     }
 
     function decreaseBrightness(): void {

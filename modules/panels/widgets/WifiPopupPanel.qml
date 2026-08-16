@@ -419,4 +419,17 @@ Popup {
             }
         }
     }
+
+    // 密码错误 / 需要密钥时重新弹窗
+    Connections {
+        target: Network
+
+        function onConnectFailed(ssid: string) {
+            if (ssid && ssid === root.pendingSsid && passwordDialog) {
+                passwordDialog.visible = true;
+                passwordInput.text = "";
+                passwordInput.focus = true;
+            }
+        }
+    }
 }
