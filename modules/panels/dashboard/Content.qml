@@ -1,29 +1,41 @@
-import "./widgets"
+import "../widgets"
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Pipewire
+import Quickshell.Widgets
 import qs.components
+import qs.Configs
 
-Item {
+ClippingRectangle {
     id: root
 
-    required property var panelWrapper
+    required property int maxHeight
+
+    radius: Config.appearance.border.rounding
+    bottomLeftRadius: Config.appearance.border.rounding
+    bottomRightRadius: Config.appearance.border.rounding
+    topLeftRadius: 0
+    topRightRadius: 0
+    color: "transparent"
+
     property int currentIndex: 0
     property var widgetList: []
     property int currentWidgetIndex: -1
 
+    readonly property int intrinsicHeight: 800
+
     function close() {
-        console.log("dashboard close");
+        Visibilities.dashboard = false;
     }
 
-    function init() {
-        console.log("dashboard init");
+    function focusInput() {
+        root.forceActiveFocus();
     }
 
     implicitWidth: 900
-    implicitHeight: 800
+    implicitHeight: Math.min(root.intrinsicHeight, root.maxHeight)
 
     Rectangle {
         id: mainContainer

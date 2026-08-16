@@ -1,25 +1,34 @@
 import QtQuick
 import Quickshell
-
+import Quickshell.Widgets
 import qs.components
 import qs.Configs
 import qs.services
 
-Item{
-    id:root
+ClippingRectangle {
+    id: root
 
-    required property var panelWrapper
+    required property int maxHeight
+
+    radius: Config.appearance.border.rounding
+    topLeftRadius: Config.appearance.border.rounding
+    topRightRadius: Config.appearance.border.rounding
+    bottomLeftRadius: 0
+    bottomRightRadius: 0
+    color: "transparent"
+
+    readonly property int intrinsicHeight: 300
 
     function close() {
-        console.log("wallpaper selector close");
+        Visibilities.wallpaper = false;
     }
 
-    function init() {
+    function focusInput() {
         wallpaperPath.forceActiveFocus();
     }
 
     implicitWidth: 1150
-    implicitHeight: 300
+    implicitHeight: Math.min(root.intrinsicHeight, root.maxHeight)
 
     function setWallpaper(path:string):void{
         Quickshell.execDetached({
@@ -158,7 +167,7 @@ Item{
 
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) {
-            panelWrapper.close();
+            root.close();
             event.accepted = true;
         }else if (event.key === Qt.Key_Left) {
             wallpaperPath.decrementCurrentIndex();

@@ -10,6 +10,12 @@ JsonObject {
     property PaddingComponent padding: PaddingComponent {}
     property RoundingComponent rounding: RoundingComponent {}
     property SpacingComponent spacing: SpacingComponent {}
+    property BorderComponent border: BorderComponent {}
+
+    component BorderComponent: JsonObject {
+        property int thickness: 2
+        property int rounding: 20
+    }
 
     component FontFamily: JsonObject {
         property string material: "Material Symbols Rounded"

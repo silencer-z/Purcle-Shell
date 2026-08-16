@@ -1,36 +1,52 @@
-import "./widgets"
+import "../widgets"
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Widgets
 import qs.components
 import qs.services
+import qs.Configs
 
-Item {
+ClippingRectangle {
     id: root
 
-    required property var panelWrapper
+    required property int maxHeight
+
+    radius: Config.appearance.border.rounding
+    topLeftRadius: Config.appearance.border.rounding
+    topRightRadius: Config.appearance.border.rounding
+    bottomLeftRadius: 0
+    bottomRightRadius: 0
+    color: "transparent"
+
     property int currentIndex: 0
 
-    // 提供给管理器的关闭函数
+    readonly property int intrinsicHeight: calculateContentHeight()
+
+    function focusInput() {
+        searchField.forceActiveFocus();
+        searchField.selectAll();
+    }
+
     function close() {
         root.currentIndex = 0;
         searchField.clear();
         AppModel.filterText = "";
+        Visibilities.launcher = false;
     }
 
-    // 关闭部件由管理器执行
     function executeApp(entry) {
         AppModel.trackApp(entry.name || entry.id);
         entry.execute();
-        panelWrapper.close();
+        Visibilities.launcher = false;
     }
 
     function executeAction(action) {
         action.execute();
-        panelWrapper.close();
+        Visibilities.launcher = false;
     }
 
     function calculateContentHeight() {
-        var totalHeight =90;
+        var totalHeight = 90;
         var itemCount = AppModel.appModel.count;
         if (itemCount === 0)
             return 90;
@@ -48,13 +64,11 @@ Item {
     }
 
     implicitWidth: 600
-    implicitHeight: calculateContentHeight()
-    Component.onCompleted: {
-        searchField.forceActiveFocus();
-    }
+    implicitHeight: Math.min(root.intrinsicHeight, root.maxHeight)
+
     Keys.onPressed: (event) => {
         if (event.key === Qt.Key_Escape) {
-            panelWrapper.close();
+            root.close();
             event.accepted = true;
         } else if (event.key === Qt.Key_Up) {
             if (root.currentIndex > 0) {

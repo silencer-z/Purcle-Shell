@@ -53,12 +53,7 @@ PanelWidget {
     }
 
     function closeDashboard() {
-        var panel = root;
-        while (panel && !panel.panelWrapper)
-            panel = panel.parent;
-
-        if (panel && panel.panelWrapper)
-            panel.panelWrapper.close();
+        Visibilities.dashboard = false;
     }
 
     Component.onCompleted: {

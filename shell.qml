@@ -1,7 +1,8 @@
 import "./components" as Components
 import "./modules/bar"
-import "./modules/panels" as Panels
+import "./modules/drawers"
 import "./modules/popups" as Popups
+import qs.services
 import Qt5Compat.GraphicalEffects
 import QtQuick
 import Quickshell
@@ -77,16 +78,13 @@ ShellRoot {
 
     Popups.NotificationPopup{}
 
-    Panels.PanelWrapper {
-        id: panelWrapper
-    }
+    Drawers {}
 
     GlobalShortcut {
         name: "launcher"
         description: qsTr("Start a launcher to execute applications")
         onPressed: {
-            panelWrapper.open(Quickshell.shellPath("modules/panels/LaunchPanel.qml"), {
-            });
+            Visibilities.launcher = !Visibilities.launcher;
         }
     }
 
@@ -94,8 +92,7 @@ ShellRoot {
         name: "clipboard"
         description: qsTr("Start a clipboard")
         onPressed: {
-            panelWrapper.open(Quickshell.shellPath("modules/panels/ClipBoardPanel.qml"), {
-            });
+            Visibilities.clipboard = !Visibilities.clipboard;
         }
     }
 
@@ -103,16 +100,15 @@ ShellRoot {
         name: "dashboard"
         description: qsTr("Start a dashboard for system controls")
         onPressed: {
-            panelWrapper.open(Quickshell.shellPath("modules/panels/DashBoardPanel.qml"), {
-            });
+            Visibilities.dashboard = !Visibilities.dashboard;
         }
     }
+
     GlobalShortcut {
-        name:"wallpaper"
+        name: "wallpaper"
         description: qsTr("Start a wallpaper selector")
-        onPressed:{
-            panelWrapper.open(Quickshell.shellPath("modules/panels/WallpaperPanel.qml"), {
-            });
+        onPressed: {
+            Visibilities.wallpaper = !Visibilities.wallpaper;
         }
     }
 }
