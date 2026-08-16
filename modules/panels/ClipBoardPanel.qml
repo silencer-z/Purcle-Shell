@@ -1,46 +1,73 @@
-import QtQuick
-import QtQuick.Layouts
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 import Quickshell
 import qs.services
+import qs.components
 
 Item {
     id: root
     required property var panelWrapper
     property int currentIndex: 0
+    property string searchText: ""
 
     readonly property int maxPanelHeight: 800
     readonly property int headerHeight: 80
-    readonly property int itemHeight: 66    // 每个列表项的高度(60+6间距)
+    readonly property int searchHeight: 60
+    readonly property int itemHeight: 60
 
     implicitWidth: 600
-    implicitHeight: Math.min(maxPanelHeight, headerHeight + (ClipModel.itemModel?.count || 0) * itemHeight)
+    implicitHeight: {
+        const totalCount = filterModel.count
+        const baseHeight = headerHeight + searchHeight + totalCount * itemHeight + 24
+        return Math.min(maxPanelHeight, baseHeight)
+    }
+
+    ListModel { id: filterModel }
+
+    function updateFilter() {
+        filterModel.clear()
+        const query = searchText.toLowerCase().trim()
+        const pinned = []
+        const unpinned = []
+        for (let i = 0; i < ClipModel.itemModel.count; i++) {
+            const item = ClipModel.itemModel.get(i)
+            if (item.pinned) {
+                pinned.push(item)
+            } else if (!query || item.preview.toLowerCase().includes(query)) {
+                unpinned.push(item)
+            }
+        }
+        pinned.forEach(item => filterModel.append(item))
+        unpinned.forEach(item => filterModel.append(item))
+    }
 
     function close() {
         currentIndex = 0
+        searchText = ""
         if (panelWrapper) panelWrapper.close()
     }
 
     function init() {
         ClipModel.refresh()
+        searchText = ""
+        updateFilter()
         list.forceActiveFocus()
         currentIndex = 0
     }
 
+    onSearchTextChanged: updateFilter()
 
     Rectangle {
         anchors.fill: parent
         radius: 16
         color: "#1e1e2e"
 
-
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 16
             spacing: 12
 
-            /* ===== 标题栏 ===== */
             RowLayout {
-                spacing: 12
                 Layout.fillWidth: true
 
                 Rectangle {
@@ -62,9 +89,8 @@ Item {
                     Layout.alignment: Qt.AlignVCenter
                 }
 
-                Item { Layout.fillWidth: true } // 占位符
+                Item { Layout.fillWidth: true }
 
-                // 清空按钮示例
                 Rectangle {
                     width: 80; height: 30
                     radius: 8
@@ -83,6 +109,47 @@ Item {
                         onClicked: {
                             Quickshell.execDetached(["cliphist", "wipe"])
                             ClipModel.refresh()
+                            updateFilter()
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                id: searchBar
+                Layout.fillWidth: true
+                Layout.preferredHeight: searchHeight
+                radius: 20
+                color: "#313244"
+                anchors.margins: 15
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 10
+
+                    MaterialSymbol {
+                        text: "search"
+                        size: 24
+                        color: "#cdd6f4"
+                    }
+
+                    StyledTextInput {
+                        id: searchInput
+                        Layout.fillWidth: true
+                        focus: true
+                        color: "#cdd6f4"
+                        font.pixelSize: 14
+                        verticalAlignment: Text.AlignVCenter
+                        onTextChanged: {
+                            searchText = text
+                        }
+                        Keys.onEscapePressed: {
+                            if (searchText) {
+                                searchText = ""
+                            } else {
+                                root.close()
+                            }
                         }
                     }
                 }
@@ -94,70 +161,81 @@ Item {
                 color: "#313244"
             }
 
-            /* ===== 列表内容 ===== */
             ListView {
                 id: list
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                highlightFollowsCurrentItem:true
-                highlightMoveDuration:100
-
-                model: ClipModel.itemModel
-                currentIndex: root.currentIndex
+                highlightFollowsCurrentItem: true
+                highlightMoveDuration: 100
                 clip: true
                 spacing: 6
-
-                // 优化滚动条行为
                 boundsBehavior: Flickable.StopAtBounds
 
-                // 键盘导航逻辑
-                Keys.onPressed: (event) => {
-                    if (event.key === Qt.Key_Escape) {
-                        root.close()
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Up) {
-                        decrementCurrentIndex()
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Down) {
-                        incrementCurrentIndex()
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        ClipModel.copy(model.get(currentIndex))
-                        root.close()
-                        event.accepted = true
-                    } else if (event.key === Qt.Key_Delete) {
-                        ClipModel.deleteItem(model.get(currentIndex))
-                        event.accepted = true
-                    }
-                }
+                model: filterModel
 
-                delegate: Rectangle {
+                currentIndex: root.currentIndex
+
+                focus: true
+
+                 Keys.onPressed: (event) => {
+                     if (event.key === Qt.Key_Escape) {
+                         if (searchText) {
+                             searchText = ""
+                         } else {
+                             root.close()
+                         }
+                         event.accepted = true
+                     } else if (event.key === Qt.Key_Up) {
+                         decrementCurrentIndex()
+                         event.accepted = true
+                     } else if (event.key === Qt.Key_Down) {
+                         incrementCurrentIndex()
+                         event.accepted = true
+                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                         const item = model.get(currentIndex)
+                         if (item) {
+                             ClipModel.copy(item)
+                             root.close()
+                         }
+                         event.accepted = true
+                     } else if (event.key === Qt.Key_Delete) {
+                         const item = model.get(currentIndex)
+                         if (item) {
+                             ClipModel.deleteItem(item)
+                             updateFilter()
+                         }
+                         event.accepted = true
+                     } else if (event.key === Qt.Key_P || event.key === Qt.Key_p) {
+                         const item = model.get(currentIndex)
+                         if (item) {
+                             ClipModel.togglePin(item.id)
+                             ClipModel.refresh()
+                             updateFilter()
+                         }
+                         event.accepted = true
+                     }
+                 }
+
+                delegate: Item {
                     width: list.width
-                    height: 60
-                    radius: 8
-                    color: ListView.isCurrentItem ? "#313244" : "transparent"
+                    height: itemHeight
 
-                    // 鼠标悬停交互
-                    MouseArea {
+                    Rectangle {
                         anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: list.currentIndex = index
-                        onClicked: {
-                            ClipModel.copy(model)
-                            root.close()
-                        }
+                        radius: 8
+                        color: ListView.isCurrentItem ? "#313244" : (model.pinned ? "#2a2a3c" : "transparent")
                     }
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 10
-                        spacing: 12
+                        anchors.margins: 8
+                        spacing: 10
 
-                        // 1. 图标/类型指示器
                         Rectangle {
                             width: 40; height: 40
                             radius: 8
                             color: "#45475a"
+                            Layout.alignment: Qt.AlignVCenter
 
                             Text {
                                 anchors.centerIn: parent
@@ -172,13 +250,11 @@ Item {
                             }
                         }
 
-                        // 2. 内容预览
                         Rectangle {
                             Layout.fillWidth: true
-                            height: 40
+                            Layout.fillHeight: true
                             color: "transparent"
 
-                            // 文本/文件路径显示
                             Text {
                                 visible: model.type !== "image"
                                 anchors.fill: parent
@@ -196,7 +272,6 @@ Item {
                                 maximumLineCount: 2
                             }
 
-                            // 图片显示
                             Image {
                                 visible: model.type === "image" && model.cached
                                 source: model.imagePath || ""
@@ -207,7 +282,6 @@ Item {
                                 cache: false
                             }
 
-                            // 图片加载中提示
                             Text {
                                 visible: model.type === "image" && !model.cached
                                 text: "Loading..."
@@ -216,15 +290,46 @@ Item {
                             }
                         }
 
-                        // 3. 提示文本
-                        Text {
-                            visible: ListView.isCurrentItem
-                            text: "↵ Copy"
-                            color: "#a6e3a1"
-                            font.pixelSize: 12
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                             Rectangle {
+                                 width: 70; height: 28
+                                 radius: 6
+                                 color: model.pinned ? "#fab387" : "#45475a"
+                                 Layout.alignment: Qt.AlignVCenter
+
+                                 MaterialSymbol {
+                                     text: model.pinned ? "push_pin" : "push_pin_off"
+                                     anchors.centerIn: parent
+                                     font.pixelSize: 16
+                                     color: model.pinned ? "#11111b" : "#cdd6f4"
+                                 }
+                                 MouseArea {
+                                     anchors.fill: parent
+                                     onClicked: {
+                                         ClipModel.togglePin(model.id)
+                                         ClipModel.refresh()
+                                         updateFilter()
+                                     }
+                                 }
+                             }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: list.currentIndex = index
+                        onClicked: {
+                            ClipModel.copy(model)
+                            root.close()
                         }
                     }
+                }
+
+                Text {
+                    visible: parent.count === 0
+                    anchors.centerIn: parent
+                    text: searchText ? "No results found" : "No clipboard history"
+                    color: "#6c7086"
+                    font.pixelSize: 14
                 }
             }
         }

@@ -14,14 +14,59 @@ Singleton {
 
     /* ================== Cache ================== */
     readonly property string cacheDir: Quickshell.cacheDir + "/cliphist"
+    readonly property string pinsFile: Quickshell.cacheDir + "/clipboard-pins.json"
+
+    /* ================== Pinned ================== */
+    property var pinnedIds: []
 
     Component.onCompleted: {
-        // 启动时确保存储目录存在
         Quickshell.execDetached(["mkdir", "-p", cacheDir])
+        loadPinnedIds()
         refresh()
     }
 
-    /* =================== API =================== */
+    function loadPinnedIds() {
+        const proc = Qt.createQmlObject(`
+            import QtQuick
+            import Quickshell.Io
+            Process {
+                command: ["bash", "-c", "cat '${pinsFile}' 2>/dev/null || echo '[]'"]
+                onExited: (code) => {
+                    try {
+                        const data = JSON.parse(readAll())
+                        pinnedIds = data
+                    } catch(e) {
+                        pinnedIds = []
+                    }
+                    destroy()
+                }
+            }
+        `, root, "LoadPins")
+        proc.running = true
+    }
+
+    function savePinnedIds() {
+        const data = JSON.stringify(pinnedIds)
+        Quickshell.execDetached([
+            "bash", "-c",
+            `mkdir -p '${Quickshell.cacheDir}' && echo '${data}' > '${pinsFile}'`
+        ])
+    }
+
+    function isPinned(id) {
+        return pinnedIds.includes(id)
+    }
+
+    function togglePin(id) {
+        if (pinnedIds.includes(id)) {
+            pinnedIds = pinnedIds.filter(i => i !== id)
+        } else {
+            pinnedIds = [...pinnedIds, id]
+        }
+        savePinnedIds()
+    }
+
+    /* =================== API ================== */
 
     function refresh() {
         readProc.buffer = []
@@ -44,6 +89,9 @@ Singleton {
             const path = imagePathFor(item.id)
             Quickshell.execDetached(["rm", path])
             console.log("Deleted cache image:", path)
+        }
+        if (isPinned(item.id)) {
+            togglePin(item.id)
         }
         deleteProc.targetId = item.id
         deleteProc.running = true
@@ -75,7 +123,6 @@ Singleton {
                 const id = line.slice(0, spaceIndex)
                 const preview = line.slice(spaceIndex + 1)
 
-                // 类型判断
                 let type = "text"
                 if (preview.startsWith("file://")) {
                     type = "file"
@@ -88,12 +135,12 @@ Singleton {
                     preview: preview.trim(),
                     type: type,
                     imagePath: type === "image" ? imagePathFor(id) : "",
-                    cached: false
+                    cached: false,
+                    pinned: isPinned(id)
                 }
 
                 model.append(item)
 
-                // 图片异步缓存
                 if (type === "image") {
                     ensureImageCached(item, model.count - 1)
                 }
@@ -101,13 +148,11 @@ Singleton {
         }
     }
 
-    // 异步解码图片
     function ensureImageCached(item, index) {
         const path = imagePathFor(item.id).replace("file://", "")
         const targetIndex = index
         const targetPath = path
-        
-        // 创建动态对象时，将 model 直接作为属性传入
+
         const proc = Qt.createQmlObject(`
             import QtQuick
             import Quickshell.Io
@@ -115,7 +160,6 @@ Singleton {
                 property var targetModel: null
                 command: ["bash", "-c", "if [ ! -f '${targetPath}' ]; then cliphist decode ${item.id} > '${targetPath}' 2>/dev/null; fi"]
                 onExited: (code) => {
-                    // 通过传入的 model 属性来访问，避免单例访问问题
                     if (targetModel && targetModel.count > ${targetIndex}) {
                         targetModel.setProperty(${targetIndex}, "cached", true)
                         targetModel.setProperty(${targetIndex}, "imagePath", "file://${targetPath}")
@@ -125,20 +169,16 @@ Singleton {
             }
         `, root, "ImageDecoder")
 
-        // 将 model 直接传递给动态对象
         proc.targetModel = model
         proc.running = true
     }
 
-    // 删除记录进程
     Process {
         id: deleteProc
-        // 使用 targetId 避免与 Process 自身的 id 属性冲突
         property string targetId: ""
 
         command: ["cliphist", "delete", targetId]
 
-        // 删除完成后刷新列表
         onExited: refresh()
     }
 }
