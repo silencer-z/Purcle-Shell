@@ -149,7 +149,7 @@ Slider {
         }
 
         StyledTooltip {
-            extraVisibleCondition: root.pressed
+            hovered: root.pressed
             content: root.tooltipContent
         }
     }

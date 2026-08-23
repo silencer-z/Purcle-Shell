@@ -19,6 +19,10 @@ Components.BarWidget {
     }
 
     Components.StyledText {
+        id: clockText
+
+        property bool hovered: clockHover.hovered
+
         anchors.fill: parent
         anchors.bottomMargin: 2
         font.pixelSize: 18
@@ -26,6 +30,10 @@ Components.BarWidget {
 
         Components.StyledTooltip {
             content: root.dateText
+        }
+
+        HoverHandler {
+            id: clockHover
         }
     }
 

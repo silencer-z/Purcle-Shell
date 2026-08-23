@@ -9,9 +9,10 @@ ToolTip {
     property string content
     property bool extraVisibleCondition: true
     property bool alternativeVisibleCondition: false
+    // 默认跟随父控件的 hovered 属性；父控件无 hovered 时不显示
+    property bool hovered: parent ? parent.hovered === true : false
     property bool internalVisibleCondition: {
-        const ans = (extraVisibleCondition && (parent.hovered === undefined || parent?.hovered)) || alternativeVisibleCondition
-        return ans
+        return (extraVisibleCondition && root.hovered) || alternativeVisibleCondition
     }
 
     // 定位：水平居中于父控件，垂直在父控件下方

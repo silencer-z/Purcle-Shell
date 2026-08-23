@@ -19,7 +19,7 @@ ShellRoot {
             PanelWindow {
                 id: barPanel
                 WlrLayershell.namespace: "PurcleShell"
-                WlrLayershell.exclusionMode: ExclusionMode.Ignore
+                WlrLayershell.exclusionMode: ExclusionMode.Normal
                 color: "transparent"
                 anchors.top: true
                 anchors.left: true

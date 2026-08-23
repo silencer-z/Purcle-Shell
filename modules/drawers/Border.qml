@@ -15,7 +15,7 @@ Item {
 
     StyledRect {
         anchors.fill: parent
-        color: Theme.surface1
+        color: Theme.base
 
         layer.enabled: true
         layer.effect: MultiEffect {

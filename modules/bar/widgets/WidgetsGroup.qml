@@ -126,12 +126,17 @@ BarWidget {
         MaterialSymbol {
             id: blueToothIcon
 
+            property bool hovered: blueToothHoverHandler.hovered
+
             text: Bluetooth.getIcon()
             font.pixelSize: 22
             visible: Bluetooth.available
 
             StyledTooltip {
                 content: "蓝牙\n点击打开控制面板"
+            }
+            HoverHandler {
+                id: blueToothHoverHandler
             }
             MouseArea {
                 anchors.fill: parent
