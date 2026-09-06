@@ -23,7 +23,7 @@ PanelWidget {
     }
 
     // === 当前曲目信息 ===
-    property string artUrl: MprisService.trackArtUrl
+    property string artUrl: Player.trackArtUrl
     property url displayArt: artUrl.length > 0
         ? artUrl
         : Qt.resolvedUrl(Quickshell.shellPath("assets/apps/zenbrowser.svg"))
@@ -35,15 +35,15 @@ PanelWidget {
         radius: 14
         property string iconName
         signal clicked()
-        color: ma.hovered ? "#E0D6F0" : "transparent"
-        Behavior on color { ColorAnimation { duration: 150 } }
+        color: ma.hovered ? Theme.surface1 : "transparent"
+        Behavior on color { ColorAnim {} }
 
         MaterialSymbol {
             anchors.centerIn: parent
             size: 22
             fill: 1
             horizontalAlignment: Text.AlignHCenter
-            color: "#49454F"
+            color: Theme.overlay2
             text: iconName
         }
 
@@ -68,7 +68,7 @@ PanelWidget {
             Layout.fillHeight: true
             implicitWidth: height
             radius: 8
-            color: "#F3EDF7"
+            color: Theme.surface1
 
             Image {
                 anchors.fill: parent
@@ -89,7 +89,7 @@ PanelWidget {
                 font.pixelSize: 18
                 color: Theme.text
                 elide: Text.ElideRight
-                text: MprisService.trackTitle
+                text: Player.trackTitle
             }
 
             StyledText {
@@ -98,7 +98,7 @@ PanelWidget {
                 font.pixelSize: 13
                 color: Theme.subtext1
                 elide: Text.ElideRight
-                text: MprisService.trackArtist
+                text: Player.trackArtist
             }
 
             Item { Layout.fillHeight: true }
@@ -111,9 +111,9 @@ PanelWidget {
 
                 TrackChangeButton {
                     iconName: "skip_previous"
-                    enabled: MprisService.canGoPrevious ?? false
+                    enabled: Player.canGoPrevious ?? false
                     opacity: enabled ? 1.0 : 0.4
-                    onClicked: MprisService.previous()
+                    onClicked: Player.previous()
                 }
 
                 // 播放 / 暂停按钮
@@ -123,17 +123,17 @@ PanelWidget {
                     height: 44
                     radius: 22
 
-                    property bool isPlaying: MprisService.isPlaying ?? false
+                    property bool isPlaying: Player.isPlaying ?? false
                     property bool hovered: ma.hovered ?? false
 
                     color: isPlaying
-                        ? (hovered ? "#705AAB" : "#6750A4")
-                        : (hovered ? "#E0D6F0" : "#E8DEF8")
+                        ? (hovered ? Qt.alpha(Theme.mauve, 0.85) : Theme.mauve)
+                        : (hovered ? Theme.surface1 : Theme.surface0)
 
                     MaterialSymbol {
                         anchors.centerIn: parent
                         size: 24
-                        color: playPauseButton.isPlaying ? "#FFFFFF" : "#49454F"
+                        color: playPauseButton.isPlaying ? Theme.onPrimary : Theme.overlay2
                         text: playPauseButton.isPlaying ? "pause" : "play_arrow"
                     }
 
@@ -142,15 +142,15 @@ PanelWidget {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: MprisService.togglePlay()
+                        onClicked: Player.togglePlay()
                     }
                 }
 
                 TrackChangeButton {
                     iconName: "skip_next"
-                    enabled: MprisService.canGoNext ?? false
+                    enabled: Player.canGoNext ?? false
                     opacity: enabled ? 1.0 : 0.4
-                    onClicked: MprisService.next()
+                    onClicked: Player.next()
                 }
             }
         }
@@ -158,7 +158,7 @@ PanelWidget {
 
     // === 监听曲目变化 ===
     Connections {
-        target: MprisService
+        target: Player
         function onTrackChanged(player) {
             console.log(`[MprisWidget] Track changed -> ${player.trackArtist} - ${player.trackTitle}`)
         }

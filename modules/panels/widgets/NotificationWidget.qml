@@ -1,212 +1,342 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
-
-import qs.services 
+import Quickshell
+import Quickshell.Widgets
+import qs.Configs
 import qs.components
+import qs.services
 
-
+// 通知中心（dashboard 内）：历史记录列表 + DND 开关 + 清空
 PanelWidget {
     id: root
-    height: 600
-    width: 400
-    // color: Theme.surface0
-    radius: 20
 
-    // ---------------- 主要布局 ----------------
+    implicitHeight: 400
+
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 16
-        spacing: 0 
+        spacing: Config.appearance.spacing.normal
 
-        // --- 标题栏 ---
+        // ==== 标题栏 ====
         RowLayout {
             Layout.fillWidth: true
-            Layout.bottomMargin: 10
-            spacing: 8
+            spacing: Config.appearance.spacing.small
 
             MaterialSymbol {
                 text: "notifications"
-                size: 20;
-                color: NoticeService.historyModel.count > 0 ? Theme.yellow : Theme.subtext1
+                size: 20
+                color: Notifications.historyCount > 0 ? Theme.mauve : Theme.overlay0
+
+                Behavior on color {
+                    ColorAnim {}
+                }
             }
 
-            Text {
-                text: "Notifications"
-                font.pixelSize: 16
-                font.bold: true
+            StyledText {
+                text: qsTr("通知")
                 color: Theme.text
-                Layout.alignment: Qt.AlignVCenter
+                font.pixelSize: 15
+                font.bold: true
             }
 
-            Item { Layout.fillWidth: true } // 弹簧
+            StyledText {
+                visible: Notifications.historyCount > 0
+                text: Notifications.historyCount
+                color: Theme.overlay0
+                font.pixelSize: 12
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
 
             // DND 开关
             Rectangle {
-                Layout.preferredWidth: 28
-                Layout.preferredHeight: 28
-                radius: 14
-                color: NoticeService.doNotDisturb ? Theme.danger : Theme.surface1
-                
-                // 添加简单的过渡动画
-                Behavior on color { ColorAnimation { duration: 200 } }
+                Layout.preferredWidth: 30
+                Layout.preferredHeight: 30
+                radius: 15
+                color: dndArea.containsMouse ? (Notifications.doNotDisturb ? Qt.alpha(Theme.danger, 0.8) : Theme.surface1) : (Notifications.doNotDisturb ? Theme.danger : Theme.surface1)
 
-                RowLayout {
-                    anchors.centerIn: parent
-                    spacing: 4
-                    MaterialSymbol {
-                        text: NoticeService.doNotDisturb ? "notifications_off" : "notifications_none"
-                        size: 20
-                        color: NoticeService.doNotDisturb ? Theme.base : Theme.text
-
-                    }
+                Behavior on color {
+                    ColorAnim {}
                 }
 
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: NoticeService.doNotDisturb = !NoticeService.doNotDisturb
-                }
-            }
-
-            Rectangle {
-
-                Layout.preferredWidth: 28
-                Layout.preferredHeight: 28
-                radius: 14
-                color: NoticeService.historyModel.count ? Theme.danger : Theme.surface1
-                
-                Behavior on color { ColorAnimation { duration: 200 } }
-
-            
                 MaterialSymbol {
                     anchors.centerIn: parent
-                    text: "delete_sweep"
-                    size: 20
-                    color: NoticeService.historyModel.count? Theme.base : Theme.text
-
+                    text: Notifications.doNotDisturb ? "do_not_disturb_on" : "do_not_disturb_off"
+                    size: 18
+                    color: Notifications.doNotDisturb ? Theme.onPrimary : Theme.subtext1
                 }
-                
 
                 MouseArea {
-                    id: clearArea
+                    id: dndArea
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: NoticeService.clearAll()
+                    onClicked: Notifications.doNotDisturb = !Notifications.doNotDisturb
+                }
+
+                StyledTooltip {
+                    content: Notifications.doNotDisturb ? qsTr("勿扰模式开启中，点击关闭") : qsTr("开启勿扰模式")
+                    alternativeVisibleCondition: dndArea.containsMouse
                 }
             }
-        }
 
-        Item{
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
-            Column {
-                anchors.centerIn:parent
-                visible: NoticeService.historyModel.count === 0
-                spacing: 12
-                opacity: visible ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 300 } }
+            // 清空
+            Rectangle {
+                Layout.preferredWidth: 30
+                Layout.preferredHeight: 30
+                radius: 15
+                color: clearArea.containsMouse ? (Notifications.historyCount > 0 ? Qt.alpha(Theme.danger, 0.8) : Theme.surface1) : Theme.surface1
+                enabled: Notifications.historyCount > 0
+                opacity: enabled ? 1 : 0.5
+
+                Behavior on color {
+                    ColorAnim {}
+                }
 
                 MaterialSymbol {
-                    text: NoticeService.doNotDisturb ? "notifications_off" : "notifications_none"
-                    size: 48
-                    color: Theme.surface2
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.centerIn: parent
+                    text: "clear_all"
+                    size: 18
+                    color: Notifications.historyCount > 0 ? Theme.danger : Theme.subtext1
                 }
-                Text {
-                    text: "No New Notifications"
-                    color: Theme.surface2
-                    font.pixelSize: 14
-                    anchors.horizontalCenter: parent.horizontalCenter
+
+                MouseArea {
+                    id: clearArea
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: Notifications.clearAll()
+                }
+
+                StyledTooltip {
+                    content: qsTr("清空全部通知")
+                    alternativeVisibleCondition: clearArea.containsMouse
                 }
             }
         }
 
-        // --- 通知列表区域 ---
-        ScrollView{
+        // ==== 空状态 ====
+        ColumnLayout {
+            visible: Notifications.historyCount === 0
             Layout.fillWidth: true
             Layout.fillHeight: true
+            spacing: Config.appearance.spacing.small
+
+            Item {
+                Layout.fillHeight: true
+            }
+
+            MaterialSymbol {
+                Layout.alignment: Qt.AlignHCenter
+                text: Notifications.doNotDisturb ? "do_not_disturb_on" : "notifications_off"
+                size: 44
+                color: Theme.surface2
+            }
+
+            StyledText {
+                Layout.alignment: Qt.AlignHCenter
+                text: Notifications.doNotDisturb ? qsTr("勿扰模式开启中") : qsTr("暂无通知")
+                color: Theme.overlay0
+                font.pixelSize: 13
+            }
+
+            Item {
+                Layout.fillHeight: true
+            }
+        }
+
+        // ==== 历史列表 ====
+        ListView {
+            id: historyList
+
+            visible: Notifications.historyCount > 0
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: Config.appearance.spacing.small
             clip: true
+            interactive: contentHeight > height
 
-            ScrollBar.vertical.policy:ScrollBar.AsNeeded
-            ColumnLayout{
-                width: parent.width
-                Layout.fillHeight:true
-                Layout.fillWidth:true
-                spacing: 12
+            model: Notifications.historyModel
 
+            add: Transition {
+                NumberAnimation {
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: Config.appearance.animations.durations.small
+                }
+            }
 
-                Repeater{
-                    model:NoticeService.historyModel
+            remove: Transition {
+                NumberAnimation {
+                    property: "opacity"
+                    to: 0
+                    duration: Config.appearance.animations.durations.small
+                }
+            }
 
-                    delegate:Rectangle{
-                        property var n: NoticeService.getWrapper(model.seq)
+            displaced: Transition {
+                NumberAnimation {
+                    property: "y"
+                    duration: Config.appearance.animations.durations.small
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.appearance.animations.curves.standard
+                }
+            }
 
-                        Layout.fillWidth:true
-                        Layout.preferredHeight: contentCol.implicitHeight + 12
+            delegate: Rectangle {
+                id: historyCard
 
-                        visible:n!==null
-                        opacity:1
-                        color:"transparent"
+                required property var wrapper
 
-                        ColumnLayout{
-                            id:contentCol
-                            anchors.fill:parent
-                            anchors.margins:6
-                            spacing:3
+                readonly property var n: wrapper
 
-                            RowLayout{
-                                Layout.fillWidth:true
+                width: historyList.width
+                implicitHeight: cardContent.implicitHeight + Config.appearance.padding.larger * 2
+                radius: Config.appearance.rounding.small
+                color: cardHover.hovered ? Theme.surface0 : "transparent"
+                border.width: cardHover.hovered ? 1 : 0
+                border.color: Theme.surface0
 
-                                Text{
-                                    text:n.summary
-                                    Layout.fillWidth:true
-                                    color:Theme.text
-                                    font.bold:true
-                                    font.pixelSize:13
-                                    elide:Text.ElideRight                
-                                }
+                Behavior on color {
+                    ColorAnim {}
+                }
 
-                                Text{
-                                    text:n.timeStr
-                                    color:Theme.subtext1
-                                    font.pixelSize:11
-                                }
+                RowLayout {
+                    id: cardContent
 
-                                MouseArea{
-                                    width:16;height:16;
-                                    cursorShape:Qt.PointingHandCursor
+                    anchors.fill: parent
+                    anchors.margins: Config.appearance.padding.larger
+                    spacing: Config.appearance.spacing.small
 
-                                    Text{
-                                        anchors.centerIn:parent
-                                        text:"x"
-                                        color:parent.containsMouse ? Theme.danger : Theme.overlay0
-                                    }
-                                    onClicked: NoticeService.removeSeq(n.seq)
-                                }
+                    // 应用图标
+                    Rectangle {
+                        Layout.preferredWidth: 32
+                        Layout.preferredHeight: 32
+                        radius: 9
+                        color: Theme.surface0
+
+                        IconImage {
+                            anchors.fill: parent
+                            anchors.margins: 4
+                            source: {
+                                const s = historyCard.n.appIcon || historyCard.n.image;
+                                return s !== "" ? s : "file://" + Quickshell.shellPath("assets/default.svg");
                             }
-                            Text{
-                                visible:text !== ""
-                                text:n.body
-                                Layout.fillWidth:true
-                                color:Theme.text
-                                font.pixelSize:12
-                                wrapMode:Text.WordWrap
-                                maximumLineCount:10
-                                elide:Text.ElideRight
-                            }
-                            Image {
-                                visible: n.image && n.image !== n.appIcon
+                            implicitSize: 28
+                        }
+                    }
+
+                    // 文本主体
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 2
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: Config.appearance.spacing.small
+
+                            StyledText {
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 100
-                                source: visible ? n.image : ""
-                                fillMode: Image.PreserveAspectCrop
-                                layer.enabled: true
+                                text: historyCard.n.summary !== "" ? historyCard.n.summary : historyCard.n.appName
+                                color: Theme.text
+                                font.pixelSize: 13
+                                font.bold: true
+                                elide: Text.ElideRight
+                            }
+
+                            StyledText {
+                                text: historyCard.n.timeStr
+                                color: Theme.overlay0
+                                font.pixelSize: 11
+                            }
+                        }
+
+                        StyledText {
+                            visible: historyCard.n.body !== ""
+                            Layout.fillWidth: true
+                            text: historyCard.n.body
+                            color: Theme.subtext1
+                            font.pixelSize: 12
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 4
+                            elide: Text.ElideRight
+                        }
+
+                        // 操作按钮
+                        RowLayout {
+                            visible: historyCard.n.actions.length > 0
+                            Layout.fillWidth: true
+                            spacing: Config.appearance.spacing.small / 2
+
+                            Repeater {
+                                model: historyCard.n.actions
+
+                                delegate: Rectangle {
+                                    id: histActionButton
+
+                                    required property var modelData
+
+                                    Layout.preferredHeight: 24
+                                    Layout.preferredWidth: histActionLabel.implicitWidth + 18
+                                    radius: 7
+                                    color: histActionHover.hovered ? Theme.surface1 : Theme.surface0
+
+                                    Behavior on color {
+                                        ColorAnim {}
+                                    }
+
+                                    StyledText {
+                                        id: histActionLabel
+
+                                        anchors.centerIn: parent
+                                        text: histActionButton.modelData.label
+                                        color: Theme.blue
+                                        font.pixelSize: 11
+                                    }
+
+                                    HoverHandler {
+                                        id: histActionHover
+                                    }
+
+                                    TapHandler {
+                                        onTapped: historyCard.n.invoke(histActionButton.modelData.id)
+                                    }
+                                }
                             }
                         }
                     }
+
+                    // 移除按钮（悬停显示）
+                    Rectangle {
+                        Layout.preferredWidth: 22
+                        Layout.preferredHeight: 22
+                        radius: 11
+                        visible: cardHover.hovered
+                        color: removeBtnTap.containsMouse ? Theme.surface2 : Theme.surface1
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            text: "close"
+                            size: 14
+                            color: Theme.subtext1
+                        }
+
+                        TapHandler {
+                            id: removeBtnTap
+
+                            onTapped: Notifications.remove(historyCard.n)
+                        }
+                    }
+                }
+
+                HoverHandler {
+                    id: cardHover
                 }
             }
         }

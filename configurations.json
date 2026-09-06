@@ -1,35 +1,169 @@
 {
-	"appearance": {
-		"animations": {
-			"durations": {
-				"scale": 1
-			}
-		},
-		"fonts": {
-			"family": {
-				"material": "Material Symbols Rounded",
-				"mono": "Maple Mono NF CN",
-				"sans": "Noto Sans CJK SC"
-			},
-			"size": {
-				"scale": 1
-			}
-		}
-	},
-	"colors": {
-		"isDarkMode": true,
-		"matugenConfigPathForDarkColor": "/home/orz/.cache/PurcleShell/dark-colors.json",
-		"matugenConfigPathForLightColor": "/home/orz/.cache/PurcleShell/light-colors.json",
-		"staticColorsPath": "/home/orz/.cache/PurcleShell/colors.json",
-		"useMatugenColor": true,
-		"useStaticColors": false
-	},
-	"wallpaper": {
-		"enabledWallpaper": true,
-		"transition": "circle",
-		"transitionDuration": 500,
-		"transitionLowPerfMode": false,
-		"visibleWallpaper": 3,
-		"wallpaperDir": "/home/orz/Pictures/Wallpapers"
-	}
+    "appearance": {
+        "animations": {
+            "curves": {
+                "emphasized": [
+                    0.05,
+                    0,
+                    0.13,
+                    0.06,
+                    0.16,
+                    0.4,
+                    0.20833,
+                    0.82,
+                    0.25,
+                    1,
+                    1,
+                    1
+                ],
+                "emphasizedAccel": [
+                    0.3,
+                    0,
+                    0.8,
+                    0.15,
+                    1,
+                    1
+                ],
+                "emphasizedDecel": [
+                    0.05,
+                    0.7,
+                    0.1,
+                    1,
+                    1,
+                    1
+                ],
+                "expressiveDefaultSpatial": [
+                    0.38,
+                    1.21,
+                    0.22,
+                    1,
+                    1,
+                    1
+                ],
+                "expressiveEffects": [
+                    0.34,
+                    0.8,
+                    0.34,
+                    1,
+                    1,
+                    1
+                ],
+                "expressiveFastSpatial": [
+                    0.42,
+                    1.67,
+                    0.21,
+                    0.9,
+                    1,
+                    1
+                ],
+                "standard": [
+                    0.2,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1
+                ],
+                "standardAccel": [
+                    0.3,
+                    0,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                "standardDecel": [
+                    0,
+                    0,
+                    0,
+                    1,
+                    1,
+                    1
+                ]
+            },
+            "durations": {
+                "emphasized": 500,
+                "emphasizedAccel": 200,
+                "emphasizedDecel": 400,
+                "expressiveDefaultSpatial": 500,
+                "expressiveEffects": 200,
+                "expressiveFastSpatial": 350,
+                "extraLarge": 1000,
+                "large": 600,
+                "normal": 300,
+                "scale": 1,
+                "small": 200
+            }
+        },
+        "border": {
+            "rounding": 20,
+            "thickness": 2
+        },
+        "fonts": {
+            "family": {
+                "material": "Material Symbols Rounded",
+                "mono": "Maple Mono NF CN",
+                "sans": "Noto Sans CJK SC"
+            },
+            "size": {
+                "extraLarge": 30,
+                "large": 16,
+                "larger": 18,
+                "medium": 13,
+                "normal": 14,
+                "scale": 1,
+                "small": 12
+            }
+        },
+        "margin": {
+            "large": 15,
+            "larger": 12,
+            "normal": 10,
+            "small": 5,
+            "smaller": 7
+        },
+        "padding": {
+            "large": 15,
+            "larger": 12,
+            "normal": 10,
+            "small": 5,
+            "smaller": 7
+        },
+        "rounding": {
+            "full": 1000,
+            "large": 25,
+            "normal": 17,
+            "small": 12
+        },
+        "spacing": {
+            "large": 20,
+            "larger": 15,
+            "normal": 12,
+            "small": 7,
+            "smaller": 10
+        }
+    },
+    "colors": {
+        "isDarkMode": true,
+        "presetName": "catppuccin",
+        "scheme": "matugen",
+        "themeWallpapers": {
+            "catppuccin": "/home/orz/Pictures/Wallpapers/purple_leaves.png",
+            "dracula": "",
+            "gruvbox": "",
+            "oxocarbon": ""
+        }
+    },
+    "wallpaper": {
+        "enabledWallpaper": true,
+        "transition": "circle",
+        "transitionDuration": 500,
+        "transitionLowPerfMode": false,
+        "visibleWallpaper": 3,
+        "wallpaperDir": "/home/orz/Pictures/Wallpapers"
+    },
+    "widgets": [
+        {
+        }
+    ]
 }

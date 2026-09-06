@@ -1,59 +1,55 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
 import Quickshell.Io
+import qs.Configs
 import qs.components
 import qs.services
 
+// dashboard 底栏：用户信息 | 电源模式 | 会话操作
 PanelWidget {
-    // { icon: "lock", text: "Lock", color: Theme.blue, command: "loginctl lock-session" },
-    // { icon: "bedtime", text: "Suspend", color: Theme.mauve, command: "systemctl suspend" }
-
     id: root
-    // color: Theme.surface0
-    radius: 20
-    
 
     property string currentPowerProfile: "balanced"
-    // Power profiles data
+
     readonly property var powerProfiles: [{
         "icon": "eco",
+        "label": qsTr("省电"),
         "profile": "power-saver",
         "color": Theme.green
     }, {
         "icon": "balance",
+        "label": qsTr("均衡"),
         "profile": "balanced",
         "color": Theme.blue
     }, {
         "icon": "speed",
+        "label": qsTr("性能"),
         "profile": "performance",
-        "color": Theme.danger
+        "color": Theme.peach
     }]
-    // Session commands
+
     readonly property var sessionActions: [{
         "icon": "logout",
-        "text": "Logout",
+        "label": qsTr("注销"),
         "color": Theme.peach,
         "command": "hyprctl dispatch exit"
     }, {
         "icon": "restart_alt",
-        "text": "Reboot",
+        "label": qsTr("重启"),
         "color": Theme.green,
         "command": "systemctl reboot"
     }, {
         "icon": "power_settings_new",
-        "text": "Shutdown",
+        "label": qsTr("关机"),
         "color": Theme.danger,
         "command": "systemctl poweroff"
     }]
 
-    function executeSessionCommand(command) {
+    function executeSessionCommand(command: string): void {
         sessionProcess.command = ["sh", "-c", command];
         sessionProcess.running = true;
-    }
-
-    function closeDashboard() {
-        Visibilities.dashboard = false;
     }
 
     Component.onCompleted: {
@@ -63,50 +59,50 @@ PanelWidget {
 
     RowLayout {
         anchors.fill: parent
-        spacing: 10
+        spacing: Config.appearance.spacing.normal
 
-        Rectangle {
-            Layout.preferredWidth: 280
+        // ==== 用户信息 ====
+        RowLayout {
+            Layout.preferredWidth: 300
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignLeft
-            color: "transparent"
-            radius: 8
+            spacing: Config.appearance.spacing.small
 
-            RowLayout {
-                anchors.fill: parent
-                spacing: 10
+            Rectangle {
+                Layout.preferredWidth: 46
+                Layout.preferredHeight: 46
+                Layout.leftMargin: 4
+                radius: 23
+                color: Theme.mauve
 
-                Rectangle {
-                    width: 50
-                    height: 50
-                    radius: 25
-                    color: Theme.mauve
-                    Layout.leftMargin:10
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "person"
+                    size: 24
+                    color: Theme.onPrimary
+                }
+            }
 
-                    MaterialSymbol {
-                        anchors.centerIn: parent
-                        text: "person"
-                        size: 25
-                        color: Theme.text
-                    }
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 1
+
+                StyledText {
+                    text: SysInfo.userName || qsTr("User")
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: Theme.text
+                    elide: Text.ElideRight
+
+                    Layout.fillWidth: true
                 }
 
-                ColumnLayout {
+                StyledText {
+                    text: `${SysInfo.hostName || ""} · ${qsTr("开机")} ${SysInfo.uptime || qsTr("未知")}`
+                    font.pixelSize: 11
+                    color: Theme.subtext1
+                    elide: Text.ElideRight
+
                     Layout.fillWidth: true
-                    spacing: 1
-
-                    StyledText {
-                        text: SysInfo.userName || "User"
-                        font.pixelSize: 22
-                        font.bold: true
-                        color: Theme.text
-                    }
-
-                    StyledText {
-                        text: "Uptime: " + (SysInfo.uptime || "Unknown") + " | Packs: " + (SysInfo.packages || "0")
-                        font.pixelSize: 13
-                        color: Theme.subtext1
-                    }
                 }
             }
         }
@@ -115,166 +111,132 @@ PanelWidget {
             Layout.fillWidth: true
         }
 
+        // ==== 电源模式 ====
         RowLayout {
-            Layout.alignment: Qt.AlignRight
-            spacing: 3
+            spacing: Config.appearance.spacing.small / 2
 
-            Rectangle {
-                Layout.preferredWidth: powerLayout.implicitWidth + 12
-                Layout.preferredHeight: powerLayout.implicitHeight + 12
-                color: "transparent"
-                radius: 8
+            Repeater {
+                model: root.powerProfiles
 
-                // Power Profile Buttons
-                RowLayout {
-                    id: powerLayout
+                delegate: Rectangle {
+                    id: profileButton
 
-                    anchors.centerIn: parent
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter
-                    spacing: 6
+                    required property var modelData
 
-                    Repeater {
-                        model: root.powerProfiles
+                    readonly property bool active: root.currentPowerProfile === profileButton.modelData.profile
 
-                        delegate: Rectangle {
-                            Layout.preferredWidth: 45
-                            Layout.preferredHeight: 45
-                            radius: 10
-                            color: mouseArea.containsMouse ? Qt.lighter(modelData.color, 1.2) : (currentPowerProfile === modelData.profile ? modelData.color : Theme.surface1)
+                    Layout.preferredWidth: 42
+                    Layout.preferredHeight: 42
+                    radius: Config.appearance.rounding.small
+                    color: profileButton.active ? profileButton.modelData.color : profileHover.hovered ? Theme.surface1 : Theme.surface0
 
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: modelData.icon
-                                size: 22
-                                color: "white"
-                            }
-
-                            MouseArea {
-                                id: mouseArea
-
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: {
-                                    currentPowerProfile = modelData.profile;
-                                    setPowerProfile.command = ["powerprofilesctl", "set", modelData.profile];
-                                    setPowerProfile.running = true;
-                                }
-                            }
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-
-                            }
-
-                        }
-
+                    Behavior on color {
+                        ColorAnim {}
                     }
 
-                }
-
-            }
-
-            Rectangle {
-                Layout.preferredWidth: 2
-                Layout.fillHeight: true
-                Layout.topMargin: 15
-                Layout.bottomMargin: 15
-                color: Theme.surface1
-            }
-
-            Rectangle {
-                Layout.preferredWidth: sessionLayout.implicitWidth + 12
-                Layout.preferredHeight: powerLayout.implicitHeight + 12
-                color: "transparent"
-                radius: 8
-
-                // Session Action Buttons
-                RowLayout {
-                    id: sessionLayout
-
-                    anchors.centerIn: parent
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter
-                    spacing: 6
-
-                    Repeater {
-                        model: root.sessionActions
-
-                        delegate: Rectangle {
-                            Layout.preferredWidth: 45
-                            Layout.preferredHeight: 45
-                            radius: 10
-                            color: mouseArea.containsMouse ? modelData.color : Theme.surface1
-
-                            MaterialSymbol {
-                                anchors.centerIn: parent
-                                text: modelData.icon
-                                size: 22
-                                color: "white"
-                                visible: Layout.columnSpan === 1
-                            }
-
-                            MouseArea {
-                                id: mouseArea
-
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: {
-                                    executeSessionCommand(modelData.command);
-                                }
-                            }
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-
-                            }
-
-                        }
-
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: profileButton.modelData.icon
+                        size: 20
+                        color: profileButton.active ? Theme.onPrimary : Theme.subtext1
                     }
 
+                    HoverHandler {
+                        id: profileHover
+                    }
+
+                    TapHandler {
+                        onTapped: {
+                            setPowerProfile.command = ["powerprofilesctl", "set", profileButton.modelData.profile];
+                            setPowerProfile.running = true;
+                        }
+                    }
+
+                    StyledTooltip {
+                        content: profileButton.modelData.label + (profileButton.active ? qsTr("（当前）") : "")
+                        alternativeVisibleCondition: profileHover.hovered
+                    }
                 }
-
             }
-
         }
 
+        Rectangle {
+            Layout.preferredWidth: 1
+            Layout.fillHeight: true
+            Layout.topMargin: 14
+            Layout.bottomMargin: 14
+            color: Theme.surface1
+        }
+
+        // ==== 会话操作 ====
+        RowLayout {
+            spacing: Config.appearance.spacing.small / 2
+
+            Repeater {
+                model: root.sessionActions
+
+                delegate: Rectangle {
+                    id: sessionButton
+
+                    required property var modelData
+
+                    Layout.preferredWidth: 42
+                    Layout.preferredHeight: 42
+                    radius: Config.appearance.rounding.small
+                    color: sessionHover.hovered ? sessionButton.modelData.color : Theme.surface0
+
+                    Behavior on color {
+                        ColorAnim {}
+                    }
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: sessionButton.modelData.icon
+                        size: 20
+                        color: sessionHover.hovered ? Theme.onPrimary : Theme.subtext1
+                    }
+
+                    HoverHandler {
+                        id: sessionHover
+                    }
+
+                    TapHandler {
+                        onTapped: root.executeSessionCommand(sessionButton.modelData.command)
+                    }
+
+                    StyledTooltip {
+                        content: sessionButton.modelData.label
+                        alternativeVisibleCondition: sessionHover.hovered
+                    }
+                }
+            }
+        }
     }
 
-    // Process for getting current power profile
+    // 读取当前电源模式
     Process {
         id: getPowerProfile
 
         command: ["powerprofilesctl", "get"]
-        running: false
 
         stdout: StdioCollector {
             onStreamFinished: root.currentPowerProfile = text.trim()
         }
-
     }
 
-    // Process for setting power profile
+    // 切换电源模式
     Process {
         id: setPowerProfile
 
         command: []
-        running: false
         onExited: getPowerProfile.running = true
     }
 
-    // Process for session commands
+    // 会话命令
     Process {
         id: sessionProcess
 
         command: []
-        running: false
-        onExited: closeDashboard()
+        onExited: Visibilities.dashboard = false
     }
-
 }

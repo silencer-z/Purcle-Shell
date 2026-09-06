@@ -120,13 +120,23 @@ ClippingRectangle {
     Rectangle {
         id: searchBar
 
-        height: 60
-        radius: 20
+        height: 50
+        radius: 12
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 15
-        color: Theme.surface0
+        color: searchField.activeFocus ? Theme.surface1 : Theme.surface0
+        border.width: 1
+        border.color: searchField.activeFocus ? Theme.mauve : Theme.surface2
+
+        Behavior on color {
+            ColorAnim {}
+        }
+
+        Behavior on border.color {
+            ColorAnim {}
+        }
 
         RowLayout {
             anchors.fill: parent
@@ -135,8 +145,12 @@ ClippingRectangle {
 
             MaterialSymbol {
                 text: "search"
-                size: 24
-                color: Theme.text
+                size: 22
+                color: searchField.activeFocus ? Theme.mauve : Theme.overlay0
+
+                Behavior on color {
+                    ColorAnim {}
+                }
             }
 
             StyledTextInput {
@@ -148,6 +162,7 @@ ClippingRectangle {
 
                 focus: true
                 Layout.fillWidth: true
+                font.pixelSize: 14
                 color: Theme.text
                 onTextChanged: {
                     AppModel.filterText = text;

@@ -11,20 +11,13 @@ Components.BarWidget {
 
     id:root
     property bool trayExpanded: false
+    property var popouts: null
 
     paddingLeft:0
     paddingRight:0
 
     color:"transparent"
     implicitWidth:trayExpanded ? rowLayout.implicitWidth + 5 : toggleBtn.width
-
-    HyprlandFocusGrab {
-        id: grab
-        windows: [trayMenu]
-        onCleared: {
-            trayMenu.hideMenu();
-        }
-    }
 
     RowLayout {
         id:rowLayout
@@ -114,37 +107,18 @@ Components.BarWidget {
                                 if (!modelData)
                                     return;
                                 if (mouse.button === Qt.LeftButton) {
-                                    // Close any open menu first
-                                    if (trayMenu && trayMenu.visible) {
-                                        trayMenu.hideMenu();
-                                    }
                                     if (!modelData.onlyMenu) {
                                         modelData.activate();
                                     }
                                 } else if (mouse.button === Qt.MiddleButton) {
-                                    // Close any open menu first
-                                    if (trayMenu && trayMenu.visible) {
-                                        trayMenu.hideMenu();
-                                    }
                                     modelData.secondaryActivate && modelData.secondaryActivate();
 
                                 } else if (mouse.button === Qt.RightButton) {
-                                    // If menu is already visible, close it
-                                    if (trayMenu && trayMenu.visible) {
-                                        trayMenu.hideMenu();
-                                        return;
-                                    }
-
-                                    if (modelData.hasMenu && modelData.menu && trayMenu) {
-                                        // Anchor the menu to the tray icon item (parent) and position it below the icon
-                                        const menuX = (width / 2) - (trayMenu.width / 2);
-                                        const menuY = height + 15;
-                                        trayMenu.menu = modelData.menu;
-                                        trayMenu.showAt(parent, menuX, menuY);
-                                        grab.active=true
+                                    if (modelData.hasMenu && modelData.menu && root.popouts) {
+                                        root.popouts.open("tray-" + modelData.id, delegate.mapToItem(null, delegate.width / 2, 0).x);
                                     } else
                                     {
-                                    console.log("No menu available for", modelData.id, "or trayMenu not set")
+                                    console.log("No menu available for", modelData.id)
                                     }
                                 }
                             }
@@ -173,10 +147,6 @@ Components.BarWidget {
             }
         }
 
-    }
-
-    TrayPopup{
-        id:trayMenu
     }
 }
 

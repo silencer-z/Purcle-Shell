@@ -39,7 +39,7 @@ Singleton {
             var searchText = filterText.toLowerCase();
             var highlightedName = entry.name;
             if (searchText !== "") {
-                highlightedName = entry.name.replace(new RegExp(searchText, "ig"), `<span style="color: #89b4fa;">$&</span>`);
+                highlightedName = entry.name.replace(new RegExp(searchText, "ig"), `<span style="color: ${Theme.blue};">$&</span>`);
             }
 
             return {

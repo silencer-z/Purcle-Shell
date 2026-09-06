@@ -1,0 +1,10 @@
+# PurcleShell 专用 matugen 配置
+# 由 services/Color.qml 调用：
+#   matugen image <壁纸> --config <本文件> -m dark|light --source-color-index 0
+# 输出写入 ~/.cache/PurcleShell/matugen-colors.json，由 FileView 监听热更新主题。
+
+[config]
+
+[templates.purcleshell]
+input_path = "~/.config/quickshell/assets/matugen/template.json"
+output_path = "~/.cache/PurcleShell/matugen-colors.json"

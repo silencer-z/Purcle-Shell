@@ -1,44 +1,53 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-
+import Quickshell.Hyprland
+import qs.Configs
 import qs.components
 import qs.services
 
+// dashboard 音量 + 亮度控制（跟随当前聚焦屏幕的亮度）
 PanelWidget {
     id: root
 
     color: Theme.surface0
-    height: 40
-    radius: 20
-    ColumnLayout{
-        anchors.fill:parent
-        anchors.margins:10
+    implicitHeight: 100
+    radius: Config.appearance.rounding.normal
+
+    readonly property var focusedMonitor: {
+        const fm = Hyprland.focusedMonitor;
+        const name = fm ? fm.name : "";
+        return Brightness.monitors.find(m => m.screen.name === name) ?? Brightness.monitors[0] ?? null;
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: Config.appearance.padding.normal
+        spacing: Config.appearance.spacing.small
+
+        // ==== 音量 ====
         RowLayout {
+            Layout.fillWidth: true
+            spacing: Config.appearance.spacing.small
 
-            anchors.margins: 4
-            spacing: 8
-
-            // Volume icon
             MaterialSymbol {
-                id: volumeIcon
-                text: {
-                    if (!AudioService.sink || !AudioService.sink.audio) return "volume_off";
-                    if (AudioService.muted || AudioService.volume <= 0) return "volume_off";
-                    if (AudioService.volume >= 0.5) return "volume_up";
-                    return "volume_down";
-                }
-                size: 25
+                text: Audio.muted || Audio.volume <= 0 ? "volume_off" : Audio.volume >= 0.5 ? "volume_up" : "volume_down"
+                size: 20
                 color: Theme.blue
-                Layout.alignment: Qt.AlignVCenter
+
+                TapHandler {
+                    onTapped: Audio.toggleMute()
+                }
             }
 
             StyledSlider {
                 id: volumeSlider
+
                 Layout.fillWidth: true
                 Layout.preferredHeight: 20
-                value: AudioService.volume
+                value: Audio.volume
                 configuration: StyledSlider.Configuration.S
                 highlightColor: Theme.blue
                 trackColor: Theme.surface1
@@ -46,78 +55,53 @@ PanelWidget {
                 dotColor: Theme.overlay0
                 dotColorHighlighted: Theme.blue
 
-                property bool userUpdating:false
-
                 onValueChanged: {
-                    if (pressed && AudioService.sink?.audio) {
-                        AudioService.setVolume(value);
-                    }
+                    if (pressed)
+                        Audio.setVolume(value);
                 }
 
-                onPressedChanged: {
-                    userUpdating = pressed;
-                    if (pressed && AudioService.sink?.audio) {
-                        AudioService.setVolume(value);
-                    }
-                }
+                onMoved: Audio.setVolume(value)
 
                 MouseArea {
                     anchors.fill: parent
-                    hoverEnabled: true
                     acceptedButtons: Qt.NoButton
                     propagateComposedEvents: true
 
                     onWheel: wheel => {
-                        if (!AudioService.sink?.audio) return;
-
-                        const delta = wheel.angleDelta.y / 120;
-                        const newVol = AudioService.volume + delta * 0.02;
-                        AudioService.setVolume(newVol);
-                        volumeSlider.value = newVol;
+                        Audio.setVolume(Audio.volume + (wheel.angleDelta.y > 0 ? 0.02 : -0.02));
                         wheel.accepted = true;
                     }
                 }
+            }
 
-                Connections {
-                    target: AudioService.sink ? AudioService.sink.audio : null
-                    function onVolumesChanged() {
-                        if (!volumeSlider.pressed && !volumeSlider.userUpdating) {
-                            const systemVolume = AudioService.volume;
-                            if (Math.abs(volumeSlider.value - systemVolume) > 0.005) {
-                                volumeSlider.value = systemVolume;
-                            }
-                        }
-                    }
-                }
+            StyledText {
+                Layout.preferredWidth: 36
+                text: Audio.volumePercent + "%"
+                color: Theme.subtext1
+                font.pixelSize: 12
 
+                horizontalAlignment: Text.AlignRight
             }
         }
 
+        // ==== 亮度 ====
         RowLayout {
-            anchors.margins: 5
-            spacing: 8
+            Layout.fillWidth: true
+            spacing: Config.appearance.spacing.small
 
-            // Brightness icon
             MaterialSymbol {
-                id: brightnessIcon
-                text: {
-                    const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
-                    return focusedMonitor?.iconName ?? "brightness_6";
-                }
-                size: 25
+                text: root.focusedMonitor?.iconName ?? "brightness_6"
+                size: 20
                 color: Theme.yellow
-                Layout.alignment: Qt.AlignVCenter
             }
 
-            // Brightness slider using StyledSlider
             StyledSlider {
                 id: brightnessSlider
+
                 Layout.fillWidth: true
                 Layout.preferredHeight: 20
-                value: {
-                    const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
-                    return focusedMonitor?.brightness ?? 0.5;
-                }
+                value: root.focusedMonitor?.brightness ?? 0.5
+                enabled: root.focusedMonitor !== null
                 configuration: StyledSlider.Configuration.S
                 highlightColor: Theme.yellow
                 trackColor: Theme.surface1
@@ -125,58 +109,38 @@ PanelWidget {
                 dotColor: Theme.overlay0
                 dotColorHighlighted: Theme.yellow
 
-                property bool userUpdating:false
-
                 onValueChanged: {
-                    if (pressed && !root.userUpdating) {
-                        const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
-                        if (focusedMonitor) {
-                            focusedMonitor.setBrightness(value);
-                        }
-                    }
+                    if (pressed && root.focusedMonitor)
+                        root.focusedMonitor.setBrightness(Math.max(0.01, Math.min(1, value)));
                 }
 
-                // Handle direct clicks on the slider track
-                onPressedChanged: {
-                    userUpdating = pressed;
-                    if (pressed) {
-                        const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
-                        if (focusedMonitor) {
-                            focusedMonitor.setBrightness(value);
-                        }
-                    }
+                onMoved: {
+                    if (root.focusedMonitor)
+                        root.focusedMonitor.setBrightness(Math.max(0.01, Math.min(1, value)));
                 }
 
                 MouseArea {
                     anchors.fill: parent
-                    hoverEnabled: true
                     acceptedButtons: Qt.NoButton
                     propagateComposedEvents: true
 
                     onWheel: wheel => {
-                        const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
-                        if (focusedMonitor) {
-                            const delta = wheel.angleDelta.y / 120;
-                            const currentBrightness = focusedMonitor.brightness;
-                            const newBrightness = Math.max(0.01, Math.min(1, currentBrightness - delta * 0.05));
-                            focusedMonitor.setBrightness(newBrightness);
-                        }
+                        if (!root.focusedMonitor)
+                            return;
+                        const b = root.focusedMonitor.brightness + (wheel.angleDelta.y > 0 ? 0.05 : -0.05);
+                        root.focusedMonitor.setBrightness(Math.max(0.01, Math.min(1, b)));
                         wheel.accepted = true;
                     }
                 }
+            }
 
-                Connections {
-                    target: Brightness
-                    function onBrightnessChanged() {
-                        const focusedMonitor = Brightness.getMonitorForScreen(Quickshell.screens[0]);
-                        if (focusedMonitor && !brightnessSlider.pressed && !root.userUpdating) {
-                            const systemBrightness = focusedMonitor.brightness;
-                            if (Math.abs(brightnessSlider.value - systemBrightness) > 0.005) {
-                                brightnessSlider.value = systemBrightness;
-                            }
-                        }
-                    }
-                }
+            StyledText {
+                Layout.preferredWidth: 36
+                text: Math.round((root.focusedMonitor?.brightness ?? 0) * 100) + "%"
+                color: Theme.subtext1
+                font.pixelSize: 12
+
+                horizontalAlignment: Text.AlignRight
             }
         }
     }

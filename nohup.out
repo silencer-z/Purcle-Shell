@@ -1,0 +1,11 @@
+[32m  INFO[0m: Launching config: "/home/orz/.config/quickshell/shell.qml"
+[32m  INFO[0m: Shell ID: "b4e0f91f5aab161103f1af2f623561ef" Path ID "b4e0f91f5aab161103f1af2f623561ef"
+[32m  INFO[0m: Saving logs to "/run/user/1000/quickshell/by-id/ana45w6xkt/log.qslog"
+[32m  INFO[0m: QML tooling support enabled
+[31m ERROR[0m: Failed to load configuration
+[31m ERROR[0m:   caused by @shell.qml[11:5]: Type Popups.NotificationPopup unavailable
+[31m ERROR[0m:   caused by @modules/popups/NotificationPopup.qml[112:21]: Type ColorAnim unavailable
+[31m ERROR[0m:   caused by @components/ColorAnim.qml[-1:-1]: Type Config unavailable
+[31m ERROR[0m:   caused by @Configs/Config.qml[-1:-1]: Type Network unavailable
+[31m ERROR[0m:   caused by @services/Network.qml[-1:-1]: Type Notifications unavailable
+[31m ERROR[0m:   caused by @services/Notifications.qml[87:9]: Cannot assign to non-existent default property

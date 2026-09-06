@@ -1,78 +1,46 @@
 import QtQuick
+import Quickshell
+
 pragma Singleton
 
-QtObject {
-    // OLED-friendly background
-    // Surface 1
-    // Surface 2
-    // Surface 3
-    // Text secondary
-    // Text primary
-    // Text on color
-    // Text inverse
-    // Red (pink)
-    // Magenta
-    // Green
-    // Purple
-    // Cyan
-    // Blue
-    // Purple (accent)
-    // Teal
-    // Light background
-    // Surface 1
-    // Surface 2
-    // Surface 3
-    // Text secondary
-    // Text primary
-    // Text on color
-    // Text inverse
-    // Red
-    // Magenta
-    // Green
-    // Purple
-    // Cyan
-    // Blue
-    // Purple (accent)
-    // Teal
+// 预设：Oxocarbon Dark
+Singleton {
+    readonly property string presetId: "oxocarbon"
+    readonly property string displayName: "Oxocarbon"
+    readonly property bool dark: true
 
-    readonly property var dark: ({
-        "name": "Oxocarbon Dark",
-        "type": "dark",
-        "base00": "#161616",
-        "base01": "#262626",
-        "base02": "#393939",
-        "base03": "#525252",
-        "base04": "#6f6f6f",
-        "base05": "#c6c6c6",
-        "base06": "#e0e0e0",
-        "base07": "#f4f4f4",
-        "base08": "#ff7eb6",
-        "base09": "#ee5396",
-        "base0A": "#42be65",
-        "base0B": "#be95ff",
-        "base0C": "#3ddbd9",
-        "base0D": "#78a9ff",
-        "base0E": "#be95ff",
-        "base0F": "#08bdba"
-    })
-    readonly property var light: ({
-        "name": "Oxocarbon Light",
-        "type": "light",
-        "base00": "#f4f4f4",
-        "base01": "#ffffff",
-        "base02": "#e0e0e0",
-        "base03": "#c6c6c6",
-        "base04": "#525252",
-        "base05": "#262626",
-        "base06": "#161616",
-        "base07": "#000000",
-        "base08": "#da1e28",
-        "base09": "#d12771",
-        "base0A": "#198038",
-        "base0B": "#8a3ffc",
-        "base0C": "#007d79",
-        "base0D": "#0f62fe",
-        "base0E": "#8a3ffc",
-        "base0F": "#005d5d"
-    })
+    // ==== 背景 / 表面 ====
+    readonly property color base: "#161616"
+    readonly property color mantle: "#131313"
+    readonly property color crust: "#111111"
+    readonly property color surface0: "#262626"
+    readonly property color surface1: "#333333"
+    readonly property color surface2: "#3d3d3d"
+
+    // ==== 文字 ====
+    readonly property color text: "#f2f4f8"
+    readonly property color subtext1: "#ececec"
+    readonly property color subtext0: "#d6d6d6"
+    readonly property color overlay2: "#bebebe"
+    readonly property color overlay1: "#9e9e9e"
+    readonly property color overlay0: "#808080"
+
+    // ==== 强调色 ====
+    readonly property color mauve: "#a48cf2"
+    readonly property color blue: "#8cb4ff"
+    readonly property color sky: "#59c2ff"
+    readonly property color green: "#78ffab"
+    readonly property color teal: "#52e9c2"
+    readonly property color yellow: "#f0deaa"
+    readonly property color peach: "#ff9e64"
+    readonly property color red: "#ff5458"
+    readonly property color pink: "#ff7a93"
+    readonly property color lavender: "#bfa4ff"
+
+    // ==== 功能色 ====
+    readonly property color danger: "#ff5458"
+    readonly property color warning: "#f0deaa"
+    readonly property color success: "#78ffab"
+    readonly property color shadow: "#000000"
+    readonly property color onPrimary: "#161616"
 }

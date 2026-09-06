@@ -1,78 +1,46 @@
 import QtQuick
+import Quickshell
+
 pragma Singleton
 
-QtObject {
-    // Dark background
-    // Dark1
-    // Dark2
-    // Dark3
-    // Light4
-    // Light3
-    // Light2
-    // Light1
-    // Red
-    // Orange
-    // Yellow
-    // Green
-    // Cyan
-    // Blue
-    // Purple
-    // Brown
-    // Light background
-    // Light1
-    // Light2
-    // Light3
-    // Dark3
-    // Dark2
-    // Dark1
-    // Dark background
-    // Red
-    // Orange
-    // Yellow
-    // Green
-    // Cyan
-    // Blue
-    // Purple
-    // Brown
+// 预设：Gruvbox Dark
+Singleton {
+    readonly property string presetId: "gruvbox"
+    readonly property string displayName: "Gruvbox"
+    readonly property bool dark: true
 
-    readonly property var dark: ({
-        "name": "Gruvbox Dark",
-        "type": "dark",
-        "base00": "#282828",
-        "base01": "#3c3836",
-        "base02": "#504945",
-        "base03": "#665c54",
-        "base04": "#bdae93",
-        "base05": "#d5c4a1",
-        "base06": "#ebdbb2",
-        "base07": "#fbf1c7",
-        "base08": "#fb4934",
-        "base09": "#fe8019",
-        "base0A": "#fabd2f",
-        "base0B": "#b8bb26",
-        "base0C": "#8ec07c",
-        "base0D": "#83a598",
-        "base0E": "#d3869b",
-        "base0F": "#d65d0e"
-    })
-    readonly property var light: ({
-        "name": "Gruvbox Light",
-        "type": "light",
-        "base00": "#fbf1c7",
-        "base01": "#ebdbb2",
-        "base02": "#d5c4a1",
-        "base03": "#bdae93",
-        "base04": "#665c54",
-        "base05": "#504945",
-        "base06": "#3c3836",
-        "base07": "#282828",
-        "base08": "#cc241d",
-        "base09": "#d65d0e",
-        "base0A": "#d79921",
-        "base0B": "#98971a",
-        "base0C": "#689d6a",
-        "base0D": "#458588",
-        "base0E": "#b16286",
-        "base0F": "#d65d0e"
-    })
+    // ==== 背景 / 表面 ====
+    readonly property color base: "#282828"
+    readonly property color mantle: "#1d2021"
+    readonly property color crust: "#161819"
+    readonly property color surface0: "#3c3836"
+    readonly property color surface1: "#504945"
+    readonly property color surface2: "#665c54"
+
+    // ==== 文字 ====
+    readonly property color text: "#ebdbb2"
+    readonly property color subtext1: "#d5c4a1"
+    readonly property color subtext0: "#bdae93"
+    readonly property color overlay2: "#a89984"
+    readonly property color overlay1: "#928374"
+    readonly property color overlay0: "#7c6f64"
+
+    // ==== 强调色 ====
+    readonly property color mauve: "#d3869b"
+    readonly property color blue: "#83a598"
+    readonly property color sky: "#8ec07c"
+    readonly property color green: "#b8bb26"
+    readonly property color teal: "#8ec07c"
+    readonly property color yellow: "#fabd2f"
+    readonly property color peach: "#fe8019"
+    readonly property color red: "#fb4934"
+    readonly property color pink: "#d3869b"
+    readonly property color lavender: "#83a598"
+
+    // ==== 功能色 ====
+    readonly property color danger: "#fb4934"
+    readonly property color warning: "#fabd2f"
+    readonly property color success: "#b8bb26"
+    readonly property color shadow: "#000000"
+    readonly property color onPrimary: "#282828"
 }

@@ -31,6 +31,27 @@ Singleton {
     property real timeToEmpty: UPower.displayDevice.timeToEmpty
     property real timeToFull: UPower.displayDevice.timeToFull
 
+    function iconName(): string {
+        if (!available)
+            return "power";
+        if (isCharging || isPluggedIn) {
+            if (percentage >= 0.90) return "battery_charging_full";
+            if (percentage >= 0.80) return "battery_charging_90";
+            if (percentage >= 0.60) return "battery_charging_80";
+            if (percentage >= 0.50) return "battery_charging_60";
+            if (percentage >= 0.30) return "battery_charging_50";
+            if (percentage >= 0.20) return "battery_charging_30";
+            return "battery_charging_20";
+        }
+        if (percentage >= 0.95) return "battery_full";
+        if (percentage >= 0.85) return "battery_6_bar";
+        if (percentage >= 0.70) return "battery_5_bar";
+        if (percentage >= 0.55) return "battery_4_bar";
+        if (percentage >= 0.40) return "battery_3_bar";
+        if (percentage >= 0.25) return "battery_2_bar";
+        return "battery_1_bar";
+    }
+
     property real health: (function() {
         const devList = UPower.devices.values;
         for (let i = 0; i < devList.length; ++i) {

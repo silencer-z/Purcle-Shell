@@ -1,20 +1,21 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import qs.components
 import qs.services
 
+// Aylur toggle-button 风格 WiFi 胶囊：连接时 primary 填充，未连接时 surface + inset 边框
 Item {
     id: root
 
     property bool expanded: false
     property var closeCallback: null
 
+    readonly property bool connected: Network.wifiStatus === "connected" && Network.networkName.length > 0 && Network.networkName !== "lo"
+
     implicitWidth: 500
     implicitHeight: 60
 
-    // Wifi Popup Window
     WifiPopupPanel {
         id: wifiPopup
         targetItem: root
@@ -25,20 +26,30 @@ Item {
         id: capsule
 
         anchors.fill: parent
-        radius: 20
-        color: Theme.surface0
+        radius: 14
+        color: root.connected ? Theme.mauve : capsuleHover.hovered ? Theme.surface1 : Theme.surface0
+        border.width: root.connected ? 0 : 1
+        border.color: Theme.surface2
+
+        Behavior on color {
+            ColorAnim {}
+        }
+
+        Behavior on border.color {
+            ColorAnim {}
+        }
     }
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 15
-        spacing: 8
+        anchors.margins: 14
+        spacing: 10
 
         // WiFi图标
         MaterialSymbol {
             text: Network.materialSymbol
             size: 24
-            color: Network.networkName.length > 0 && Network.networkName !== "lo" ? Theme.green : Theme.danger
+            color: root.connected ? Theme.onPrimary : root.connected || Network.wifiEnabled ? Theme.green : Theme.danger
             Layout.preferredWidth: 30
         }
 
@@ -48,50 +59,46 @@ Item {
             spacing: 2
 
             StyledText {
-                text: Network.networkName.length > 0 && Network.networkName !== "lo" ? Network.networkName : "未连接"
+                text: root.connected ? Network.networkName : "未连接"
                 font.pixelSize: 14
                 font.bold: true
-                color: Theme.text
+                color: root.connected ? Theme.onPrimary : Theme.text
                 elide: Text.ElideRight
+
+                Behavior on color {
+                    ColorAnim {}
+                }
             }
 
             StyledText {
-                text: Network.networkName.length > 0 && Network.networkName !== "lo" ? `信号: ${Network.networkStrength}%` : "无网络连接"
+                text: root.connected ? `信号: ${Network.networkStrength}%` : Network.wifiEnabled ? "无网络连接" : "WiFi 已关闭"
                 font.pixelSize: 11
-                color: Theme.subtext1
+                color: root.connected ? Qt.alpha(Theme.onPrimary, 0.75) : Theme.subtext1
+
+                Behavior on color {
+                    ColorAnim {}
+                }
             }
 
         }
 
-        // 展开/收起按钮
-        Rectangle {
-            Layout.preferredWidth: 30
-            Layout.preferredHeight: 30
-            radius: 15
-            color: expanded ? Theme.blue : Theme.surface1
+        // 展开/收起箭头
+        MaterialSymbol {
+            text: root.expanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
+            size: 20
+            color: root.connected ? Theme.onPrimary : Theme.overlay0
+        }
+    }
 
-            MaterialSymbol {
-                anchors.centerIn: parent
-                text: expanded ? "keyboard_arrow_up" : "keyboard_arrow_down"
-                size: 18
-                color: Theme.text
-            }
+    HoverHandler {
+        id: capsuleHover
+    }
 
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: {
-                    parent.color = expanded ? Theme.sky : Theme.surface2;
-                }
-                onExited: {
-                    parent.color = expanded ? Theme.blue : Theme.surface1;
-                }
-                onClicked: {
-                    expanded = !expanded;
-                    if (expanded && Network.availableNetworksCount === 0) {
-                        Network.scanNetworks();
-                    }
-                }
+    TapHandler {
+        onTapped: {
+            root.expanded = !root.expanded;
+            if (root.expanded && Network.availableNetworksCount === 0) {
+                Network.scanNetworks();
             }
         }
     }

@@ -79,7 +79,7 @@ BarWidget {
 
                     property bool isActive: root.activeIndex === index
 
-                    StyledIcon {
+                    AppIcon {
                         id: icon
                         colorize: true
                         source: modelData.icon

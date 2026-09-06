@@ -11,6 +11,7 @@ Item {
     id: root
 
     required property ShellScreen screen
+    property var popouts: null
     readonly property int exclusiveZone: bar.height
     readonly property var currentMonitor: Brightness.getMonitorForScreen(root.screen)
     property int barRadius: 0
@@ -79,6 +80,7 @@ Item {
                 Widgets.SysTray {
                     // barWrapper:wrapper
 
+                    popouts: root.popouts
                     Layout.fillWidth: false
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignVCenter
@@ -89,6 +91,7 @@ Item {
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignVCenter
                     monitor: currentMonitor
+                    popouts: root.popouts
                 }
 
                 Widgets.Clock {

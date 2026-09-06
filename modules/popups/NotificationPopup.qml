@@ -1,214 +1,300 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
-
+import Quickshell.Widgets
+import qs.Configs
+import qs.components
 import qs.services
-import qs.components 
 
-
+// 通知弹窗：右上角层叠卡片，从顶部滑入；紧急度色条 + 应用图标 + 正文 + 操作按钮
 PanelWindow {
     id: root
-    
-    anchors {
-        top: true
-        right: true
-    }
 
-    implicitWidth: 360
-    implicitHeight: popupList.height + 24
+    WlrLayershell.namespace: "PurcleShell-notifications"
 
-    aboveWindows:true
-    exclusionMode: ExclusionMode.Normal
+    anchors.top: true
+    anchors.right: true
+
+    implicitWidth: 380
+    implicitHeight: popupList.contentHeight + Config.appearance.margin.large * 2
+
+    aboveWindows: true
+    exclusionMode: ExclusionMode.Ignore
     color: "transparent"
 
     ListView {
         id: popupList
-        anchors.top:parent.top
-        anchors.left:parent.left
-        anchors.right:parent.right
-        anchors.margins: 6
 
-        height: contentHeight
-        width: parent.width - 24
-        
-        model: NoticeService.popupModel
-        
-        spacing: 12
-        interactive: true
-        
-        verticalLayoutDirection: ListView.TopToBottom
+        anchors.fill: parent
+        anchors.margins: Config.appearance.margin.large
 
-        // 简单的淡入淡出动画
+        // BottomToTop：模型尾部（最新）在最上方，旧卡片向下推移
+        verticalLayoutDirection: ListView.BottomToTop
+        spacing: Config.appearance.spacing.small
+        interactive: false
+        clip: true
+
+        model: Notifications.popupModel
+
         add: Transition {
-            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 250 }
+            SequentialAnimation {
+                NumberAnimation {
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: Config.appearance.animations.durations.small
+                }
+                NumberAnimation {
+                    property: "slideProgress"
+                    from: 0
+                    to: 1
+                    duration: Config.appearance.animations.durations.normal
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.appearance.animations.curves.emphasizedDecel
+                }
+            }
         }
 
         remove: Transition {
-            NumberAnimation { property: "opacity"; to: 0; duration: 200 }
+            NumberAnimation {
+                property: "opacity"
+                to: 0
+                duration: Config.appearance.animations.durations.small
+            }
         }
 
         addDisplaced: Transition {
-            NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutQuad }
+            NumberAnimation {
+                property: "y"
+                duration: Config.appearance.animations.durations.normal
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Config.appearance.animations.curves.emphasized
+            }
         }
 
         removeDisplaced: Transition {
-            NumberAnimation { properties: "y"; duration: 200; easing.type: Easing.OutQuad }
+            NumberAnimation {
+                property: "y"
+                duration: Config.appearance.animations.durations.normal
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Config.appearance.animations.curves.emphasized
+            }
         }
 
         delegate: Item {
+            id: popupCard
+
+            required property var wrapper
+
+            readonly property var n: wrapper
+            property real slideProgress: 1
+            // 滑入偏移（slideProgress: 0→1 从右移入到位）
+            x: (1 - slideProgress) * (width / 3 + 12)
+            opacity: slideProgress > 0.99 ? 1 : slideProgress
+
             implicitWidth: popupList.width
-            implicitHeight:contentRect.height
-            
-            property var n: model.wrapper
+            implicitHeight: card.implicitHeight
 
             Rectangle {
-                id: contentRect
+                id: card
+
                 width: parent.width
-                height: innerLayout.implicitHeight + 24
-                radius: 16
-                
-                color: mouseArea.containsMouse ? Qt.lighter(Theme.base, 1.1) : Theme.base // Base
-                border.color: Theme.surface0 // Surface0
+                implicitHeight: content.implicitHeight + Config.appearance.padding.larger * 2
+                radius: Config.appearance.rounding.normal
+                color: Theme.base
+                border.width: 1
+                border.color: Theme.surface0
 
                 Behavior on color {
-                    ColorAnimation { duration: 150 }
+                    ColorAnim {}
                 }
-                border.width: 1
-                
 
-                MouseArea {
-                    id: mouseArea
+                RowLayout {
+                    id: content
+
                     anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: NoticeService.removeSeq(n.seq)
-                    onPressed: (mouse) => {
-                        if (mouse.button === Qt.RightButton) NoticeService.clearAll()
+                    anchors.margins: Config.appearance.padding.larger
+                    spacing: Config.appearance.spacing.small
+
+                    // ==== 紧急度色条 ====
+                    Rectangle {
+                        Layout.preferredWidth: 4
+                        Layout.fillHeight: true
+                        radius: 2
+                        color: popupCard.n.urgency === 2 ? Theme.red : popupCard.n.urgency === 0 ? Theme.overlay0 : Theme.mauve
+
+                        Behavior on color {
+                            ColorAnim {}
+                        }
                     }
-                }
 
-                ColumnLayout {
-                    id: innerLayout
-                    anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 8
-
-                    // 上半部分：Icon + Title + Time
-                    RowLayout {
+                    // ==== 主体 ====
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 12
+                        spacing: Config.appearance.spacing.small / 2
 
-                        // 大图标
+                        // 应用图标 + 名称 + 时间
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: Config.appearance.spacing.small
+
+                            Rectangle {
+                                Layout.preferredWidth: 34
+                                Layout.preferredHeight: 34
+                                radius: 10
+                                color: Theme.surface0
+
+                                IconImage {
+                                    anchors.fill: parent
+                                    anchors.margins: 5
+                                    source: {
+                                        const s = popupCard.n.appIcon || popupCard.n.image;
+                                        return s !== "" ? s : "file://" + Quickshell.shellPath("assets/default.svg");
+                                    }
+                                    implicitSize: 32
+                                }
+                            }
+
+                            StyledText {
+                                text: popupCard.n.appName
+                                color: Theme.blue
+                                font.pixelSize: 11
+                                font.bold: true
+
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                            }
+
+                            StyledText {
+                                text: popupCard.n.timeStr
+                                color: Theme.overlay0
+                                font.pixelSize: 11
+                            }
+                        }
+
+                        // 标题
+                        StyledText {
+                            visible: popupCard.n.summary !== ""
+                            Layout.fillWidth: true
+                            text: popupCard.n.summary
+                            color: Theme.text
+                            font.pixelSize: 13
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+
+                        // 正文（最多两行）
+                        StyledText {
+                            visible: popupCard.n.body !== ""
+                            Layout.fillWidth: true
+                            text: popupCard.n.body
+                            color: Theme.subtext1
+                            font.pixelSize: 12
+                            wrapMode: Text.WordWrap
+                            maximumLineCount: 2
+                            elide: Text.ElideRight
+                        }
+
+                        // 图片预览
                         Rectangle {
-                            Layout.preferredWidth: 42
-                            Layout.preferredHeight: 42
-                            radius: 12
-                            color: Theme.surface0 // Surface0 backdrop for icon
+                            visible: popupCard.n.image !== "" && popupCard.n.image !== popupCard.n.appIcon
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 110
+                            radius: Config.appearance.rounding.small
+                            color: Theme.surface0
                             clip: true
 
                             Image {
                                 anchors.fill: parent
-                                anchors.margins: 4
-                                source: (n.appIcon || n.image) ? (n.appIcon || n.image) : Quickshell.shellPath("assets/default.svg")
-                                fillMode: Image.PreserveAspectFit
-                                sourceSize: Qt.size(64, 64)
+                                source: parent.visible ? popupCard.n.image : ""
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
                             }
                         }
 
-                        // 文本信息
-                        ColumnLayout {
+                        // 操作按钮
+                        RowLayout {
+                            visible: popupCard.n.actions.length > 0
                             Layout.fillWidth: true
-                            spacing: 2
+                            spacing: Config.appearance.spacing.small / 2
 
-                            RowLayout {
-                                Layout.fillWidth: true
-                                Text {
-                                    text: n.appName
-                                    font.bold: true
-                                    font.pixelSize: 11
-                                    color: Theme.blue // Blue
-                                    Layout.fillWidth: true
-                                }
-                                Text {
-                                    text: n.timeStr
-                                    font.pixelSize: 10
-                                    color: Theme.overlay0 // Overlay0
-                                }
-                            }
+                            Repeater {
+                                model: popupCard.n.actions
 
-                            Text {
-                                text: n.summary
-                                Layout.fillWidth: true
-                                color: Theme.text // Text
-                                font.bold: true
-                                font.pixelSize: 13
-                                elide: Text.ElideRight
-                            }
-                        }
-                    }
+                                delegate: Rectangle {
+                                    id: actionButton
 
-                    // 下半部分：Body
-                    Text {
-                        visible: text !== ""
-                        text: n.body
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 54 // 对齐文字部分
-                        color: Theme.subtext1 // Subtext0
-                        font.pixelSize: 12
-                        wrapMode: Text.WordWrap
-                        maximumLineCount: 2
-                        elide: Text.ElideRight
-                    }
-                    
-                    // 图片预览 (如果有大图，且不是图标)
-                    Rectangle {
-                        visible: n.image && n.image !== n.appIcon
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 100
-                        Layout.topMargin: 4
-                        color: Theme.surface0
-                        radius: 8
-                        clip: true
+                                    required property var modelData
 
-                        Image {
-                            anchors.fill: parent
-                            source: parent.visible ? n.image : ""
-                            fillMode: Image.PreserveAspectCrop
-                        }
-                    }
+                                    Layout.preferredHeight: 26
+                                    Layout.preferredWidth: actionLabel.implicitWidth + 20
+                                    radius: 8
+                                    color: actionHover.hovered ? Theme.surface1 : Theme.surface0
 
-                    // 底部：操作按钮 (如果有)
-                    RowLayout {
-                        visible: n.actions && n.actions.length > 0
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 54
-                        spacing: 8
-                        
-                        Repeater {
-                            model: n.actions
-                            delegate: Rectangle {
-                                Layout.preferredHeight: 24
-                                Layout.preferredWidth: actionLabel.implicitWidth + 16
-                                radius: 6
-                                color: actionMouse.containsMouse ? Theme.surface1 : "transparent"
-                                border.color: Theme.surface1
-                                
-                                Text {
-                                    id: actionLabel
-                                    anchors.centerIn: parent
-                                    text: modelData.label
-                                    font.pixelSize: 11
-                                    color: Theme.blue
-                                }
-                                MouseArea {
-                                    id: actionMouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    onClicked: n.invoke(modelData.id)
+                                    Behavior on color {
+                                        ColorAnim {}
+                                    }
+
+                                    StyledText {
+                                        id: actionLabel
+
+                                        anchors.centerIn: parent
+                                        text: actionButton.modelData.label
+                                        color: Theme.blue
+                                        font.pixelSize: 11
+                                    }
+
+                                    HoverHandler {
+                                        id: actionHover
+                                    }
+
+                                    TapHandler {
+                                        onTapped: {
+                                            popupCard.n.invoke(actionButton.modelData.id);
+                                            Notifications.dismiss(popupCard.n);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                }
+
+                // 悬停关闭按钮
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: 6
+                    width: 22
+                    height: 22
+                    radius: 11
+                    visible: cardHover.hovered
+                    color: closeTap.containsMouse ? Theme.surface2 : Theme.surface1
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "close"
+                        size: 14
+                        color: Theme.subtext1
+                    }
+
+                    TapHandler {
+                        id: closeTap
+
+                        onTapped: Notifications.dismiss(popupCard.n)
+                    }
+                }
+
+                HoverHandler {
+                    id: cardHover
+                }
+
+                // 点击卡片收起弹窗
+                TapHandler {
+                    onTapped: Notifications.dismiss(popupCard.n)
                 }
             }
         }

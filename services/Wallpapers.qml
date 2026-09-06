@@ -9,12 +9,12 @@ import Quickshell
 Singleton {
     id: root
 
-    readonly property string currentWallpaper: ServicePath.currentWallpaper
+    readonly property string currentWallpaper: Paths.currentWallpaper
     readonly property string currentWallpaperName: {
         const p = root.currentWallpaper;
         return p ? p.split('/').pop() : "";
     }
-    readonly property string currentWallpaperFile: ServicePath.currentWallpaperFile
+    readonly property string currentWallpaperFile: Paths.currentWallpaperFile
 
     property string searchQuery: ""
     property string debouncedSearchQuery: ""
@@ -43,7 +43,7 @@ Singleton {
     FolderListModel {
         id: wallpaperFolder
 
-        folder: Qt.resolvedUrl(ServicePath.wallpaperDir)
+        folder: Qt.resolvedUrl(Paths.wallpaperDir)
         nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.avif"]
         showDirs: false
         showDotAndDotDot: false

@@ -52,7 +52,7 @@ Item {
     SequentialAnimation {
         id: showAnim
 
-        Anim {
+        NumberAnim {
             target: root
             property: "implicitHeight"
             to: root.contentHeight
@@ -70,7 +70,7 @@ Item {
         ScriptAction {
             script: root.implicitHeight = root.implicitHeight
         }
-        Anim {
+        NumberAnim {
             target: root
             property: "implicitHeight"
             to: 0

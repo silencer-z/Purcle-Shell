@@ -57,6 +57,6 @@ ShapePath {
     }
 
     Behavior on surfaceColor {
-        CAnim {}
+        ColorAnim {}
     }
 }

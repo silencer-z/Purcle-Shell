@@ -1,78 +1,47 @@
 import QtQuick
+import Quickshell
+
 pragma Singleton
 
-QtObject {
-    // Base
-    // Mantle
-    // Surface0
-    // Surface1
-    // Surface2
-    // Text
-    // Rosewater
-    // Lavender
-    // Red
-    // Peach
-    // Yellow
-    // Green
-    // Teal
-    // Blue
-    // Mauve
-    // Flamingo
-    // Base
-    // Mantle
-    // Surface0
-    // Surface1
-    // Surface2
-    // Text
-    // Rosewater
-    // Lavender
-    // Red
-    // Peach
-    // Yellow
-    // Green
-    // Teal
-    // Blue
-    // Mauve
-    // Flamingo
+// 预设：Catppuccin Mocha
+Singleton {
+    // ==== 元数据（供 Theme 枚举与壁纸绑定，key 与 Config.colors.themeWallpapers 一致） ====
+    readonly property string presetId: "catppuccin"
+    readonly property string displayName: "Catppuccin"
+    readonly property bool dark: true
 
-    readonly property var dark: ({
-        "name": "Catppuccin Mocha",
-        "type": "dark",
-        "base00": "#1e1e2e",
-        "base01": "#181825",
-        "base02": "#313244",
-        "base03": "#45475a",
-        "base04": "#585b70",
-        "base05": "#cdd6f4",
-        "base06": "#f5e0dc",
-        "base07": "#b4befe",
-        "base08": "#f38ba8",
-        "base09": "#fab387",
-        "base0A": "#f9e2af",
-        "base0B": "#a6e3a1",
-        "base0C": "#94e2d5",
-        "base0D": "#89b4fa",
-        "base0E": "#cba6f7",
-        "base0F": "#f2cdcd"
-    })
-    readonly property var light: ({
-        "name": "Catppuccin Latte",
-        "type": "light",
-        "base00": "#eff1f5",
-        "base01": "#e6e9ef",
-        "base02": "#ccd0da",
-        "base03": "#bcc0cc",
-        "base04": "#acb0be",
-        "base05": "#4c4f69",
-        "base06": "#dc8a78",
-        "base07": "#7287fd",
-        "base08": "#d20f39",
-        "base09": "#fe640b",
-        "base0A": "#df8e1d",
-        "base0B": "#40a02b",
-        "base0C": "#179299",
-        "base0D": "#1e66f5",
-        "base0E": "#8839ef",
-        "base0F": "#dd7878"
-    })
+    // ==== 背景 / 表面 ====
+    readonly property color base: "#1e1e2e"
+    readonly property color mantle: "#181825"
+    readonly property color crust: "#11111b"
+    readonly property color surface0: "#313244"
+    readonly property color surface1: "#45475a"
+    readonly property color surface2: "#585b70"
+
+    // ==== 文字 ====
+    readonly property color text: "#cdd6f4"
+    readonly property color subtext1: "#a6adc8"
+    readonly property color subtext0: "#a6adc8"
+    readonly property color overlay2: "#9399b2"
+    readonly property color overlay1: "#7f849c"
+    readonly property color overlay0: "#6c7086"
+
+    // ==== 强调色 ====
+    readonly property color mauve: "#cba6f7"
+    readonly property color blue: "#89b4fa"
+    readonly property color sky: "#89dceb"
+    readonly property color green: "#a6e3a1"
+    readonly property color teal: "#94e2d5"
+    readonly property color yellow: "#f9e2af"
+    readonly property color peach: "#fab387"
+    readonly property color red: "#f38ba8"
+    readonly property color pink: "#f5c2e7"
+    readonly property color lavender: "#b4befe"
+
+    // ==== 功能色 ====
+    readonly property color danger: "#f38ba8"
+    readonly property color warning: "#f9e2af"
+    readonly property color success: "#a6e3a1"
+    readonly property color shadow: "#000000"
+    readonly property color onPrimary: "#11111b"
 }

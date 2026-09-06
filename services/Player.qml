@@ -98,8 +98,8 @@ Singleton {
 
     onActivePlayerChanged: {
         if (activePlayer)
-            console.log(`[MprisService] Active player: ${activePlayer.identity}`);
+            console.log(`[Player] Active player: ${activePlayer.identity}`);
         else
-            console.log("[MprisService] No active player");
+            console.log("[Player] No active player");
     }
 }

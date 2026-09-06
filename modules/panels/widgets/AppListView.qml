@@ -4,6 +4,7 @@ import Quickshell
 import QtQuick.Layouts
 import qs.services as Service
 import qs.services
+import qs.Configs
 import qs.components
 
 ListView {
@@ -33,6 +34,7 @@ ListView {
         required property var modelData
         required property int index
         property bool selected: index === ListView.view.currentIndex
+        property bool hovered: itemHover.hovered
         width: listView.width
         height: modelData.isHeader?32:60
 
@@ -133,7 +135,11 @@ ListView {
                             font.pixelSize: 16
                             elide: Text.ElideRight
                             textFormat: TextEdit.RichText
-                            color:listViewDelegate.selected?Theme.mantle:Theme.text
+                            color: listViewDelegate.selected ? Theme.mantle : listViewDelegate.hovered ? Theme.mauve : Theme.text
+
+                            Behavior on color {
+                                ColorAnim {}
+                            }
                         }
 
                         StyledText {
@@ -142,11 +148,21 @@ ListView {
                             font.pixelSize: 12
                             elide: Text.ElideRight
                             visible: text.length > 0
-                            color:listViewDelegate.selected?Theme.mantle:Theme.text
-                            opacity: 0.7
+                            color: listViewDelegate.selected ? Theme.mantle : Theme.subtext1
+                            opacity: listViewDelegate.hovered ? 1 : 0.7
+
+                            Behavior on opacity {
+                                NumberAnim {
+                                    duration: Config.appearance.animations.durations.small
+                                }
+                            }
                         }
                     }
                 }
+            }
+
+            HoverHandler {
+                id: itemHover
             }
         }
     }
