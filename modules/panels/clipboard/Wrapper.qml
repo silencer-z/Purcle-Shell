@@ -31,6 +31,9 @@ Item {
 
     onShouldBeActiveChanged: {
         if (shouldBeActive) {
+            // 懒加载：打开时同步实例化（contentHeight 立即可用，展开动画目标正确）
+            if (!content.active)
+                content.active = true;
             root.contentHeight = content.item?.implicitHeight ?? 0;
             hideAnim.stop();
             showAnim.start();
@@ -76,6 +79,10 @@ Item {
             to: 0
             easing.bezierCurve: Config.appearance.animations.curves.emphasized
         }
+
+        // 懒加载：收起动画自然结束后卸载内容
+        onStopped: if (!root.shouldBeActive)
+            content.active = false
     }
 
     Loader {
@@ -84,7 +91,8 @@ Item {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
 
-        active: true
+        // 懒加载：默认不创建，由 onShouldBeActiveChanged / hideAnim.onStopped 管理
+        active: false
         sourceComponent: Content {
             maxHeight: root.maxHeight
         }

@@ -3,7 +3,7 @@ pragma ComponentBehavior: Bound
 import qs.modules.panels.launcher as Launcher
 import qs.modules.panels.clipboard as Clipboard
 import qs.modules.panels.wallpaper as Wallpaper
-import qs.modules.panels.dashboard as Dashboard
+import qs.modules.panels.sidebar as Sidebar
 import qs.services
 import QtQuick
 
@@ -16,7 +16,7 @@ Item {
     readonly property alias launcher: launcher
     readonly property alias clipboard: clipboard
     readonly property alias wallpaper: wallpaper
-    readonly property alias dashboard: dashboard
+    readonly property alias sidebar: sidebar
 
     anchors.fill: parent
     anchors.margins: root.borderThickness
@@ -52,11 +52,7 @@ Item {
         anchors.bottom: clipboard.height > 0 ? clipboard.top : (launcher.height > 0 ? launcher.top : parent.bottom)
     }
 
-    Dashboard.Wrapper {
-        id: dashboard
-
-        panels: root
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
+    Sidebar.Wrapper {
+        id: sidebar
     }
 }

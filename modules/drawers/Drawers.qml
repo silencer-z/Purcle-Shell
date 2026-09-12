@@ -28,7 +28,7 @@ Variants {
 
             readonly property int barHeight: bar.height
             readonly property int borderThickness: Config.appearance.border.thickness
-            readonly property bool needsKeyboard: Visibilities.launcher || Visibilities.clipboard || Visibilities.wallpaper || Visibilities.dashboard || popouts.hasCurrent
+            readonly property bool needsKeyboard: Visibilities.launcher || Visibilities.clipboard || Visibilities.wallpaper || Visibilities.sidebar || popouts.hasCurrent
 
             screen: scope.modelData
             WlrLayershell.namespace: "PurcleShell-drawers"
@@ -97,7 +97,7 @@ Variants {
                     Visibilities.launcher = false;
                     Visibilities.clipboard = false;
                     Visibilities.wallpaper = false;
-                    Visibilities.dashboard = false;
+                    Visibilities.sidebar = false;
                     popouts.close();
                 }
             }
@@ -121,8 +121,8 @@ Variants {
                         popouts.close();
                 }
 
-                function onDashboardChanged() {
-                    if (Visibilities.dashboard)
+                function onSidebarChanged() {
+                    if (Visibilities.sidebar)
                         popouts.close();
                 }
             }

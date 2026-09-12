@@ -4,7 +4,6 @@ import qs.Configs
 import qs.modules.panels.launcher as Launcher
 import qs.modules.panels.clipboard as Clipboard
 import qs.modules.panels.wallpaper as Wallpaper
-import qs.modules.panels.dashboard as Dashboard
 import qs.services
 import QtQuick
 import QtQuick.Shapes
@@ -43,13 +42,5 @@ Shape {
 
         startX: (root.width - wrapper.width) / 2 - rounding
         startY: root.panels.clipboard.height > 0 ? root.panels.clipboard.y : (root.panels.launcher.height > 0 ? root.panels.launcher.y : root.height)
-    }
-
-    Dashboard.Background {
-        wrapper: root.panels.dashboard
-        surfaceColor: root.surfaceColor
-
-        startX: (root.width - wrapper.width) / 2 - rounding
-        startY: 0
     }
 }

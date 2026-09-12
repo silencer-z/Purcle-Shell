@@ -110,8 +110,11 @@ BarWidget {
                         hoverEnabled: true
                         onClicked: {
                             const cmd = modelData.launch || modelData.appId;
-                            if (cmd)
-                                Hyprland.dispatch("exec", cmd);
+                            if (cmd) {
+                                // Hyprland ≥0.56 lua IPC：exec 走 hl.dsp.exec_cmd，双引号/反斜杠转义
+                                const escaped = cmd.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+                                Hyprland.dispatch('hl.dsp.exec_cmd("' + escaped + '")');
+                            }
                         }
                     }
                 }

@@ -72,3 +72,17 @@ PurcleShell — 基于 Quickshell 的 Hyprland 桌面 shell。
   `property Xxx x: Xxx {}` 属性内联实例化，不能直接声明为子对象。
 - 服务层单例命名为领域名词（Audio/Battery/Bluetooth/Brightness/Network/Player/...），
   组件库 `components/` 分族：`Styled*`（主题化控件）、`XxxAnim`（动画预设）、语义名（AppIcon/MaterialSymbol）。
+- 面板懒加载（所有 panel Wrapper 统一模式，不要特例化）：Content 的 `Loader` 默认
+  `active: false`；打开时在 `onShouldBeActiveChanged` 中先 `content.active = true`
+  （同步实例化，动画目标尺寸立即可用）再启动入场动画；`hideAnim.onStopped`
+  （guard `!shouldBeActive`，避免 stop() 中断时误卸载）里 `content.active = false`。
+  懒加载成立的前提：**跨打开周期的状态全部归服务单例**（Notifications 历史/DND、
+  Network.availableNetworks、PowerProfile、Brightness.focusedMonitor、Audio...），
+  UI 组件只做渲染与即时输入态。
+- Wrapper 隐藏/停靠位的 x **不要用声明式 `Qt.binding(() => ...)`**：该写法只在组件创建时
+  求值一次、不跟踪依赖（窗口定尺寸后不更新，面板卡在错误位置）。用普通声明绑定
+  `x: parent.width + ...`；动画结束后恢复绑定时才用 JS 侧 `root.x = Qt.binding(...)`（官方用法，跟踪正常）。
+- Hyprland ≥0.56 的 IPC dispatch 是 Lua：`Hyprland.dispatch` 的字符串要用
+  `hl.dsp.*` 形式 —— 切工作区 `hl.dsp.focus({ workspace = N })`（相对 `"r±1"` 也要加引号）、
+  启动命令 `hl.dsp.exec_cmd("...")`（命令内 `\` 与 `"` 需转义）。旧语法 `workspace N` 会
+  解析失败。

@@ -22,24 +22,24 @@ Singleton {
         screen
     }))
 
+    // 跟随 Hyprland 聚焦屏幕的亮度控制器（UI 统一用它，不重复查找）
+    readonly property var focusedMonitor: {
+        const name = Hyprland.focusedMonitor?.name;
+        return name !== undefined ? (monitors.find(m => m.screen.name === name) ?? null) : null;
+    }
+
     function getMonitorForScreen(screen: ShellScreen): var {
         return monitors.find(m => m.screen === screen);
     }
 
     function increaseBrightness(): void {
-        const focusedName = Hyprland.focusedMonitor.name;
-        const monitor = monitors.find(m => focusedName === m.screen.name);
-
-        if (monitor)
-            monitor.setBrightness(monitor.brightness + 0.05);
+        if (root.focusedMonitor)
+            root.focusedMonitor.setBrightness(root.focusedMonitor.brightness + 0.05);
     }
 
     function decreaseBrightness(): void {
-        const focusedName = Hyprland.focusedMonitor.name;
-        const monitor = monitors.find(m => focusedName === m.screen.name);
-
-        if (monitor)
-            monitor.setBrightness(monitor.brightness - 0.05);
+        if (root.focusedMonitor)
+            root.focusedMonitor.setBrightness(root.focusedMonitor.brightness - 0.05);
     }
 
     reloadableId: "brightness"

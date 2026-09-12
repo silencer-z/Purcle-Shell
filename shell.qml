@@ -32,7 +32,7 @@ ShellRoot {
         name: "dashboard"
         description: qsTr("Start a dashboard for system controls")
         onPressed: {
-            Visibilities.togglePanel("dashboard");
+            Visibilities.togglePanel("sidebar");
         }
     }
 

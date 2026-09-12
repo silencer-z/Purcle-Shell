@@ -91,7 +91,6 @@ Item {
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignVCenter
                     monitor: currentMonitor
-                    popouts: root.popouts
                 }
 
                 Widgets.Clock {

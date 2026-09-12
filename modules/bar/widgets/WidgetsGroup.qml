@@ -8,7 +8,6 @@ BarWidget {
     id: root
 
     required property var monitor
-    property var popouts: null
 
     color: "transparent"
     widgetColor: Theme.surface0
@@ -46,7 +45,7 @@ BarWidget {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.popouts?.open("audio", volumeIcon.mapToItem(null, volumeIcon.width / 2, 0).x)
+                onClicked: Visibilities.togglePanel("sidebar")
                 onWheel: (wheel) => {
                     if (!Audio.sink || !Audio.sink.audio)
                         return;
@@ -62,11 +61,11 @@ BarWidget {
 
             property bool hovered: brightnessHoverHandler.hovered
 
-            text: monitor.iconName
+            text: monitor?.iconName ?? "brightness_6"
             font.pixelSize: 22
 
             StyledTooltip {
-                content: "亮度: " + Math.round(monitor.brightness * 100) + "%"
+                content: "亮度: " + Math.round((monitor?.brightness ?? 0) * 100) + "%"
             }
 
             HoverHandler {
@@ -75,7 +74,7 @@ BarWidget {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.popouts?.open("audio", brightnessIcon.mapToItem(null, brightnessIcon.width / 2, 0).x)
+                onClicked: Visibilities.togglePanel("sidebar")
                 onWheel: (wheel) => {
                     if (wheel.angleDelta.y > 0)
                         Brightness.increaseBrightness();
@@ -99,7 +98,7 @@ BarWidget {
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.popouts?.open("network", netIcon.mapToItem(null, netIcon.width / 2, 0).x)
+                onClicked: Visibilities.togglePanel("sidebar")
             }
         }
 
@@ -120,7 +119,7 @@ BarWidget {
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.popouts?.open("bluetooth", blueToothIcon.mapToItem(null, blueToothIcon.width / 2, 0).x)
+                onClicked: Visibilities.togglePanel("sidebar")
             }
         }
 
@@ -143,7 +142,7 @@ BarWidget {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.popouts?.open("battery", batteryIcon.mapToItem(null, batteryIcon.width / 2, 0).x)
+                onClicked: Visibilities.togglePanel("sidebar")
             }
         }
 

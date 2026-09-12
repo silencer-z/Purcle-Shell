@@ -20,33 +20,11 @@ Item {
     implicitWidth: activeItem?.implicitWidth ?? 0
     implicitHeight: Math.min(activeItem?.implicitHeight ?? 0, root.maxHeight)
 
-    PopoutLoader {
-        name: "audio"
-        sourceComponent: AudioPopout {}
-    }
-
-    PopoutLoader {
-        name: "network"
-        sourceComponent: NetworkPopout {
-            maxHeight: root.maxHeight
-        }
-    }
-
-    PopoutLoader {
-        name: "bluetooth"
-        sourceComponent: BluetoothPopout {
-            maxHeight: root.maxHeight
-        }
-    }
-
-    PopoutLoader {
-        name: "battery"
-        sourceComponent: BatteryPopout {}
-    }
-
+    // 仅保留托盘菜单弹窗（音量/亮度/网络/蓝牙/电量已并入右侧统一面板）
     Repeater {
         model: ScriptModel {
-            values: SystemTray.items.values
+            // SystemTray 项可能含 null，过滤掉
+            values: SystemTray.items.values.filter(item => item !== null)
         }
 
         PopoutLoader {

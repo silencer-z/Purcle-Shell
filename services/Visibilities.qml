@@ -3,32 +3,49 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
+// 面板可见性状态（互斥：同一时间只开一个面板）
 QtObject {
     id: root
 
     property bool launcher: false
     property bool clipboard: false
     property bool wallpaper: false
-    property bool dashboard: false
+    property bool sidebar: false
 
-    // 每次只允许一个面板显示（互斥），避免多个面板同时出现
+    // 面板互斥：显式写入，不用 root[name] 动态属性访问
     function togglePanel(name: string): void {
-        const valid = name === "launcher" || name === "clipboard" || name === "wallpaper" || name === "dashboard";
-        if (!valid)
-            return;
-
-        const currently = root[name];
-        root.launcher = false;
-        root.clipboard = false;
-        root.wallpaper = false;
-        root.dashboard = false;
-        root[name] = !currently;
+        switch (name) {
+        case "launcher":
+            root.launcher = !root.launcher;
+            root.clipboard = false;
+            root.wallpaper = false;
+            root.sidebar = false;
+            break;
+        case "clipboard":
+            root.clipboard = !root.clipboard;
+            root.launcher = false;
+            root.wallpaper = false;
+            root.sidebar = false;
+            break;
+        case "wallpaper":
+            root.wallpaper = !root.wallpaper;
+            root.launcher = false;
+            root.clipboard = false;
+            root.sidebar = false;
+            break;
+        case "sidebar":
+            root.sidebar = !root.sidebar;
+            root.launcher = false;
+            root.clipboard = false;
+            root.wallpaper = false;
+            break;
+        }
     }
 
     function hideAll(): void {
         root.launcher = false;
         root.clipboard = false;
         root.wallpaper = false;
-        root.dashboard = false;
+        root.sidebar = false;
     }
 }

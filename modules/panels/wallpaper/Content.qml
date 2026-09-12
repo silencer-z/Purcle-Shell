@@ -284,14 +284,15 @@ ClippingRectangle {
 
             // 当前壁纸居中
             onModelChanged: {
-                const idx = model.values.indexOf(Wallpapers.currentWallpaper);
-                currentIndex = idx !== -1 ? idx : (model.count > 0 ? 0 : 0);
+                const vals = model?.values ?? [];
+                const idx = vals.indexOf(Wallpapers.currentWallpaper);
+                wallpaperPath.currentIndex = idx !== -1 ? idx : (model?.count > 0 ? 0 : 0);
             }
             Component.onCompleted: {
                 function trySetIndex() {
                     if (Wallpapers.wallpaperList.length > 0) {
                         const idx = Wallpapers.wallpaperList.indexOf(Wallpapers.currentWallpaper);
-                        currentIndex = idx !== -1 ? idx : 0;
+                        wallpaperPath.currentIndex = idx !== -1 ? idx : 0;
                     } else {
                         Qt.callLater(trySetIndex);
                     }

@@ -83,7 +83,7 @@ Components.BarWidget {
                     MouseArea {
                         cursorShape: Qt.PointingHandCursor
                         anchors.fill: parent
-                        onClicked: Hyprland.dispatch("workspace " + workspaceId)
+                        onClicked: Hyprland.dispatch("hl.dsp.focus({ workspace = " + workspaceId + " })")
                     }
                     Behavior on width {NumberAnimation {duration: 200 ;easing.type: Easing.InOutQuad}}
                 }
@@ -99,9 +99,9 @@ Components.BarWidget {
         acceptedButtons: Qt.NoButton
         onWheel: (wheel) => {
             if (wheel.angleDelta.y > 0)
-                Hyprland.dispatch("workspace r-1");
+                Hyprland.dispatch('hl.dsp.focus({ workspace = "r-1" })');
             else if (wheel.angleDelta.y < 0)
-                Hyprland.dispatch("workspace r+1");
+                Hyprland.dispatch('hl.dsp.focus({ workspace = "r+1" })');
         }
     }
 }
