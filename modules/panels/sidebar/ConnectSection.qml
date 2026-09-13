@@ -7,7 +7,7 @@ import qs.Configs
 import qs.components
 import qs.services
 
-// 连接区：WiFi / 蓝牙，点击行展开对应的网络/设备列表（同一时间只展开一个）
+// 连接区：WiFi / 蓝牙（展开列表互斥）
 PanelWidget {
     id: root
 
@@ -279,40 +279,45 @@ PanelWidget {
                 }
             }
 
-            // 重新扫描
-            Rectangle {
-                Layout.alignment: Qt.AlignHCenter
-                implicitWidth: rescanRow.implicitWidth + 20
-                implicitHeight: 26
-                radius: 8
-                color: rescanArea.containsMouse ? Theme.surface2 : Theme.surface1
+            // 重新扫描（外层撑满宽度，按钮居中）
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 26
 
-                RowLayout {
-                    id: rescanRow
-
+                Rectangle {
                     anchors.centerIn: parent
-                    spacing: 6
+                    width: rescanRow.implicitWidth + 20
+                    height: 26
+                    radius: 8
+                    color: rescanArea.containsMouse ? Theme.surface2 : Theme.surface1
 
-                    MaterialSymbol {
-                        text: "refresh"
-                        size: 13
-                        color: Theme.text
+                    RowLayout {
+                        id: rescanRow
+
+                        anchors.centerIn: parent
+                        spacing: 6
+
+                        MaterialSymbol {
+                            text: "refresh"
+                            size: 13
+                            color: Theme.text
+                        }
+
+                        StyledText {
+                            text: qsTr("重新扫描")
+                            color: Theme.text
+                            font.pixelSize: 11
+                        }
                     }
 
-                    StyledText {
-                        text: qsTr("重新扫描")
-                        color: Theme.text
-                        font.pixelSize: 11
+                    MouseArea {
+                        id: rescanArea
+
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Network.scanNetworks()
                     }
-                }
-
-                MouseArea {
-                    id: rescanArea
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Network.scanNetworks()
                 }
             }
         }

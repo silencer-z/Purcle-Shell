@@ -5,13 +5,9 @@ import qs.services
 
 Components.BarWidget {
     id: root
-    /* 检查Hyprland是否初始化完成 */
-    readonly property bool ready : Hyprland.workspaces && Hyprland.workspaces.values && Hyprland.focusedWorkspace
 
-    readonly property int realWorkspaceCount: ready ? Hyprland.workspaces.values.length:1
-    readonly property int maxWorkspaceCount: ready ? Hyprland.workspaces.values.reduce((max, ws) => Math.max(max, ws?.id ?? 0), 0) : 1
-    readonly property int showWorkspaceCount: ready ? Math.max(5, maxWorkspaceCount):5
-
+    // 焦点与工作区列表都取自 HyprlandState（quickshell 0.3.1 在 Hyprland 0.56 下状态不可靠）
+    readonly property int showWorkspaceCount: Math.max(5, HyprlandState.focusedWorkspaceId, ...HyprlandState.workspaceIds)
 
     function calculateDynamicWidth() {
 
@@ -31,10 +27,8 @@ Components.BarWidget {
     color: "transparent"
     radius: 8
 
-    Component.onCompleted: {
-        Hyprland.refreshWorkspaces();
-        Hyprland.refreshMonitors();
-    }
+
+
 
     Row {
         id: workspaceRow
@@ -48,15 +42,14 @@ Components.BarWidget {
         
         // 使用 Repeater 替代 ListView
         Repeater {
-            model: ready ? root.showWorkspaceCount : 5
+            model: root.showWorkspaceCount
             
             delegate: Item {
                 id: workspaceContainer
 
                 property int workspaceId: index + 1
-                property var workspaceData: Hyprland.workspaces.values.find(ws => ws.id === workspaceId)
-                property bool isPlaceholder: !workspaceData 
-                property bool isActive: ready && (Hyprland.focusedWorkspace.id === workspaceId)
+                property bool isPlaceholder: !HyprlandState.workspaceIds.includes(workspaceId)
+                property bool isActive: HyprlandState.focusedWorkspaceId === workspaceId
                 
                 width: workspaceRect.width
                 height: workspaceRow.height

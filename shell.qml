@@ -8,6 +8,9 @@ import Quickshell.Hyprland
 ShellRoot {
     id: root
 
+    // 预热应用数据（面板懒加载，但服务状态应在启动时就绪）
+    Component.onCompleted: AppModel.warmUp()
+
     Popups.NotificationPopup{}
 
     Drawers {}

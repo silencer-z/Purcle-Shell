@@ -5,37 +5,29 @@ import qs.Configs
 import qs.services
 import QtQuick
 
+// 左侧壁纸面板：从左缘滑入/滑出（x 位动画）
 Item {
     id: root
 
-    required property var panels
-
     readonly property bool shouldBeActive: Visibilities.wallpaper
-    readonly property int intrinsicHeight: content.item?.intrinsicHeight ?? 0
 
-    readonly property int maxHeight: {
-        let max = parent.height - Config.appearance.padding.large;
-        if (Visibilities.launcher)
-            max -= panels.launcher.intrinsicHeight;
-        if (Visibilities.clipboard)
-            max -= panels.clipboard.intrinsicHeight;
-        return Math.max(180, max);
-    }
+    // 满面板区高度
+    readonly property int maxHeight: parent.height
 
-    property real contentHeight: 0
-
-    visible: height > 0
-    clip: true
-    implicitHeight: 0
     implicitWidth: content.item?.implicitWidth ?? 0
+    height: root.maxHeight
+    // x 不设绑定：绑定会压过动画写入（面板靠脚本 + 动画移动）
+    x: 0
+    anchors.top: parent.top
 
     onShouldBeActiveChanged: {
         if (shouldBeActive) {
-            // 懒加载：打开时同步实例化（contentHeight 立即可用，展开动画目标正确）
+            hideAnim.stop();
+            // 懒加载：打开时同步实例化，滑动目标立即可用
             if (!content.active)
                 content.active = true;
-            root.contentHeight = content.item?.implicitHeight ?? 0;
-            hideAnim.stop();
+            // 起始位放在屏外（此时 item 已就绪）
+            root.x = -((content.item?.implicitWidth ?? 0) + Config.appearance.padding.small);
             showAnim.start();
             focusTimer.restart();
         } else {
@@ -57,30 +49,26 @@ Item {
 
         NumberAnim {
             target: root
-            property: "implicitHeight"
-            to: root.contentHeight
-            duration: Config.appearance.animations.durations.expressiveDefaultSpatial
-            easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
-        }
-        ScriptAction {
-            script: root.implicitHeight = Qt.binding(() => content.item?.implicitHeight ?? 0)
+            property: "x"
+            to: 0
+            // emphasizedDecel：无回弹，不过冲停靠位
+            duration: Config.appearance.animations.durations.emphasizedDecel
+            easing.bezierCurve: Config.appearance.animations.curves.emphasizedDecel
         }
     }
 
     SequentialAnimation {
         id: hideAnim
 
-        ScriptAction {
-            script: root.implicitHeight = root.implicitHeight
-        }
         NumberAnim {
             target: root
-            property: "implicitHeight"
-            to: 0
+            property: "x"
+            to: -((content.item?.implicitWidth ?? 0) + Config.appearance.padding.small)
+            duration: Config.appearance.animations.durations.emphasized
             easing.bezierCurve: Config.appearance.animations.curves.emphasized
         }
 
-        // 懒加载：收起动画自然结束后卸载内容
+        // 懒加载：滑出结束后卸载（guard 防 stop() 误卸载）
         onStopped: if (!root.shouldBeActive)
             content.active = false
     }
@@ -89,9 +77,9 @@ Item {
         id: content
 
         anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
 
-        // 懒加载：默认不创建，由 onShouldBeActiveChanged / hideAnim.onStopped 管理
+        // 懒加载：默认不创建
         active: false
         sourceComponent: Content {
             maxHeight: root.maxHeight

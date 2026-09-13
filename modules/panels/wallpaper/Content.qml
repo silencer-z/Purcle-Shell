@@ -6,19 +6,11 @@ import qs.components
 import qs.Configs
 import qs.services
 
-ClippingRectangle {
+// 左侧壁纸面板：左缘贴屏幕左缘、顶接 bar、底接底边框，右缘凹角过渡（同 sidebar）
+Item {
     id: root
 
     required property int maxHeight
-
-    radius: Config.appearance.border.rounding
-    topLeftRadius: Config.appearance.border.rounding
-    topRightRadius: Config.appearance.border.rounding
-    bottomLeftRadius: 0
-    bottomRightRadius: 0
-    color: "transparent"
-
-    readonly property int intrinsicHeight: 420
 
     function close() {
         Visibilities.wallpaper = false;
@@ -28,13 +20,52 @@ ClippingRectangle {
         wallpaperPath.forceActiveFocus();
     }
 
-    implicitWidth: 1150
-    implicitHeight: Math.min(root.intrinsicHeight, root.maxHeight)
+    readonly property int filletSize: Config.appearance.border.rounding
+    readonly property int contentPadding: Config.appearance.padding.normal
+    readonly property int bodyWidth: 420
+
+    implicitWidth: root.filletSize + root.bodyWidth + root.contentPadding * 2
+    implicitHeight: root.maxHeight
+
+    // 右上凹角：接 bar 底缘
+    RoundCorner {
+        corner: RoundCorner.CornerEnum.TopLeft
+        size: root.filletSize
+        color: Theme.base
+        anchors.right: parent.right
+    }
+
+    // 右下凹角：接屏幕底边框
+    RoundCorner {
+        corner: RoundCorner.CornerEnum.BottomLeft
+        size: root.filletSize
+        color: Theme.base
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+    }
+
+    // 主体：四边方角
+    ClippingRectangle {
+        width: parent.width - root.filletSize
+        height: parent.height
+        topLeftRadius: 0
+        topRightRadius: 0
+        bottomLeftRadius: 0
+        bottomRightRadius: 0
+        color: Theme.base
+
+        Behavior on color {
+            ColorAnim {}
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.leftMargin: root.contentPadding
+        anchors.rightMargin: root.filletSize + root.contentPadding
+        anchors.topMargin: root.contentPadding
+        anchors.bottomMargin: root.contentPadding
+        spacing: Config.appearance.spacing.small
 
         // ==== 标题栏 ====
         RowLayout {
@@ -54,7 +85,6 @@ ClippingRectangle {
                 color: Theme.overlay0
                 elide: Text.ElideRight
                 Layout.fillWidth: true
-                Layout.maximumWidth: 300
             }
 
             Item {
@@ -171,7 +201,7 @@ ClippingRectangle {
             StyledText {
                 text: "配色"
                 font.pixelSize: 13
-                color: Theme.text
+                color: Theme.overlay0
             }
 
             // 方案切换：预设 / 动态(matugen) / Pywal
@@ -270,43 +300,37 @@ ClippingRectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            readonly property real unitWidth: width / 5
+            // 卡片宽度由面板宽度决定
+            readonly property real focusedWidth: width * 0.90
+            readonly property real normalWidth: width * 0.72
+            readonly property real cardHeight: normalWidth * 9 / 16
+            // 可见卡片数由面板高度推算（奇数，至少 3，居中项为聚焦卡片）
+            readonly property int visibleCount: Math.max(3, 2 * Math.round(height / (cardHeight * 1.4)) + 1)
 
             model: ScriptModel {
                 values: Wallpapers.filteredWallpaperList
             }
-            pathItemCount: 3
+            pathItemCount: wallpaperPath.visibleCount
             preferredHighlightBegin: 0.5
             preferredHighlightEnd: 0.5
             clip: true
             focus: true
             cacheItemCount: 5
 
-            // 当前壁纸居中
+            // 当前壁纸居中（列表异步加载完成后 onModelChanged 会再触发一次，无需重试循环）
             onModelChanged: {
                 const vals = model?.values ?? [];
                 const idx = vals.indexOf(Wallpapers.currentWallpaper);
                 wallpaperPath.currentIndex = idx !== -1 ? idx : (model?.count > 0 ? 0 : 0);
             }
-            Component.onCompleted: {
-                function trySetIndex() {
-                    if (Wallpapers.wallpaperList.length > 0) {
-                        const idx = Wallpapers.wallpaperList.indexOf(Wallpapers.currentWallpaper);
-                        wallpaperPath.currentIndex = idx !== -1 ? idx : 0;
-                    } else {
-                        Qt.callLater(trySetIndex);
-                    }
-                }
-                trySetIndex();
-            }
 
             path: Path {
-                startX: 0
-                startY: wallpaperPath.height / 2
+                startX: wallpaperPath.width / 2
+                startY: 0
 
                 PathLine {
-                    x: wallpaperPath.width
-                    y: wallpaperPath.height / 2
+                    x: wallpaperPath.width / 2
+                    y: wallpaperPath.height
                 }
             }
 
@@ -318,14 +342,17 @@ ClippingRectangle {
 
                 readonly property bool isCurrent: PathView.isCurrentItem
                 readonly property bool isApplied: modelData === Wallpapers.currentWallpaper
+                // 卡片宽度由面板宽度决定，聚焦项略大；高度 16:9
+                readonly property real cardWidth: isCurrent ? wallpaperPath.focusedWidth : wallpaperPath.normalWidth
+                readonly property real cardHeight: cardWidth * 9 / 16
 
-                implicitWidth: isCurrent ? wallpaperPath.unitWidth * 3 : wallpaperPath.unitWidth * 2
-                implicitHeight: wallpaperPath.height
+                implicitWidth: wallpaperPath.width
+                implicitHeight: cardHeight * 1.15
 
                 z: isCurrent ? 100 : 1
-                opacity: isCurrent ? 1.0 : 0.85
+                opacity: isCurrent ? 1.0 : 0.75
 
-                Behavior on implicitWidth {
+                Behavior on implicitHeight {
                     NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                 }
                 Behavior on opacity {
@@ -335,15 +362,14 @@ ClippingRectangle {
                 Rectangle {
                     id: cardRect
                     anchors.centerIn: parent
-                    implicitWidth: parent.width - (delegateItem.isCurrent ? Math.max(20, wallpaperPath.unitWidth * 1) : Math.max(10, wallpaperPath.unitWidth * 0.5))
-                    implicitHeight: parent.height
-                    scale: delegateItem.isCurrent ? 1 : 0.8
+                    color: Theme.surface0
+                    implicitWidth: delegateItem.cardWidth
+                    implicitHeight: delegateItem.cardHeight
                     clip: true
                     layer.enabled: true
                     radius: 16
                     border.width: delegateItem.isApplied ? 3 : 0
                     border.color: Theme.mauve
-
                     Image {
                         id: wallpaperImg
                         anchors.fill: parent
@@ -392,9 +418,6 @@ ClippingRectangle {
                     Behavior on implicitHeight {
                         NumberAnimation { duration: Config.appearance.animations.durations.normal; easing.type: Easing.OutCubic }
                     }
-                    Behavior on scale {
-                        NumberAnimation { duration: Config.appearance.animations.durations.normal; easing.type: Easing.OutCubic }
-                    }
                 }
             }
         }
@@ -404,10 +427,10 @@ ClippingRectangle {
         if (event.key === Qt.Key_Escape) {
             root.close();
             event.accepted = true;
-        } else if (event.key === Qt.Key_Left) {
+        } else if (event.key === Qt.Key_Up) {
             wallpaperPath.decrementCurrentIndex();
             event.accepted = true;
-        } else if (event.key === Qt.Key_Right) {
+        } else if (event.key === Qt.Key_Down) {
             wallpaperPath.incrementCurrentIndex();
             event.accepted = true;
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -469,7 +492,7 @@ ClippingRectangle {
         }
     }
 
-    // 预设 chip：色点 + 名称；hover 时可把当前壁纸绑定给该主题
+    // 预设 chip：色点 + 名称，hover 时可把当前壁纸绑定给该主题
     component PresetChip: Rectangle {
         id: chip
 
@@ -500,7 +523,6 @@ ClippingRectangle {
 
             StyledText {
                 text: chip.preset.displayName
-                font.pixelSize: 12
                 color: active ? chip.preset.mauve : Theme.subtext1
             }
 

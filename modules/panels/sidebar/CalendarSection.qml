@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import qs.Configs
 import qs.components
@@ -12,6 +11,30 @@ PanelWidget {
     id: root
 
     property bool collapsed: false
+    property int viewYear: new Date().getFullYear()
+    property int viewMonth: new Date().getMonth()
+
+    // 当月格子：{ day, inMonth, today }
+    readonly property var monthCells: {
+        const first = new Date(root.viewYear, root.viewMonth, 1);
+        const offset = (first.getDay() - Qt.locale().firstDayOfWeek + 7) % 7;
+        const daysInMonth = new Date(root.viewYear, root.viewMonth + 1, 0).getDate();
+        const daysInPrevMonth = new Date(root.viewYear, root.viewMonth, 0).getDate();
+        const today = new Date();
+        const cells = [];
+        const total = Math.ceil((offset + daysInMonth) / 7) * 7;
+        for (let i = 0; i < total; ++i) {
+            const dayOffset = i - offset + 1;
+            const inMonth = dayOffset >= 1 && dayOffset <= daysInMonth;
+            const date = new Date(root.viewYear, root.viewMonth, dayOffset);
+            cells.push({
+                "day": inMonth ? dayOffset : (dayOffset < 1 ? daysInPrevMonth + dayOffset : dayOffset - daysInMonth),
+                "inMonth": inMonth,
+                "today": inMonth && date.toDateString() === today.toDateString()
+            });
+        }
+        return cells;
+    }
 
     color: Theme.surface0
 
@@ -31,7 +54,7 @@ PanelWidget {
         anchors.fill: parent
         spacing: Config.appearance.spacing.small
 
-        // ==== 标题行（点击折叠） ====
+        // ==== 标题行 ====
         RowLayout {
             id: headerRow
 
@@ -46,7 +69,7 @@ PanelWidget {
 
             StyledText {
                 Layout.fillWidth: true
-                text: qsTr("%1 %2").arg(Qt.locale().monthName(grid.month, Locale.LongFormat)).arg(grid.year)
+                text: qsTr("%1 %2").arg(Qt.locale().monthName(root.viewMonth, Locale.LongFormat)).arg(root.viewYear)
                 color: Theme.text
                 font.pixelSize: 13
                 font.bold: true
@@ -66,9 +89,9 @@ PanelWidget {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        const d = new Date(grid.year, grid.month - 1, 1);
-                        grid.year = d.getFullYear();
-                        grid.month = d.getMonth();
+                        const d = new Date(root.viewYear, root.viewMonth - 1, 1);
+                        root.viewYear = d.getFullYear();
+                        root.viewMonth = d.getMonth();
                     }
                 }
             }
@@ -87,9 +110,9 @@ PanelWidget {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        const d = new Date(grid.year, grid.month + 1, 1);
-                        grid.year = d.getFullYear();
-                        grid.month = d.getMonth();
+                        const d = new Date(root.viewYear, root.viewMonth + 1, 1);
+                        root.viewYear = d.getFullYear();
+                        root.viewMonth = d.getMonth();
                     }
                 }
             }
@@ -108,8 +131,8 @@ PanelWidget {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        grid.year = new Date().getFullYear();
-                        grid.month = new Date().getMonth();
+                        root.viewYear = new Date().getFullYear();
+                        root.viewMonth = new Date().getMonth();
                     }
                 }
             }
@@ -135,57 +158,54 @@ PanelWidget {
             Repeater {
                 model: 7
 
-                delegate: Item {
+                delegate: StyledText {
                     required property int index
 
                     Layout.fillWidth: true
-
-                    StyledText {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: {
-                            const firstDay = Qt.locale().firstDayOfWeek;
-                            return Qt.locale().dayName((firstDay + index) % 7, Locale.ShortFormat);
-                        }
-                        font.pixelSize: 11
-                        font.bold: true
-                        color: Theme.subtext1
-                    }
+                    horizontalAlignment: Text.AlignHCenter
+                    text: Qt.locale().dayName((Qt.locale().firstDayOfWeek + index) % 7, Locale.ShortFormat)
+                    font.pixelSize: 11
+                    font.bold: true
+                    color: Theme.subtext1
                 }
             }
         }
 
         // ==== 日期格 ====
-        MonthGrid {
-            id: grid
-
+        GridLayout {
             visible: !root.collapsed
             Layout.fillWidth: true
-            Layout.preferredHeight: 170
-            spacing: 0
-            month: new Date().getMonth()
-            year: new Date().getFullYear()
-            locale: Qt.locale()
+            Layout.preferredHeight: Math.ceil(root.monthCells.length / 7) * 26
+            columns: 7
+            columnSpacing: 0
+            rowSpacing: 0
 
-            delegate: Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            Repeater {
+                model: root.monthCells
 
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: Math.max(20, Math.min(parent.width, parent.height) * 0.8)
-                    height: width
-                    radius: width / 2
-                    visible: model.today === true
-                    color: Theme.blue
-                }
+                delegate: Item {
+                    required property var modelData
 
-                StyledText {
-                    anchors.centerIn: parent
-                    text: model.day ?? ""
-                    color: model.today ? Theme.onPrimary : Theme.text
-                    opacity: model.month === grid.month ? 1 : 0.35
-                    font.pixelSize: 12
-                    font.bold: model.today === true
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: Math.min(parent.width, parent.height) * 0.8
+                        height: width
+                        radius: width / 2
+                        visible: modelData.today
+                        color: Theme.blue
+                    }
+
+                    StyledText {
+                        anchors.centerIn: parent
+                        text: modelData.day
+                        color: modelData.today ? Theme.onPrimary : Theme.text
+                        opacity: modelData.inMonth ? 1 : 0.35
+                        font.pixelSize: 12
+                        font.bold: modelData.today
+                    }
                 }
             }
         }

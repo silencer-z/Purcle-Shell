@@ -2,13 +2,11 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
-import Quickshell.Widgets
 import qs.Configs
 import qs.components
 import qs.services
 
-// 通知中心（dashboard 内）：历史记录列表 + DND 开关 + 清空
+// 通知中心：历史列表 + DND + 清空
 PanelWidget {
     id: root
 
@@ -132,14 +130,16 @@ PanelWidget {
             }
 
             MaterialSymbol {
-                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
                 text: Notifications.doNotDisturb ? "do_not_disturb_on" : "notifications_off"
                 size: 44
                 color: Theme.surface2
             }
 
             StyledText {
-                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
                 text: Notifications.doNotDisturb ? qsTr("勿扰模式开启中") : qsTr("暂无通知")
                 color: Theme.overlay0
                 font.pixelSize: 13
@@ -221,14 +221,11 @@ PanelWidget {
                         radius: 9
                         color: Theme.surface0
 
-                        IconImage {
-                            anchors.fill: parent
-                            anchors.margins: 4
-                            source: {
-                                const s = historyCard.n.appIcon || historyCard.n.image;
-                                return s !== "" ? s : "file://" + Quickshell.shellPath("assets/default.svg");
-                            }
-                            implicitSize: 28
+                        AppIcon {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            source: historyCard.n.icon
                         }
                     }
 

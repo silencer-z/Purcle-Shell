@@ -6,11 +6,9 @@ import qs.Configs
 import qs.components
 import qs.services
 
-// 滑块区：音量（点击图标静音，可展开输出/输入设备列表）+ 亮度
+// 滑块区：音量 + 亮度
 PanelWidget {
     id: root
-
-    // 亮度跟随聚焦屏幕（服务层统一提供）
 
     property bool devicesExpanded: false
 

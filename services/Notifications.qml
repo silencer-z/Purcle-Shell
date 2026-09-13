@@ -58,6 +58,8 @@ Singleton {
         readonly property string appName: notification?.appName || qsTr("System")
         readonly property string appIcon: notification?.appIcon ?? ""
         readonly property string image: notification?.image ?? ""
+        // 图标：应用图标 → 通知图片 → 默认（AppIcon 从 assets/apps 解析名字）
+        readonly property string icon: wrapper.appIcon || wrapper.image || "default.svg"
         readonly property int urgency: notification?.urgency ?? NotificationUrgency.Normal
         readonly property var actions: notification?.actions ?? []
         readonly property date time: new Date()

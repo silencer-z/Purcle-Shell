@@ -6,7 +6,7 @@ import qs.Configs
 import qs.components
 import qs.services
 
-// 系统区：用户信息（头像/主机名/开机时长）+ 电源模式（PowerProfile 服务）
+// 系统区：用户信息 + 电源模式
 PanelWidget {
     id: root
 
@@ -86,6 +86,7 @@ PanelWidget {
 
         // ==== 电源模式 ====
         RowLayout {
+            visible: PowerProfile.available
             spacing: Config.appearance.spacing.small / 2
 
             Repeater {

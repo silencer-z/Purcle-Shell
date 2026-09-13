@@ -9,10 +9,7 @@ import qs.Configs
 import qs.components
 import qs.services
 
-// 右侧统一面板（照 Popouts.qml 连体模式）：
-// 顶边接 bar 底缘、右边贴屏幕右缘、底边接屏幕底边框 —— 三边均为连接边（方角），
-// 左上/左下结合部用 RoundCorner 凹角圆弧过渡，使面板像从边框与 bar 的夹角"长"出来。
-// 内容缩进避开左侧 fillet 区。
+// 右侧面板：三边连接（bar/右缘/底边框），左上左下凹角过渡（同 Popouts 连体模式）
 Item {
     id: root
 
@@ -32,14 +29,14 @@ Item {
     implicitWidth: root.filletSize + root.bodyWidth + root.contentPadding * 2
     implicitHeight: root.maxHeight
 
-    // 左上结合部：凹角圆弧，连接 bar 底缘与面板左缘
+    // 左上凹角：接 bar 底缘
     RoundCorner {
         corner: RoundCorner.CornerEnum.TopRight
         size: root.filletSize
         color: Theme.base
     }
 
-    // 左下结合部：凹角圆弧，连接面板左缘与屏幕底边框
+    // 左下凹角：接屏幕底边框
     RoundCorner {
         corner: RoundCorner.CornerEnum.BottomRight
         size: root.filletSize
@@ -49,7 +46,7 @@ Item {
         anchors.bottom: parent.bottom
     }
 
-    // 主体表面：四边均为连接边（方角）
+    // 主体：四边方角
     ClippingRectangle {
         x: root.filletSize
         width: parent.width - root.filletSize
@@ -66,7 +63,7 @@ Item {
         }
     }
 
-    // 区块纵排：系统 / 滑块 / 连接 / 通知 / 日历 / 电量+会话
+    // 区块纵排
     ColumnLayout {
         anchors.fill: parent
         anchors.leftMargin: root.filletSize + root.contentPadding

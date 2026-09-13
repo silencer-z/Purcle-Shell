@@ -20,7 +20,7 @@ Item {
     implicitWidth: activeItem?.implicitWidth ?? 0
     implicitHeight: Math.min(activeItem?.implicitHeight ?? 0, root.maxHeight)
 
-    // 仅保留托盘菜单弹窗（音量/亮度/网络/蓝牙/电量已并入右侧统一面板）
+    // 仅托盘菜单弹窗（其余已并入右侧面板）
     Repeater {
         model: ScriptModel {
             // SystemTray 项可能含 null，过滤掉

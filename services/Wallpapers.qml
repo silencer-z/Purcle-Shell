@@ -43,7 +43,7 @@ Singleton {
     FolderListModel {
         id: wallpaperFolder
 
-        folder: Qt.resolvedUrl(Paths.wallpaperDir)
+        folder: `file://${Paths.wallpaperDir}`
         nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.avif"]
         showDirs: false
         showDotAndDotDot: false

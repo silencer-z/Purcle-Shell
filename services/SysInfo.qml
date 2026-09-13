@@ -146,6 +146,8 @@ Singleton{
         }
     }
 
+    Component.onCompleted: root.loadUserInfo()
+
     function loadUserInfo() {
         if (!systemInfoProcess.running) {
             systemInfoProcess.buffer = ""

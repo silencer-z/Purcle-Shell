@@ -17,8 +17,6 @@ Item {
         let max = parent.height - Config.appearance.padding.large;
         if (Visibilities.clipboard)
             max -= panels.clipboard.intrinsicHeight;
-        if (Visibilities.wallpaper)
-            max -= panels.wallpaper.intrinsicHeight;
         return Math.max(180, max);
     }
 
@@ -31,7 +29,7 @@ Item {
 
     onShouldBeActiveChanged: {
         if (shouldBeActive) {
-            // 懒加载：打开时同步实例化（contentHeight 立即可用，展开动画目标正确）
+            // 懒加载：打开时同步实例化，展开目标立即可用
             if (!content.active)
                 content.active = true;
             root.contentHeight = content.item?.implicitHeight ?? 0;
@@ -80,9 +78,11 @@ Item {
             easing.bezierCurve: Config.appearance.animations.curves.emphasized
         }
 
-        // 懒加载：收起动画自然结束后卸载内容
-        onStopped: if (!root.shouldBeActive)
-            content.active = false
+        // 懒加载：收起结束后卸载
+        onStopped: {
+            if (!root.shouldBeActive)
+                content.active = false;
+        }
     }
 
     Loader {
@@ -91,7 +91,7 @@ Item {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
 
-        // 懒加载：默认不创建，由 onShouldBeActiveChanged / hideAnim.onStopped 管理
+        // 懒加载：默认不创建
         active: false
         sourceComponent: Content {
             maxHeight: root.maxHeight

@@ -11,6 +11,10 @@ Singleton {
     property string sortMode: "frequency"
     property var hiddenApps:["electron34","CMake","electron37","btop++","键盘布局测试器","qv4l2","qvidcap","lstopo"]
 
+    function escapeRegExp(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
     function getFilteredAndSortedApps() {
         var apps = DesktopEntries.applications.values.filter(entry => {
 
@@ -24,6 +28,7 @@ Singleton {
                 return true;
 
             return entry.name.toLowerCase().indexOf(searchText) !== -1 
+            || entry.id.toLowerCase().indexOf(searchText) !== -1
             || (entry.genericName && entry.genericName.toLowerCase().indexOf(searchText) !== -1) 
             || (entry.comment && entry.comment.toLowerCase().indexOf(searchText) !== -1) 
             || (entry.keywords && entry.keywords.some(keyword => keyword.toLowerCase().indexOf(searchText) !== -1));
@@ -39,7 +44,7 @@ Singleton {
             var searchText = filterText.toLowerCase();
             var highlightedName = entry.name;
             if (searchText !== "") {
-                highlightedName = entry.name.replace(new RegExp(searchText, "ig"), `<span style="color: ${Theme.blue};">$&</span>`);
+                highlightedName = entry.name.replace(new RegExp(root.escapeRegExp(searchText), "ig"), `<span style="color: ${Theme.blue};">$&</span>`);
             }
 
             return {
@@ -97,6 +102,11 @@ Singleton {
         onLoaded: {
             root.dataReady = true;
         }
+    }
+
+    // 预热：面板懒加载，但应用列表应在首次打开前就绪（否则冷启动首帧高度只按空列表算）
+    function warmUp(): int {
+        return root.appModel.count;
     }
 
     function trackApp(appName) {

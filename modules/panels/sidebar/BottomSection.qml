@@ -7,7 +7,7 @@ import qs.Configs
 import qs.components
 import qs.services
 
-// 底部区：电量摘要（图标 + 百分比条）+ 会话操作（注销/重启/关机）
+// 底部区：电量 + 会话操作
 PanelWidget {
     id: root
 

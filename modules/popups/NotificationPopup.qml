@@ -4,12 +4,11 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Widgets
 import qs.Configs
 import qs.components
 import qs.services
 
-// 通知弹窗：右上角层叠卡片，从顶部滑入；紧急度色条 + 应用图标 + 正文 + 操作按钮
+// 通知弹窗：右上角层叠卡片，顶部滑入
 PanelWindow {
     id: root
 
@@ -147,14 +146,11 @@ PanelWindow {
                                 radius: 10
                                 color: Theme.surface0
 
-                                IconImage {
-                                    anchors.fill: parent
-                                    anchors.margins: 5
-                                    source: {
-                                        const s = popupCard.n.appIcon || popupCard.n.image;
-                                        return s !== "" ? s : "file://" + Quickshell.shellPath("assets/default.svg");
-                                    }
-                                    implicitSize: 32
+                                AppIcon {
+                                    anchors.centerIn: parent
+                                    width: 24
+                                    height: 24
+                                    source: popupCard.n.icon
                                 }
                             }
 

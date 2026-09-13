@@ -18,14 +18,42 @@ Singleton {
     signal brightnessChanged()
 
     property var ddcMonitors: []
-    readonly property list<BrightnessMonitor> monitors: Quickshell.screens.map(screen => monitorComp.createObject(root, {
-        screen
-    }))
 
-    // 跟随 Hyprland 聚焦屏幕的亮度控制器（UI 统一用它，不重复查找）
+    // 屏幕增删时同步 monitor 实例：复用已有、销毁移除的（避免 binding 内
+    // createObject 泄漏旧对象）；Screens 变化通过整体重新赋值触发通知。
+    property var monitors: []
+
+    function updateMonitors(): void {
+        const next = [];
+        for (const screen of Quickshell.screens) {
+            let monitor = root.monitors.find(m => m.screen === screen);
+            if (!monitor)
+                monitor = monitorComp.createObject(root, {
+                    screen
+                });
+            next.push(monitor);
+        }
+        for (const monitor of root.monitors) {
+            if (next.indexOf(monitor) === -1)
+                monitor.destroy();
+        }
+        root.monitors = next;
+    }
+
+    Component.onCompleted: root.updateMonitors()
+
+    Connections {
+        target: Quickshell
+
+        function onScreensChanged(): void {
+            root.updateMonitors();
+        }
+    }
+
+    // 跟随聚焦屏幕的亮度控制器（quickshell 焦点状态在 0.56 下不可靠，优先用 HyprlandState）
     readonly property var focusedMonitor: {
-        const name = Hyprland.focusedMonitor?.name;
-        return name !== undefined ? (monitors.find(m => m.screen.name === name) ?? null) : null;
+        const name = HyprlandState.focusedMonitorName || Hyprland.focusedMonitor?.name;
+        return monitors.find(m => m.screen.name === name) ?? monitors[0] ?? null;
     }
 
     function getMonitorForScreen(screen: ShellScreen): var {
@@ -52,20 +80,27 @@ Singleton {
     Process {
         id: ddcProc
 
+        // 先攒进本地 buffer，结束时整体重新赋值给 ddcMonitors：
+        // var 属性 push 不发通知，手动调用 Changed 信号不可靠
+        property var detected: []
+
         command: ["ddcutil", "detect", "--brief"]
         stdout: SplitParser {
             splitMarker: "\n\n"
             onRead: data => {
                 if (data.startsWith("Display ")) {
                     const lines = data.split("\n").map(l => l.trim());
-                    root.ddcMonitors.push({
+                    ddcProc.detected.push({
                         model: lines.find(l => l.startsWith("Monitor:")).split(":")[2],
                         busNum: lines.find(l => l.startsWith("I2C bus:")).split("/dev/i2c-")[1]
                     });
                 }
             }
         }
-        onExited: root.ddcMonitorsChanged()
+        onExited: {
+            root.ddcMonitors = ddcProc.detected;
+            ddcProc.detected = [];
+        }
     }
 
     Process {
@@ -83,16 +118,17 @@ Singleton {
         property bool ready: false
 
         readonly property string iconName: {
-            if (brightness >= 0.8) {
-                "brightness_7";
-            } else if (brightness >= 0.4) {
-                "brightness_6";
-            } else {
-                "brightness_4";
-            }
+            if (brightness >= 0.8)
+                return "brightness_7";
+            if (brightness >= 0.4)
+                return "brightness_6";
+            return "brightness_4";
         }
 
-        property var doAfterRefresh: function() {monitor.brightness = monitor.realValue;monitor.ready = true;}
+        function applyRefreshed(): void {
+            monitor.brightness = monitor.realValue;
+            monitor.ready = true;
+        }
 
         onBrightnessChanged: {
             if (monitor.ready) {
@@ -106,8 +142,7 @@ Singleton {
                 onRead: data => {
                     const [, , , current, max] = data.split(" ");
                     monitor.realValue = parseInt(current) / parseInt(max);
-                    monitor.doAfterRefresh()
-                    monitor.doAfterRefresh=function() {monitor.brightness = monitor.realValue;monitor.ready = true;}
+                    monitor.applyRefreshed();
                 }
             }
         }
@@ -140,28 +175,4 @@ Singleton {
 
         BrightnessMonitor {}
     }
-
-    // IpcHandler {
-    //     target: "brightness"
-
-    //     function increment() {
-    //         onPressed: root.increaseBrightness()
-    //     }
-
-    //     function decrement() {
-    //         onPressed: root.decreaseBrightness()
-    //     }
-    // }
-
-    // GlobalShortcut {
-    //     name: "brightnessIncrease"
-    //     description: qsTr("Increase brightness")
-    //     onPressed: root.increaseBrightness()
-    // }
-
-    // GlobalShortcut {
-    //     name: "brightnessDecrease"
-    //     description: qsTr("Decrease brightness")
-    //     onPressed: root.decreaseBrightness()
-    // }
 }

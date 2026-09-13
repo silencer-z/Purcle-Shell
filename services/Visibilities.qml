@@ -12,7 +12,7 @@ QtObject {
     property bool wallpaper: false
     property bool sidebar: false
 
-    // 面板互斥：显式写入，不用 root[name] 动态属性访问
+    // 面板互斥：显式写入
     function togglePanel(name: string): void {
         switch (name) {
         case "launcher":

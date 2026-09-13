@@ -4,8 +4,7 @@ import QtQml
 import Quickshell
 import Quickshell.Io
 
-// 电源模式服务：读取/设置 powerprofilesctl。
-// UI 只读 PowerProfile.current / 调用 PowerProfile.set()，不直接跑进程。
+// 电源模式服务：读/设 powerprofilesctl，UI 只读 current 与调 set()
 Singleton {
     id: root
 

@@ -46,10 +46,6 @@ Item {
 
     Wallpaper.Wrapper {
         id: wallpaper
-
-        panels: root
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: clipboard.height > 0 ? clipboard.top : (launcher.height > 0 ? launcher.top : parent.bottom)
     }
 
     Sidebar.Wrapper {

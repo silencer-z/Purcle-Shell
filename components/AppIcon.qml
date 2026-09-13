@@ -18,14 +18,18 @@ Item {
         id: iconImage
 
         anchors.fill: parent
-        source: {
-            const fullPathWhenSourceIsIconName = iconFolder + "/" + root.source;
-            if (iconFolder && fullPathWhenSourceIsIconName)
-                return fullPathWhenSourceIsIconName;
 
-            return root.source;
-        }
+        // 本地 assets/apps 优先；加载失败（文件不存在）时回退到 source 本身
+        // failedSource 记录失败来源，root.source 变化时自动重试本地路径
+        property string failedSource: ""
+
+        source: failedSource === root.source ? root.source : iconFolder + "/" + root.source
         implicitSize: root.height
+
+        onStatusChanged: {
+            if (status === Image.Error)
+                failedSource = root.source;
+        }
     }
 
     Loader {
