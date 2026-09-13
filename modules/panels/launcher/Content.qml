@@ -24,6 +24,7 @@ ClippingRectangle {
 
     function focusInput() {
         searchField.forceActiveFocus();
+        Qt.inputMethod.show();
         searchField.selectAll();
     }
 
@@ -67,6 +68,9 @@ ClippingRectangle {
     implicitHeight: Math.min(root.intrinsicHeight, root.maxHeight)
 
     Keys.onPressed: (event) => {
+        if (searchField.inputMethodComposing && event.key !== Qt.Key_Escape)
+            return;
+
         if (event.key === Qt.Key_Escape) {
             root.close();
             event.accepted = true;

@@ -29,11 +29,23 @@ Variants {
             readonly property int barHeight: bar.height
             readonly property int borderThickness: Config.appearance.border.thickness
             readonly property bool needsKeyboard: Visibilities.launcher || Visibilities.clipboard || Visibilities.wallpaper || Visibilities.sidebar || popouts.hasCurrent
+            // Exclusive 与 FocusGrab 同时生效会立刻 cleared、面板秒关；错开一拍再抓
+            property bool grabArmed: false
+
+            onNeedsKeyboardChanged: {
+                if (win.needsKeyboard) {
+                    win.grabArmed = false;
+                    grabArmTimer.restart();
+                } else {
+                    grabArmTimer.stop();
+                    win.grabArmed = false;
+                }
+            }
 
             screen: scope.modelData
             WlrLayershell.namespace: "PurcleShell-drawers"
             WlrLayershell.exclusionMode: ExclusionMode.Ignore
-            WlrLayershell.keyboardFocus: win.needsKeyboard ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: win.needsKeyboard ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
             color: "transparent"
             anchors.top: true
@@ -70,12 +82,21 @@ Variants {
                 Region {
                     regions: panelRegions.instances
                 }
+
+                // Exclusive 时点击不再穿透到下层窗口，FocusGrab 关不掉；面板打开时吃满屏点击
+                Region {
+                    x: 0
+                    y: 0
+                    width: win.needsKeyboard ? win.width : 0
+                    height: win.needsKeyboard ? win.height : 0
+                    intersection: Intersection.Combine
+                }
             }
 
             Variants {
                 id: panelRegions
 
-                model: panels.children
+                model: [panels.launcher, panels.clipboard, panels.wallpaper, panels.sidebar]
 
                 Region {
                     required property Item modelData
@@ -88,10 +109,18 @@ Variants {
                 }
             }
 
+            Timer {
+                id: grabArmTimer
+
+                interval: 200
+                repeat: false
+                onTriggered: win.grabArmed = true
+            }
+
             HyprlandFocusGrab {
                 id: focusGrab
 
-                active: win.needsKeyboard
+                active: win.needsKeyboard && win.grabArmed
                 windows: [win]
                 onCleared: {
                     Visibilities.launcher = false;
@@ -141,6 +170,8 @@ Variants {
 
                 borderThickness: win.borderThickness
                 barHeight: win.barHeight
+                dismissBackground: win.needsKeyboard
+                onDismissed: popouts.close()
             }
 
             BarPopouts.Popouts {

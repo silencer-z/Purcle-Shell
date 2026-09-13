@@ -186,6 +186,9 @@ ClippingRectangle {
             focus: true
 
              Keys.onPressed: (event) => {
+                 if (searchInput.inputMethodComposing && event.key !== Qt.Key_Escape)
+                     return;
+
                  if (event.key === Qt.Key_Escape) {
                      if (searchText) {
                          searchText = ""

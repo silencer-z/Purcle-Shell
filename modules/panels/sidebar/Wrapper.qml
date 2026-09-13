@@ -27,19 +27,10 @@ Item {
             if (!content.active)
                 content.active = true;
             showAnim.start();
-            focusTimer.restart();
         } else {
             showAnim.stop();
             hideAnim.start();
         }
-    }
-
-    Timer {
-        id: focusTimer
-
-        interval: 120
-        repeat: false
-        onTriggered: content.item?.focusInput?.()
     }
 
     SequentialAnimation {
@@ -55,7 +46,11 @@ Item {
         }
         // 结束后恢复绑定（窗口尺寸变化时跟随）
         ScriptAction {
-            script: root.x = Qt.binding(() => root.parent.width - root.implicitWidth)
+            script: {
+                root.x = Qt.binding(() => root.parent.width - root.implicitWidth);
+                if (root.shouldBeActive)
+                    Qt.callLater(() => content.item?.focusInput?.());
+            }
         }
     }
 
@@ -89,11 +84,6 @@ Item {
         active: false
         sourceComponent: Content {
             maxHeight: root.maxHeight
-        }
-
-        onLoaded: {
-            if (root.shouldBeActive)
-                Qt.callLater(() => item.focusInput?.());
         }
     }
 }

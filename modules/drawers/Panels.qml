@@ -12,11 +12,14 @@ Item {
 
     required property int borderThickness
     required property int barHeight
+    required property bool dismissBackground
 
     readonly property alias launcher: launcher
     readonly property alias clipboard: clipboard
     readonly property alias wallpaper: wallpaper
     readonly property alias sidebar: sidebar
+
+    signal dismissed()
 
     anchors.fill: parent
     anchors.margins: root.borderThickness
@@ -26,6 +29,17 @@ Item {
     focus: true
     Keys.onEscapePressed: {
         Visibilities.hideAll();
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        visible: root.dismissBackground
+        hoverEnabled: false
+        z: -1
+        onPressed: {
+            Visibilities.hideAll();
+            root.dismissed();
+        }
     }
 
     Launcher.Wrapper {

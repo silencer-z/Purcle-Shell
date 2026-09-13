@@ -35,19 +35,10 @@ Item {
             root.contentHeight = content.item?.implicitHeight ?? 0;
             hideAnim.stop();
             showAnim.start();
-            focusTimer.restart();
         } else {
             showAnim.stop();
             hideAnim.start();
         }
-    }
-
-    Timer {
-        id: focusTimer
-
-        interval: 120
-        repeat: false
-        onTriggered: content.item?.focusInput?.()
     }
 
     SequentialAnimation {
@@ -61,7 +52,12 @@ Item {
             easing.bezierCurve: Config.appearance.animations.curves.expressiveDefaultSpatial
         }
         ScriptAction {
-            script: root.implicitHeight = Qt.binding(() => content.item?.implicitHeight ?? 0)
+            script: {
+                root.implicitHeight = Qt.binding(() => content.item?.implicitHeight ?? 0);
+                // 高度稳定后再 focus，避免 IME 光标矩形落在动画中途的屏外坐标
+                if (root.shouldBeActive)
+                    Qt.callLater(() => content.item?.focusInput?.());
+            }
         }
     }
 
@@ -95,11 +91,6 @@ Item {
         active: false
         sourceComponent: Content {
             maxHeight: root.maxHeight
-        }
-
-        onLoaded: {
-            if (root.shouldBeActive)
-                Qt.callLater(() => item.focusInput?.());
         }
     }
 }

@@ -29,19 +29,10 @@ Item {
             // 起始位放在屏外（此时 item 已就绪）
             root.x = -((content.item?.implicitWidth ?? 0) + Config.appearance.padding.small);
             showAnim.start();
-            focusTimer.restart();
         } else {
             showAnim.stop();
             hideAnim.start();
         }
-    }
-
-    Timer {
-        id: focusTimer
-
-        interval: 120
-        repeat: false
-        onTriggered: content.item?.focusInput?.()
     }
 
     SequentialAnimation {
@@ -54,6 +45,12 @@ Item {
             // emphasizedDecel：无回弹，不过冲停靠位
             duration: Config.appearance.animations.durations.emphasizedDecel
             easing.bezierCurve: Config.appearance.animations.curves.emphasizedDecel
+        }
+        ScriptAction {
+            script: {
+                if (root.shouldBeActive)
+                    Qt.callLater(() => content.item?.focusInput?.());
+            }
         }
     }
 
@@ -83,11 +80,6 @@ Item {
         active: false
         sourceComponent: Content {
             maxHeight: root.maxHeight
-        }
-
-        onLoaded: {
-            if (root.shouldBeActive)
-                Qt.callLater(() => item.focusInput?.());
         }
     }
 }
