@@ -1,4 +1,5 @@
 import QtQuick
+import qs.components
 
 Rectangle {
     id: root
@@ -6,11 +7,6 @@ Rectangle {
     color: "transparent"
 
     Behavior on color {
-        ColorAnimation {
-            duration: 150
-            easing.type: Easing.BezierSpline
-        }
-
+        ColorAnim {}
     }
-
 }

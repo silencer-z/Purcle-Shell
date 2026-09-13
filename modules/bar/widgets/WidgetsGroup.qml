@@ -12,14 +12,14 @@ BarWidget {
 
     color: "transparent"
     widgetColor: Theme.surface0
-    widgetRadius: 8
+    widgetRadius: Config.appearance.bar.widgetRadius
 
     RowLayout {
         id: rawlayout
-        spacing: 5
+        spacing: Config.appearance.bar.widgetSpacing
 
         Item {
-            width: 3
+            width: Config.appearance.bar.widgetInset
         }
 
         MaterialSymbol {
@@ -148,7 +148,7 @@ BarWidget {
         }
 
         Item {
-            width: 3
+            width: Config.appearance.bar.widgetInset
         }
     }
 }

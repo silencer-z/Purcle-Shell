@@ -5,10 +5,12 @@ JsonObject {
     id: root
 
     property AnimationsComponent animations: AnimationsComponent {}
+    property BarComponent bar: BarComponent {}
     property FontsComponent fonts: FontsComponent {}
     property MarginComponent margin: MarginComponent {}
     property PaddingComponent padding: PaddingComponent {}
     property RoundingComponent rounding: RoundingComponent {}
+    property SizesComponent sizes: SizesComponent {}
     property SpacingComponent spacing: SpacingComponent {}
     property BorderComponent border: BorderComponent {}
 
@@ -79,9 +81,37 @@ JsonObject {
         property int full: 1000
     }
 
+    component BarComponent: JsonObject {
+        property int height: 32
+        property int margin: 7
+        property int widgetRadius: 8
+        property int widgetSpacing: 5
+        property int widgetInset: 3
+    }
+
+    component SizesComponent: JsonObject {
+        property int icon: 32
+        property int iconInner: 22
+        property int iconRadius: 9
+        property int actionHeight: 24
+        property int closeButton: 20
+        property int closeButtonRadius: 10
+        property int notificationImage: 96
+        property int searchBar: 50
+        property int listItem: 60
+        property int header: 56
+        property int panelBottom: 600
+        property int panelBottomMin: 240
+        property int panelSide: 420
+        property int listMin: 120
+        property int chipRow: 32
+        property int urgencyStripe: 4
+        property int maxPanelHeight: 800
+    }
+
     component SpacingComponent: JsonObject {
+        property int smaller: 5
         property int small: 7
-        property int smaller: 10
         property int normal: 12
         property int larger: 15
         property int large: 20

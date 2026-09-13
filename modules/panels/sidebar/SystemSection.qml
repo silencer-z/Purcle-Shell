@@ -101,7 +101,7 @@ PanelWidget {
 
                     Layout.preferredWidth: 34
                     Layout.preferredHeight: 34
-                    radius: 10
+                    radius: Config.appearance.rounding.small
                     color: profileButton.active ? profileButton.modelData.color : profileHover.hovered ? Theme.surface1 : "transparent"
 
                     Behavior on color {

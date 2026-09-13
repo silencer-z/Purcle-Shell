@@ -37,6 +37,7 @@ Item {
     }
 
     property real contentHeight: 0
+    property bool pendingShow: false
 
     visible: root.edge === "bottom" ? height > 0 : true
     clip: root.edge === "bottom"
@@ -60,18 +61,41 @@ Item {
             root.x = 0;
     }
 
+    function beginShow(): void {
+        if (!root.shouldBeActive)
+            return;
+
+        hideAnim.stop();
+
+        if (!content.active)
+            content.active = true;
+
+        if (content.status !== Loader.Ready) {
+            root.pendingShow = true;
+            return;
+        }
+
+        root.pendingShow = false;
+        root.playShowAnimation();
+    }
+
+    function playShowAnimation(): void {
+        if (root.edge === "bottom") {
+            root.implicitHeight = 0;
+            root.contentHeight = content.item?.implicitHeight ?? 0;
+        } else if (root.edge === "left") {
+            root.x = -(root.implicitWidth + root.offscreenPad);
+        }
+
+        showAnim.start();
+        focusTimer.restart();
+    }
+
     onShouldBeActiveChanged: {
         if (shouldBeActive) {
-            hideAnim.stop();
-            if (!content.active)
-                content.active = true;
-            if (root.edge === "bottom")
-                root.contentHeight = content.item?.implicitHeight ?? 0;
-            else if (root.edge === "left")
-                root.x = -(root.implicitWidth + root.offscreenPad);
-            showAnim.start();
-            focusTimer.restart();
+            beginShow();
         } else {
+            root.pendingShow = false;
             showAnim.stop();
             hideAnim.start();
         }
@@ -147,8 +171,8 @@ Item {
         sourceComponent: root.contentComponent
 
         onLoaded: {
-            if (root.shouldBeActive)
-                Qt.callLater(() => item.focusInput?.());
+            if (root.pendingShow)
+                root.beginShow();
         }
     }
 }

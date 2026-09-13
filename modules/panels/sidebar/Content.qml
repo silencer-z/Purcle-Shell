@@ -22,7 +22,7 @@ Item {
 
     readonly property int filletSize: Config.appearance.border.rounding
     readonly property int contentPadding: Config.appearance.padding.normal
-    readonly property int bodyWidth: 420
+    readonly property int bodyWidth: Config.appearance.sizes.panelSide
 
     implicitWidth: root.filletSize + root.bodyWidth + root.contentPadding * 2
     implicitHeight: root.maxHeight

@@ -42,6 +42,44 @@ Singleton {
 
     // 存活 wrapper 注册表（clearAll 用）
     property var wrappers: []
+    property var _autoTimers: ({})
+
+    Component {
+        id: autoTimerComp
+
+        Timer {
+            property var target: null
+
+            repeat: false
+            onTriggered: {
+                if (target)
+                    root.hidePopup(target);
+            }
+        }
+    }
+
+    function scheduleAutoDismiss(wrapper: var, ms: int): void {
+        if (!wrapper || ms <= 0)
+            return;
+        root.stopAutoTimer(wrapper);
+        const timer = autoTimerComp.createObject(root, {
+            interval: ms,
+            target: wrapper
+        });
+        if (!timer)
+            return;
+        root._autoTimers[wrapper] = timer;
+        timer.start();
+    }
+
+    function stopAutoTimer(wrapper: var): void {
+        const timer = root._autoTimers[wrapper];
+        if (!timer)
+            return;
+        timer.stop();
+        timer.destroy();
+        delete root._autoTimers[wrapper];
+    }
 
     // ==== Wrapper：UI 层通知代理 ====
     component NotifWrapper: QtObject {
@@ -85,17 +123,13 @@ Singleton {
             return t > 0 ? t : root.defaultTimeoutMs;
         }
 
-        // 弹窗自动关闭定时器（QtObject 无默认属性，需用属性内联实例化）
-        property Timer autoTimer: Timer {
-            interval: Math.max(1, wrapper.expireMs)
-            onTriggered: root.hidePopup(wrapper)
+        // 弹窗自动关闭（由 Notifications 根上的 Timer 组件调度）
+        function startAutoTimer(): void {
+            root.scheduleAutoDismiss(wrapper, wrapper.expireMs);
         }
 
-        function startAutoTimer(): void {
-            if (wrapper.expireMs > 0)
-                wrapper.autoTimer.restart();
-            else
-                wrapper.autoTimer.stop();
+        function stopAutoTimer(): void {
+            root.stopAutoTimer(wrapper);
         }
 
         // 服务端关闭：
@@ -177,20 +211,21 @@ Singleton {
 
         addToHistory(wrapper);
         wrapper.inPopup = true;
-        popupModel.append({
+        popupModel.insert(0, {
             wrapper: wrapper
         });
         wrapper.startAutoTimer();
 
-        // 超出可见上限时收起最早的
+        // 超出可见上限时收起最早的（在列表底部）
         if (popupModel.count > maxVisiblePopups)
-            hidePopup(popupModel.get(0).wrapper);
+            hidePopup(popupModel.get(popupModel.count - 1).wrapper);
     }
 
     function hidePopup(wrapper: var): void {
         if (!wrapper || !wrapper.inPopup)
             return;
 
+        wrapper.stopAutoTimer();
         wrapper.inPopup = false;
         for (let i = 0; i < popupModel.count; i++) {
             if (popupModel.get(i).wrapper === wrapper) {
@@ -217,6 +252,7 @@ Singleton {
             return;
 
         wrapper.finalized = true;
+        wrapper.stopAutoTimer();
         hidePopup(wrapper);
 
         if (wrapper.inHistory) {

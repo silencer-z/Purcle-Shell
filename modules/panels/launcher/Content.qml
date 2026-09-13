@@ -63,10 +63,10 @@ ClippingRectangle {
             totalHeight += 2;
         }
         totalHeight += 15;
-        return Math.max(90, Math.min(totalHeight, 725));
+        return Math.max(90, Math.min(totalHeight, Config.appearance.sizes.maxPanelHeight));
     }
 
-    implicitWidth: 600
+    implicitWidth: Config.appearance.sizes.panelBottom
     implicitHeight: Math.min(root.intrinsicHeight, root.maxHeight)
 
     Keys.onPressed: (event) => {
@@ -128,7 +128,7 @@ ClippingRectangle {
             left: parent.left
             right: parent.right
             bottom: searchBar.top
-            margins: 15
+            margins: Config.appearance.padding.large
         }
 
     }
@@ -136,12 +136,12 @@ ClippingRectangle {
     Rectangle {
         id: searchBar
 
-        height: 50
-        radius: 12
+        height: Config.appearance.sizes.searchBar
+        radius: Config.appearance.rounding.small
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.margins: 15
+        anchors.margins: Config.appearance.padding.large
         color: searchField.activeFocus ? Theme.surface1 : Theme.surface0
         border.width: 1
         border.color: searchField.activeFocus ? Theme.mauve : Theme.surface2
@@ -156,12 +156,12 @@ ClippingRectangle {
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: 10
-            spacing: 10
+            anchors.margins: Config.appearance.padding.normal
+            spacing: Config.appearance.spacing.small
 
             MaterialSymbol {
                 text: "search"
-                size: 22
+                size: Config.appearance.fonts.size.icon
                 color: searchField.activeFocus ? Theme.mauve : Theme.overlay0
 
                 Behavior on color {

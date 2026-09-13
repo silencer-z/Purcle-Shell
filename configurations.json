@@ -95,6 +95,13 @@
                 "small": 200
             }
         },
+        "bar": {
+            "height": 32,
+            "margin": 7,
+            "widgetInset": 3,
+            "widgetRadius": 8,
+            "widgetSpacing": 5
+        },
         "border": {
             "rounding": 20,
             "thickness": 2
@@ -107,12 +114,15 @@
             },
             "size": {
                 "extraLarge": 30,
+                "icon": 22,
                 "large": 16,
                 "larger": 18,
                 "medium": 13,
                 "normal": 14,
                 "scale": 1,
-                "small": 12
+                "small": 12,
+                "tiny": 11,
+                "title": 20
             }
         },
         "margin": {
@@ -135,6 +145,25 @@
             "normal": 17,
             "small": 12
         },
+        "sizes": {
+            "actionHeight": 24,
+            "chipRow": 32,
+            "closeButton": 20,
+            "closeButtonRadius": 10,
+            "header": 56,
+            "icon": 32,
+            "iconInner": 22,
+            "iconRadius": 9,
+            "listItem": 60,
+            "listMin": 120,
+            "maxPanelHeight": 800,
+            "notificationImage": 96,
+            "panelBottom": 600,
+            "panelBottomMin": 240,
+            "panelSide": 420,
+            "searchBar": 50,
+            "urgencyStripe": 4
+        },
         "spacing": {
             "large": 20,
             "larger": 15,
@@ -142,6 +171,25 @@
             "small": 7,
             "smaller": 10
         }
+    },
+    "apps": {
+        "hiddenApps": [
+            "electron34",
+            "CMake",
+            "electron37",
+            "btop++",
+            "键盘布局测试器",
+            "qv4l2",
+            "qvidcap",
+            "lstopo"
+        ],
+        "sortMode": "frequency"
+    },
+    "battery": {
+        "autoSuspend": false,
+        "critical": 0.05,
+        "low": 0.2,
+        "suspend": 0.01
     },
     "colors": {
         "isDarkMode": true,

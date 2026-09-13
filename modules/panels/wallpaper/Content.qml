@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Widgets
 import qs.components
 import qs.Configs
 import qs.services
@@ -36,7 +37,7 @@ Item {
 
     readonly property int filletSize: Config.appearance.border.rounding
     readonly property int contentPadding: Config.appearance.padding.normal
-    readonly property int bodyWidth: 420
+    readonly property int bodyWidth: Config.appearance.sizes.panelSide
 
     implicitWidth: root.filletSize + root.bodyWidth + root.contentPadding * 2
     implicitHeight: root.maxHeight
@@ -52,7 +53,7 @@ Item {
         // ==== 标题栏 ====
         RowLayout {
             Layout.fillWidth: true
-            spacing: 10
+            spacing: Config.appearance.spacing.small
 
             StyledText {
                 text: "壁纸选择"
@@ -69,26 +70,24 @@ Item {
                 Layout.fillWidth: true
             }
 
-            Item {
-                Layout.fillWidth: true
-            }
-
             // 随机按钮
             Rectangle {
-                Layout.preferredWidth: 64
-                Layout.preferredHeight: 30
-                radius: 10
+                Layout.preferredWidth: randomRow.implicitWidth + Config.appearance.padding.normal * 2
+                Layout.preferredHeight: Config.appearance.sizes.chipRow
+                radius: Config.appearance.rounding.small
                 color: randomBtn.containsMouse ? Theme.surface1 : Theme.surface0
                 border.width: 1
                 border.color: Theme.surface2
 
                 RowLayout {
+                    id: randomRow
+
                     anchors.centerIn: parent
-                    spacing: 4
+                    spacing: Config.appearance.spacing.smaller
 
                     MaterialSymbol {
                         text: "shuffle"
-                        size: 16
+                        size: Config.appearance.fonts.size.small
                         color: Theme.mauve
                     }
                     StyledText {
@@ -115,8 +114,8 @@ Item {
         // ==== 搜索框 ====
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 36
-            radius: 12
+            Layout.preferredHeight: Config.appearance.sizes.searchBar - Config.appearance.padding.large
+            radius: Config.appearance.rounding.small
             color: searchInput.activeFocus ? Theme.surface1 : Theme.surface0
             border.width: 1
             border.color: searchInput.activeFocus ? Theme.mauve : Theme.surface2
@@ -131,12 +130,12 @@ Item {
 
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: 10
-                spacing: 8
+                anchors.margins: Config.appearance.padding.normal
+                spacing: Config.appearance.spacing.small
 
                 MaterialSymbol {
                     text: "search"
-                    size: 18
+                    size: Config.appearance.fonts.size.large
                     color: Theme.overlay0
                 }
 
@@ -182,130 +181,167 @@ Item {
             }
         }
 
-        // ==== 配色方案 ====
-        RowLayout {
+        // ==== 配色方案（两行：模式切换 + 预设列表） ====
+        ColumnLayout {
             Layout.fillWidth: true
-            spacing: 10
+            spacing: Config.appearance.spacing.small
 
-            MaterialSymbol {
-                text: "palette"
-                size: 18
-                color: Theme.overlay0
-            }
-
-            StyledText {
-                text: "配色"
-                font.pixelSize: Config.appearance.fonts.size.medium
-                color: Theme.overlay0
-            }
-
-            // 方案切换：预设 / 动态(matugen) / Pywal
             RowLayout {
-                spacing: 4
+                Layout.fillWidth: true
+                spacing: Config.appearance.spacing.small
 
-                SchemeButton {
-                    label: "预设"
-                    icon: "style"
-                    checked: Theme.scheme === "preset"
-                    onClicked: Theme.usePreset(Theme.presetName)
+                MaterialSymbol {
+                    text: "palette"
+                    size: Config.appearance.fonts.size.large
+                    color: Theme.overlay0
                 }
 
-                SchemeButton {
-                    label: "动态"
-                    icon: "auto_awesome"
-                    checked: Theme.scheme === "matugen"
-                    onClicked: Theme.useMatugen()
+                StyledText {
+                    text: "配色"
+                    font.pixelSize: Config.appearance.fonts.size.medium
+                    color: Theme.overlay0
                 }
-
-                SchemeButton {
-                    label: "Pywal"
-                    icon: "terminal"
-                    checked: Theme.scheme === "pywal"
-                    onClicked: Theme.usePywal()
-                }
-            }
-
-            // matugen 明暗切换
-            Rectangle {
-                visible: Theme.scheme === "matugen"
-                Layout.preferredHeight: 28
-                Layout.preferredWidth: darkBtnLayout.implicitWidth + 20
-                radius: 10
-                color: darkBtn.containsMouse ? Theme.surface1 : Theme.surface0
-                border.width: 1
-                border.color: Config.colors.isDarkMode ? Theme.surface2 : Theme.mauve
 
                 RowLayout {
-                    id: darkBtnLayout
+                    spacing: Config.appearance.spacing.smaller
 
-                    anchors.centerIn: parent
-                    spacing: 6
-
-                    MaterialSymbol {
-                        text: Config.colors.isDarkMode ? "dark_mode" : "light_mode"
-                        size: 14
-                        color: Theme.text
+                    SchemeButton {
+                        label: "预设"
+                        icon: "style"
+                        checked: Theme.scheme === "preset"
+                        onClicked: Theme.usePreset(Theme.presetName)
                     }
-                    StyledText {
-                        text: Config.colors.isDarkMode ? "暗色" : "亮色"
-                        font.pixelSize: Config.appearance.fonts.size.small
-                        color: Theme.text
+
+                    SchemeButton {
+                        label: "动态"
+                        icon: "auto_awesome"
+                        checked: Theme.scheme === "matugen"
+                        onClicked: Theme.useMatugen()
+                    }
+
+                    SchemeButton {
+                        label: "Pywal"
+                        icon: "terminal"
+                        checked: Theme.scheme === "pywal"
+                        onClicked: Theme.usePywal()
                     }
                 }
 
-                MouseArea {
-                    id: darkBtn
+                Rectangle {
+                    visible: Theme.scheme === "matugen"
+                    Layout.preferredHeight: Config.appearance.sizes.chipRow
+                    Layout.preferredWidth: darkBtnLayout.implicitWidth + Config.appearance.padding.normal * 2
+                    radius: Config.appearance.rounding.small
+                    color: darkBtn.containsMouse ? Theme.surface1 : Theme.surface0
+                    border.width: 1
+                    border.color: Config.colors.isDarkMode ? Theme.surface2 : Theme.mauve
 
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: Config.colors.isDarkMode = !Config.colors.isDarkMode
+                    RowLayout {
+                        id: darkBtnLayout
+
+                        anchors.centerIn: parent
+                        spacing: Config.appearance.spacing.smaller
+
+                        MaterialSymbol {
+                            text: Config.colors.isDarkMode ? "dark_mode" : "light_mode"
+                            size: Config.appearance.fonts.size.small
+                            color: Theme.text
+                        }
+                        StyledText {
+                            text: Config.colors.isDarkMode ? "暗色" : "亮色"
+                            font.pixelSize: Config.appearance.fonts.size.small
+                            color: Theme.text
+                        }
+                    }
+
+                    MouseArea {
+                        id: darkBtn
+
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: Config.colors.isDarkMode = !Config.colors.isDarkMode
+                    }
+
+                    Behavior on color {
+                        ColorAnim {}
+                    }
                 }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+            }
+
+            ListView {
+                id: presetList
+
+                visible: Theme.scheme === "preset"
+                Layout.fillWidth: true
+                Layout.preferredHeight: visible ? Config.appearance.sizes.chipRow : 0
+                orientation: ListView.Horizontal
+                spacing: Config.appearance.spacing.small
+                clip: true
+                interactive: contentWidth > width
+                boundsBehavior: Flickable.StopAtBounds
+                model: Theme.presets
+
+                delegate: PresetChip {
+                    required property QtObject modelData
+
+                    height: presetList.height
+                    preset: modelData
+                }
+            }
+        }
+
+        // ==== 壁纸轮播 ====
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.minimumHeight: Config.appearance.sizes.listMin
+
+            Rectangle {
+                anchors.fill: parent
+                radius: Config.appearance.rounding.small
+                color: Theme.surface0
 
                 Behavior on color {
                     ColorAnim {}
                 }
             }
 
-            Item {
-                Layout.fillWidth: true
+            PathView {
+                id: wallpaperPath
+
+                anchors.fill: parent
+
+            // 卡片 8:5，聚焦项略大
+            readonly property real focusedWidth: width * 0.89
+            readonly property real normalWidth: width * 0.86
+            readonly property real aspectRatio: 5 / 8
+            readonly property real normalCardHeight: normalWidth * aspectRatio
+            readonly property real focusedCardHeight: focusedWidth * aspectRatio
+            readonly property real itemStride: focusedCardHeight + Config.appearance.spacing.smaller
+            // 按实际卡片高度推算路径上能容纳的奇数项，避免重叠
+            readonly property int visibleCount: {
+                if (height <= 0 || itemStride <= 0)
+                    return 1;
+                let n = Math.floor(height / itemStride);
+                if (n < 1)
+                    return 1;
+                if (n % 2 === 0)
+                    n -= 1;
+                const total = model?.count ?? 0;
+                if (total > 0)
+                    n = Math.min(n, total);
+                return n;
             }
-
-            // 预设列表
-            RowLayout {
-                visible: Theme.scheme === "preset"
-                spacing: 8
-
-                Repeater {
-                    model: Theme.presets
-
-                    delegate: PresetChip {
-                        required property QtObject modelData
-
-                        preset: modelData
-                    }
-                }
-            }
-        }
-
-        // ==== 壁纸轮播 ====
-        PathView {
-            id: wallpaperPath
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            // 卡片宽度由面板宽度决定
-            readonly property real focusedWidth: width * 0.90
-            readonly property real normalWidth: width * 0.72
-            readonly property real cardHeight: normalWidth * 9 / 16
-            // 可见卡片数由面板高度推算（奇数，至少 3，居中项为聚焦卡片）
-            readonly property int visibleCount: Math.max(3, 2 * Math.round(height / (cardHeight * 1.4)) + 1)
 
             model: ScriptModel {
                 values: root.filteredWallpapers
             }
-            pathItemCount: wallpaperPath.visibleCount
+            pathItemCount: Math.max(1, wallpaperPath.visibleCount)
             preferredHighlightBegin: 0.5
             preferredHighlightEnd: 0.5
             clip: true
@@ -313,11 +349,11 @@ Item {
             cacheItemCount: 5
 
             // 当前壁纸居中（列表异步加载完成后 onModelChanged 会再触发一次，无需重试循环）
-            onModelChanged: {
+            onModelChanged: Qt.callLater(() => {
                 const vals = model?.values ?? [];
                 const idx = vals.indexOf(Wallpapers.currentWallpaper);
-                wallpaperPath.currentIndex = idx !== -1 ? idx : (model?.count > 0 ? 0 : 0);
-            }
+                wallpaperPath.currentIndex = idx !== -1 ? idx : 0;
+            })
 
             path: Path {
                 startX: wallpaperPath.width / 2
@@ -337,57 +373,76 @@ Item {
 
                 readonly property bool isCurrent: PathView.isCurrentItem
                 readonly property bool isApplied: modelData === Wallpapers.currentWallpaper
-                // 卡片宽度由面板宽度决定，聚焦项略大；高度 16:9
+                // 8:5 卡片，聚焦项略大
                 readonly property real cardWidth: isCurrent ? wallpaperPath.focusedWidth : wallpaperPath.normalWidth
-                readonly property real cardHeight: cardWidth * 9 / 16
+                readonly property real cardHeight: cardWidth * wallpaperPath.aspectRatio
 
-                implicitWidth: wallpaperPath.width
-                implicitHeight: cardHeight * 1.15
+                width: wallpaperPath.width
+                height: cardHeight
 
                 z: isCurrent ? 100 : 1
                 opacity: isCurrent ? 1.0 : 0.75
 
-                Behavior on implicitHeight {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                Behavior on height {
+                    NumberAnimation {
+                        duration: Config.appearance.animations.durations.emphasizedAccel
+                        easing.type: Easing.OutCubic
+                    }
                 }
                 Behavior on opacity {
-                    NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    NumberAnimation {
+                        duration: Config.appearance.animations.durations.emphasizedAccel
+                        easing.type: Easing.OutCubic
+                    }
                 }
 
-                Rectangle {
-                    id: cardRect
-                    anchors.centerIn: parent
-                    color: Theme.surface0
-                    implicitWidth: delegateItem.cardWidth
-                    implicitHeight: delegateItem.cardHeight
-                    clip: true
-                    layer.enabled: true
-                    radius: 16
-                    border.width: delegateItem.isApplied ? 3 : 0
-                    border.color: Theme.mauve
-                    Image {
-                        id: wallpaperImg
+                Item {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: delegateItem.cardWidth
+                    height: delegateItem.cardHeight
+
+                    ClippingRectangle {
+                        id: cardRect
+
                         anchors.fill: parent
-                        source: "file://" + delegateItem.modelData
-                        sourceSize: Qt.size(300, 300)
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        cache: true
+                        radius: Config.appearance.rounding.normal
+                        color: Theme.surface0
+
+                        Image {
+                            anchors.fill: parent
+                            source: "file://" + delegateItem.modelData
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            cache: true
+                        }
                     }
 
-                    // 应用标记
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: Config.appearance.rounding.normal
+                        color: "transparent"
+                        border.width: Config.appearance.border.thickness
+                        border.color: delegateItem.isCurrent ? Theme.mauve : Theme.blue
+
+                        Behavior on border.color {
+                            ColorAnim {}
+                        }
+                    }
+
                     Rectangle {
                         anchors.top: parent.top
                         anchors.right: parent.right
-                        anchors.margins: 8
-                        width: appliedText.width + 12
-                        height: 20
-                        radius: 10
+                        anchors.margins: Config.appearance.padding.normal
+                        width: appliedText.width + Config.appearance.padding.normal
+                        height: Config.appearance.sizes.actionHeight - 4
+                        radius: Config.appearance.rounding.small / 2
                         color: Theme.mauve
                         visible: delegateItem.isApplied
 
                         StyledText {
                             id: appliedText
+
                             anchors.centerIn: parent
                             text: "使用中"
                             font.pixelSize: Config.appearance.fonts.size.tiny
@@ -407,13 +462,20 @@ Item {
                         }
                     }
 
-                    Behavior on implicitWidth {
-                        NumberAnimation { duration: Config.appearance.animations.durations.normal; easing.type: Easing.OutCubic }
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: Config.appearance.animations.durations.normal
+                            easing.type: Easing.OutCubic
+                        }
                     }
-                    Behavior on implicitHeight {
-                        NumberAnimation { duration: Config.appearance.animations.durations.normal; easing.type: Easing.OutCubic }
+                    Behavior on height {
+                        NumberAnimation {
+                            duration: Config.appearance.animations.durations.normal
+                            easing.type: Easing.OutCubic
+                        }
                     }
                 }
+            }
             }
         }
     }
@@ -449,27 +511,25 @@ Item {
 
         signal clicked()
 
-        implicitWidth: labelItem.implicitWidth + iconItem.implicitWidth + 26
-        implicitHeight: 28
-        radius: 10
+        implicitWidth: schemeRow.implicitWidth + Config.appearance.padding.normal * 2
+        implicitHeight: Config.appearance.sizes.chipRow
+        radius: Config.appearance.rounding.small
         color: checked ? Qt.alpha(Theme.mauve, 0.18) : schemeBtnArea.containsMouse ? Theme.surface1 : Theme.surface0
         border.width: checked ? 1 : 0
         border.color: Qt.alpha(Theme.mauve, 0.5)
 
         RowLayout {
+            id: schemeRow
+
             anchors.centerIn: parent
-            spacing: 5
+            spacing: Config.appearance.spacing.smaller
 
             MaterialSymbol {
-                id: iconItem
-
                 text: schemeBtn.icon
-                size: 14
+                size: Config.appearance.fonts.size.small
                 color: checked ? Theme.mauve : Theme.subtext1
             }
             StyledText {
-                id: labelItem
-
                 text: schemeBtn.label
                 font.pixelSize: Config.appearance.fonts.size.small
                 color: checked ? Theme.mauve : Theme.subtext1
@@ -499,9 +559,9 @@ Item {
         readonly property bool active: Theme.presetName === chip.preset.presetId
         readonly property string assignedWallpaper: Theme.presetWallpaper(chip.preset.presetId)
 
-        implicitWidth: chipRow.implicitWidth + 20
-        implicitHeight: 30
-        radius: 10
+        implicitWidth: chipRow.implicitWidth + Config.appearance.padding.normal * 2
+        implicitHeight: Config.appearance.sizes.chipRow
+        radius: Config.appearance.rounding.small
         color: active ? Qt.alpha(chip.preset.mauve, 0.18) : chipArea.containsMouse ? Theme.surface1 : Theme.surface0
         border.width: active ? 1 : 0
         border.color: Qt.alpha(chip.preset.mauve, 0.5)
@@ -510,31 +570,38 @@ Item {
             id: chipRow
 
             anchors.centerIn: parent
-            spacing: 6
+            spacing: Config.appearance.spacing.smaller
 
             Rectangle {
-                width: 10
-                height: 10
-                radius: 5
+                width: Config.appearance.spacing.normal
+                height: Config.appearance.spacing.normal
+                radius: Config.appearance.spacing.normal / 2
                 color: chip.preset.mauve
             }
 
             StyledText {
                 text: chip.preset.displayName
+                font.pixelSize: Config.appearance.fonts.size.small
                 color: active ? chip.preset.mauve : Theme.subtext1
             }
 
-            // 已绑定壁纸标记 / 绑定操作
-            MaterialSymbol {
-                text: chip.assignedWallpaper !== "" ? "photo_library" : "add_photo_alternate"
-                size: 13
-                color: pinArea.containsMouse ? Theme.mauve : Theme.overlay0
+            Rectangle {
+                width: Config.appearance.sizes.iconInner
+                height: Config.appearance.sizes.iconInner
+                radius: Config.appearance.rounding.small / 2
+                color: pinArea.containsMouse ? Theme.surface1 : "transparent"
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: chip.assignedWallpaper !== "" ? "photo_library" : "add_photo_alternate"
+                    size: Config.appearance.fonts.size.small
+                    color: pinArea.containsMouse ? Theme.mauve : Theme.overlay0
+                }
 
                 MouseArea {
                     id: pinArea
 
                     anchors.fill: parent
-                    anchors.margins: -4
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -558,7 +625,11 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: Theme.usePreset(chip.preset.presetId)
+            onClicked: {
+                if (pinArea.containsMouse)
+                    return;
+                Theme.usePreset(chip.preset.presetId);
+            }
         }
 
         Behavior on color {

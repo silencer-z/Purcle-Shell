@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import qs.Configs
 import qs.components as Components
 import qs.services
 
@@ -16,7 +17,6 @@ Item {
     readonly property var currentMonitor: Brightness.getMonitorForScreen(root.screen)
     property int barRadius: 0
     property int barHMargin: 0
-    property int barVMargin: 10
 
     implicitHeight: bar.height
     anchors.top: parent.top
@@ -26,7 +26,7 @@ Item {
     Rectangle {
         id: bar
 
-        height: 32
+        height: Config.appearance.bar.height
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -46,14 +46,14 @@ Item {
                     Layout.fillWidth: false
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignVCenter
-                    Layout.leftMargin: 7
+                    Layout.leftMargin: Config.appearance.bar.margin
                 }
 
                 Widgets.ActiveApps {
                     Layout.fillWidth: false
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignVCenter
-                    Layout.leftMargin: 7
+                    Layout.leftMargin: Config.appearance.bar.margin
                 }
 
             }
@@ -97,7 +97,7 @@ Item {
                     Layout.fillWidth: false
                     Layout.fillHeight: true
                     Layout.alignment: Qt.AlignVCenter
-                    Layout.rightMargin: 7
+                    Layout.rightMargin: Config.appearance.bar.margin
                 }
 
             }

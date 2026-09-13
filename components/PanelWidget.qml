@@ -1,4 +1,5 @@
 import QtQuick
+import qs.Configs
 
 Rectangle {
     id: root
@@ -10,7 +11,7 @@ Rectangle {
     default property alias data: content.data
 
     color: "transparent"
-    radius: 10
+    radius: Config.appearance.rounding.small
     implicitWidth: content.implicitWidth + paddingLeft + paddingRight
     implicitHeight: content.implicitHeight + paddingBottom + paddingTop
 

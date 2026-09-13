@@ -80,6 +80,16 @@ Variants {
                 }
 
                 Region {
+                    id: notificationRegion
+
+                    x: notificationPopups.x
+                    y: notificationPopups.y
+                    width: notificationPopups.width
+                    height: notificationPopups.height
+                    intersection: Intersection.Combine
+                }
+
+                Region {
                     regions: panelRegions.instances
                 }
 
@@ -179,6 +189,12 @@ Variants {
 
                 barHeight: win.barHeight
                 maxHeight: win.height - win.barHeight - Config.appearance.margin.large
+            }
+
+            NotificationPopups {
+                id: notificationPopups
+
+                barHeight: win.barHeight
             }
 
             Bar {

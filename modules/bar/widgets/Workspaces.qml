@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell.Hyprland
+import qs.Configs
 import qs.components as Components
 import qs.services
 
@@ -25,7 +26,7 @@ Components.BarWidget {
     implicitWidth: calculateDynamicWidth()
 
     color: "transparent"
-    radius: 8
+    radius: Config.appearance.bar.widgetRadius
 
 
 
@@ -62,7 +63,7 @@ Components.BarWidget {
                     width: calculateWidth()
                     height: workspaceRow.height * 0.8 + 1
                     anchors.centerIn: parent
-                    radius: 10
+                    radius: Config.appearance.rounding.small
 
                     function calculateWidth() {
                         const totalWorkspaces = root.showWorkspaceCount;
@@ -78,7 +79,13 @@ Components.BarWidget {
                         anchors.fill: parent
                         onClicked: Hyprland.dispatch("hl.dsp.focus({ workspace = " + workspaceId + " })")
                     }
-                    Behavior on width {NumberAnimation {duration: 200 ;easing.type: Easing.InOutQuad}}
+                    Behavior on width {
+                        NumberAnimation {
+                            duration: Config.appearance.animations.durations.emphasizedAccel
+                            easing.type: Easing.BezierSpline
+                            easing.bezierCurve: Config.appearance.animations.curves.standard
+                        }
+                    }
                 }
 
 

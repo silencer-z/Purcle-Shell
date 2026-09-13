@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
+import qs.Configs
 
 // 弹出面板集合：按 currentName 激活对应 Loader，同一时间只显示一个。
 // Loader 右上锚定：展开动画向左/向下进行时内容相对 bar 与右缘保持不动。
@@ -73,7 +74,7 @@ Item {
                     NumberAnimation {
                         target: popoutLoader
                         property: "opacity"
-                        duration: 150
+                        duration: Config.appearance.animations.durations.emphasizedAccel
                     }
                 }
             },
@@ -84,7 +85,7 @@ Item {
                     NumberAnimation {
                         target: popoutLoader
                         property: "opacity"
-                        duration: 150
+                        duration: Config.appearance.animations.durations.emphasizedAccel
                     }
                     PropertyAction {
                         target: popoutLoader

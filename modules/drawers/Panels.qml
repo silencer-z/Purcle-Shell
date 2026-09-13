@@ -14,6 +14,9 @@ Item {
 
     required property int borderThickness
     required property int barHeight
+    property bool dismissBackground: false
+
+    signal dismissed()
 
     readonly property alias launcher: launcher
     readonly property alias clipboard: clipboard
@@ -26,6 +29,17 @@ Item {
 
     focus: true
     Keys.onEscapePressed: Visibilities.hideAll()
+
+    // 面板打开时点击空白区域关闭（在 PanelWrapper 之下）
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.dismissBackground
+        z: -1
+        onClicked: {
+            Visibilities.hideAll();
+            root.dismissed();
+        }
+    }
 
     PanelWrapper {
         id: launcher

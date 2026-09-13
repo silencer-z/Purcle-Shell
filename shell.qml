@@ -1,5 +1,4 @@
 import "./modules/drawers"
-import "./modules/popups" as Popups
 import qs.services
 import QtQuick
 import Quickshell
@@ -10,8 +9,6 @@ ShellRoot {
 
     // 预热应用数据（面板懒加载，但服务状态应在启动时就绪）
     Component.onCompleted: AppModel.warmUp()
-
-    Popups.NotificationPopup{}
 
     Drawers {}
 

@@ -36,8 +36,13 @@ Singleton {
     }
 
     function refreshPalette(): void {
-        root.presets = presetList();
+        if (root.presets.length === 0)
+            root.presets = presetList();
         root.palette = currentPalette();
+    }
+
+    function refreshPresetList(): void {
+        root.presets = presetList();
     }
 
     function presetByName(name: string): QtObject {
@@ -49,9 +54,15 @@ Singleton {
         return null;
     }
 
-    Component.onCompleted: root.refreshPalette()
+    Component.onCompleted: {
+        root.refreshPresetList();
+        root.refreshPalette();
+    }
     onSchemeChanged: root.refreshPalette()
-    onPresetNameChanged: root.refreshPalette()
+    onPresetNameChanged: {
+        if (root.scheme === "preset")
+            root.palette = currentPalette();
+    }
 
     // ==== 方案切换 ====
     function usePreset(name: string): void {

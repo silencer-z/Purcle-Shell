@@ -11,19 +11,23 @@ PanelWidget {
     id: root
 
     implicitHeight: 400
+    color: Theme.surface0
+
+    Behavior on color {
+        ColorAnim {}
+    }
 
     ColumnLayout {
         anchors.fill: parent
         spacing: Config.appearance.spacing.normal
 
-        // ==== 标题栏 ====
         RowLayout {
             Layout.fillWidth: true
             spacing: Config.appearance.spacing.small
 
             MaterialSymbol {
                 text: "notifications"
-                size: 20
+                size: Config.appearance.fonts.size.large
                 color: Notifications.historyCount > 0 ? Theme.mauve : Theme.overlay0
 
                 Behavior on color {
@@ -49,11 +53,10 @@ PanelWidget {
                 Layout.fillWidth: true
             }
 
-            // DND 开关
             Rectangle {
-                Layout.preferredWidth: 30
-                Layout.preferredHeight: 30
-                radius: 15
+                Layout.preferredWidth: Config.appearance.sizes.icon
+                Layout.preferredHeight: Config.appearance.sizes.icon
+                radius: Config.appearance.sizes.iconRadius
                 color: dndArea.containsMouse ? (Notifications.doNotDisturb ? Qt.alpha(Theme.danger, 0.8) : Theme.surface1) : (Notifications.doNotDisturb ? Theme.danger : Theme.surface1)
 
                 Behavior on color {
@@ -82,11 +85,10 @@ PanelWidget {
                 }
             }
 
-            // 清空
             Rectangle {
-                Layout.preferredWidth: 30
-                Layout.preferredHeight: 30
-                radius: 15
+                Layout.preferredWidth: Config.appearance.sizes.icon
+                Layout.preferredHeight: Config.appearance.sizes.icon
+                radius: Config.appearance.sizes.iconRadius
                 color: clearArea.containsMouse ? (Notifications.historyCount > 0 ? Qt.alpha(Theme.danger, 0.8) : Theme.surface1) : Theme.surface1
                 enabled: Notifications.historyCount > 0
                 opacity: enabled ? 1 : 0.5
@@ -118,7 +120,6 @@ PanelWidget {
             }
         }
 
-        // ==== 空状态 ====
         ColumnLayout {
             visible: Notifications.historyCount === 0
             Layout.fillWidth: true
@@ -150,7 +151,6 @@ PanelWidget {
             }
         }
 
-        // ==== 历史列表 ====
         ListView {
             id: historyList
 
@@ -189,152 +189,13 @@ PanelWidget {
                 }
             }
 
-            delegate: Rectangle {
-                id: historyCard
-
+            delegate: NotificationCard {
                 required property var wrapper
 
-                readonly property var n: wrapper
-
                 width: historyList.width
-                implicitHeight: cardContent.implicitHeight + Config.appearance.padding.larger * 2
-                radius: Config.appearance.rounding.small
-                color: cardHover.hovered ? Theme.surface0 : "transparent"
-                border.width: cardHover.hovered ? 1 : 0
-                border.color: Theme.surface0
-
-                Behavior on color {
-                    ColorAnim {}
-                }
-
-                RowLayout {
-                    id: cardContent
-
-                    anchors.fill: parent
-                    anchors.margins: Config.appearance.padding.larger
-                    spacing: Config.appearance.spacing.small
-
-                    // 应用图标
-                    Rectangle {
-                        Layout.preferredWidth: 32
-                        Layout.preferredHeight: 32
-                        radius: 9
-                        color: Theme.surface0
-
-                        AppIcon {
-                            anchors.centerIn: parent
-                            width: 24
-                            height: 24
-                            source: historyCard.n.icon
-                        }
-                    }
-
-                    // 文本主体
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 2
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: Config.appearance.spacing.small
-
-                            StyledText {
-                                Layout.fillWidth: true
-                                text: historyCard.n.summary !== "" ? historyCard.n.summary : historyCard.n.appName
-                                color: Theme.text
-                                font.pixelSize: Config.appearance.fonts.size.medium
-                                font.bold: true
-                                elide: Text.ElideRight
-                            }
-
-                            StyledText {
-                                text: historyCard.n.timeStr
-                                color: Theme.overlay0
-                                font.pixelSize: Config.appearance.fonts.size.tiny
-                            }
-                        }
-
-                        StyledText {
-                            visible: historyCard.n.body !== ""
-                            Layout.fillWidth: true
-                            text: historyCard.n.body
-                            color: Theme.subtext1
-                            font.pixelSize: Config.appearance.fonts.size.small
-                            wrapMode: Text.WordWrap
-                            maximumLineCount: 4
-                            elide: Text.ElideRight
-                        }
-
-                        // 操作按钮
-                        RowLayout {
-                            visible: historyCard.n.actions.length > 0
-                            Layout.fillWidth: true
-                            spacing: Config.appearance.spacing.small / 2
-
-                            Repeater {
-                                model: historyCard.n.actions
-
-                                delegate: Rectangle {
-                                    id: histActionButton
-
-                                    required property var modelData
-
-                                    Layout.preferredHeight: 24
-                                    Layout.preferredWidth: histActionLabel.implicitWidth + 18
-                                    radius: 7
-                                    color: histActionHover.hovered ? Theme.surface1 : Theme.surface0
-
-                                    Behavior on color {
-                                        ColorAnim {}
-                                    }
-
-                                    StyledText {
-                                        id: histActionLabel
-
-                                        anchors.centerIn: parent
-                                        text: histActionButton.modelData.label
-                                        color: Theme.blue
-                                        font.pixelSize: Config.appearance.fonts.size.tiny
-                                    }
-
-                                    HoverHandler {
-                                        id: histActionHover
-                                    }
-
-                                    TapHandler {
-                                        onTapped: historyCard.n.invoke(histActionButton.modelData.id)
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 移除按钮（悬停显示）
-                    Rectangle {
-                        Layout.preferredWidth: 22
-                        Layout.preferredHeight: 22
-                        radius: 11
-                        visible: cardHover.hovered
-                        color: removeBtnTap.containsMouse ? Theme.surface2 : Theme.surface1
-
-                        MaterialSymbol {
-                            anchors.centerIn: parent
-                            text: "close"
-                            size: 14
-                            color: Theme.subtext1
-                        }
-
-                        TapHandler {
-                            id: removeBtnTap
-
-                            onTapped: Notifications.remove(historyCard.n)
-                        }
-                    }
-                }
-
-                HoverHandler {
-                    id: cardHover
-                }
+                notification: wrapper
+                onDismissed: Notifications.remove(wrapper)
+                onActionInvoked: (actionId) => wrapper.invoke(actionId)
             }
         }
     }
