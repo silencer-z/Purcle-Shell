@@ -65,7 +65,7 @@ Singleton {
 
 
     PwObjectTracker {
-        objects: [root.sink, root.source]
+        objects: Pipewire.nodes.values.filter(node => !!node?.audio)
     }
 
     // ==== 控制 ====
@@ -85,12 +85,12 @@ Singleton {
 
     function toggleMute(): void {
         if (sink?.audio)
-            sink.audio.mute = !sink.audio.mute;
+            sink.audio.muted = !sink.audio.muted;
     }
 
     function toggleMicMute(): void {
         if (source?.audio)
-            source.audio.mute = !source.audio.mute;
+            source.audio.muted = !source.audio.muted;
     }
 
     // 音量步长：低音量时更精细

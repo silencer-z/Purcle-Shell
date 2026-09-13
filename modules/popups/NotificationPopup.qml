@@ -157,7 +157,7 @@ PanelWindow {
                             StyledText {
                                 text: popupCard.n.appName
                                 color: Theme.blue
-                                font.pixelSize: 11
+                                font.pixelSize: Config.appearance.fonts.size.tiny
                                 font.bold: true
 
                                 Layout.fillWidth: true
@@ -167,7 +167,7 @@ PanelWindow {
                             StyledText {
                                 text: popupCard.n.timeStr
                                 color: Theme.overlay0
-                                font.pixelSize: 11
+                                font.pixelSize: Config.appearance.fonts.size.tiny
                             }
                         }
 
@@ -177,7 +177,7 @@ PanelWindow {
                             Layout.fillWidth: true
                             text: popupCard.n.summary
                             color: Theme.text
-                            font.pixelSize: 13
+                            font.pixelSize: Config.appearance.fonts.size.medium
                             font.bold: true
                             elide: Text.ElideRight
                         }
@@ -188,7 +188,7 @@ PanelWindow {
                             Layout.fillWidth: true
                             text: popupCard.n.body
                             color: Theme.subtext1
-                            font.pixelSize: 12
+                            font.pixelSize: Config.appearance.fonts.size.small
                             wrapMode: Text.WordWrap
                             maximumLineCount: 2
                             elide: Text.ElideRight
@@ -240,7 +240,7 @@ PanelWindow {
                                         anchors.centerIn: parent
                                         text: actionButton.modelData.label
                                         color: Theme.blue
-                                        font.pixelSize: 11
+                                        font.pixelSize: Config.appearance.fonts.size.tiny
                                     }
 
                                     HoverHandler {

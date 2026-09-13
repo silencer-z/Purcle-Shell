@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import qs.Configs
 import qs.components
 import qs.services
 
@@ -50,7 +51,7 @@ PanelWidget {
                 text: "%1 / %2".arg(grid.year).arg(grid.month + 1)
                 Layout.fillWidth:true
                 horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 20
+                font.pixelSize: Config.appearance.fonts.size.title
                 font.bold: true
                 color: "white"
             }
@@ -95,7 +96,7 @@ PanelWidget {
                     }
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: 16
+                    font.pixelSize: Config.appearance.fonts.size.large
                     font.bold: true
                     color: Theme.subtext1
                 }
@@ -130,7 +131,7 @@ PanelWidget {
                     text: model.day
                     color: model.today ? Theme.base : "white"
                     opacity: model.month === grid.month ? 1 : 0.4
-                    font.pixelSize: 16
+                    font.pixelSize: Config.appearance.fonts.size.large
                     font.bold: model.today
                 }
             }

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import qs.Configs
 import qs.services
 
 ToolTip {
@@ -39,7 +40,7 @@ ToolTip {
     contentItem: Text {
         text: root.content
         color: Theme.text
-        font.pixelSize: 14
+        font.pixelSize: Config.appearance.fonts.size.normal
         wrapMode: Text.Wrap
     }
 }

@@ -70,7 +70,7 @@ Column {
                         Layout.fillWidth: true
                         text: entry.modelData?.text ?? ""
                         color: (entry.modelData?.enabled ?? true) ? Theme.text : Theme.overlay0
-                        font.pixelSize: 13
+                        font.pixelSize: Config.appearance.fonts.size.medium
                         elide: Text.ElideRight
                     }
 

@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 
 import qs.components as Components
+import qs.Configs
 import qs.services
 
 Components.BarWidget {
@@ -49,7 +50,7 @@ Components.BarWidget {
                 anchors.centerIn: parent
                 text: "◀"
                 color: Theme.text
-                font.pixelSize: 12
+                font.pixelSize: Config.appearance.fonts.size.small
                 rotation: root.trayExpanded ? 180 : 0
 
                 Behavior on rotation {

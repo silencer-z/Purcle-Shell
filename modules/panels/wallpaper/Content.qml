@@ -1,12 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import qs.components
 import qs.Configs
 import qs.services
 
-// 左侧壁纸面板：左缘贴屏幕左缘、顶接 bar、底接底边框，右缘凹角过渡（同 sidebar）
+// 左侧壁纸面板内容（表面由 drawers/LeftPanelPath 绘制）
 Item {
     id: root
 
@@ -17,8 +16,23 @@ Item {
     }
 
     function focusInput() {
-        wallpaperPath.forceActiveFocus();
+        searchInput.forceActiveFocus();
     }
+
+    property string searchQuery: ""
+    property string debouncedQuery: ""
+
+    readonly property var filteredWallpapers: Wallpapers.matching(root.debouncedQuery)
+
+    Timer {
+        id: searchDebounce
+
+        interval: 300
+        repeat: false
+        onTriggered: root.debouncedQuery = root.searchQuery
+    }
+
+    onSearchQueryChanged: searchDebounce.restart()
 
     readonly property int filletSize: Config.appearance.border.rounding
     readonly property int contentPadding: Config.appearance.padding.normal
@@ -26,38 +40,6 @@ Item {
 
     implicitWidth: root.filletSize + root.bodyWidth + root.contentPadding * 2
     implicitHeight: root.maxHeight
-
-    // 右上凹角：接 bar 底缘
-    RoundCorner {
-        corner: RoundCorner.CornerEnum.TopLeft
-        size: root.filletSize
-        color: Theme.base
-        anchors.right: parent.right
-    }
-
-    // 右下凹角：接屏幕底边框
-    RoundCorner {
-        corner: RoundCorner.CornerEnum.BottomLeft
-        size: root.filletSize
-        color: Theme.base
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-    }
-
-    // 主体：四边方角
-    ClippingRectangle {
-        width: parent.width - root.filletSize
-        height: parent.height
-        topLeftRadius: 0
-        topRightRadius: 0
-        bottomLeftRadius: 0
-        bottomRightRadius: 0
-        color: Theme.base
-
-        Behavior on color {
-            ColorAnim {}
-        }
-    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -74,14 +56,14 @@ Item {
 
             StyledText {
                 text: "壁纸选择"
-                font.pixelSize: 16
+                font.pixelSize: Config.appearance.fonts.size.large
                 font.bold: true
                 color: Theme.text
             }
 
             StyledText {
                 text: Wallpapers.currentWallpaperName || "未设置"
-                font.pixelSize: 13
+                font.pixelSize: Config.appearance.fonts.size.medium
                 color: Theme.overlay0
                 elide: Text.ElideRight
                 Layout.fillWidth: true
@@ -111,7 +93,7 @@ Item {
                     }
                     StyledText {
                         text: "随机"
-                        font.pixelSize: 12
+                        font.pixelSize: Config.appearance.fonts.size.small
                         color: Theme.text
                     }
                 }
@@ -121,7 +103,7 @@ Item {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Wallpapers.setRandom()
+                    onClicked: Wallpapers.setRandom(root.filteredWallpapers)
                 }
 
                 Behavior on color {
@@ -161,10 +143,9 @@ Item {
                 StyledTextInput {
                     id: searchInput
                     Layout.fillWidth: true
-                    font.pixelSize: 13
+                    font.pixelSize: Config.appearance.fonts.size.medium
                     color: Theme.text
-                    text: Wallpapers.searchQuery
-                    onTextChanged: Wallpapers.searchQuery = text
+                    onTextChanged: root.searchQuery = text
                     Keys.onEscapePressed: {
                         if (searchInput.text) {
                             searchInput.text = "";
@@ -172,13 +153,27 @@ Item {
                             root.close();
                         }
                     }
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Up) {
+                            wallpaperPath.decrementCurrentIndex();
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Down) {
+                            wallpaperPath.incrementCurrentIndex();
+                            event.accepted = true;
+                        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                            const list = root.filteredWallpapers;
+                            if (wallpaperPath.currentIndex >= 0 && wallpaperPath.currentIndex < list.length)
+                                Wallpapers.setWallpaper(list[wallpaperPath.currentIndex]);
+                            event.accepted = true;
+                        }
+                    }
                 }
 
                 MaterialSymbol {
-                    text: Wallpapers.searchQuery ? "close" : ""
+                    text: root.searchQuery ? "close" : ""
                     size: 16
                     color: Theme.overlay0
-                    visible: Wallpapers.searchQuery !== ""
+                    visible: root.searchQuery !== ""
                     MouseArea {
                         anchors.fill: parent
                         onClicked: searchInput.text = ""
@@ -200,7 +195,7 @@ Item {
 
             StyledText {
                 text: "配色"
-                font.pixelSize: 13
+                font.pixelSize: Config.appearance.fonts.size.medium
                 color: Theme.overlay0
             }
 
@@ -253,7 +248,7 @@ Item {
                     }
                     StyledText {
                         text: Config.colors.isDarkMode ? "暗色" : "亮色"
-                        font.pixelSize: 12
+                        font.pixelSize: Config.appearance.fonts.size.small
                         color: Theme.text
                     }
                 }
@@ -308,7 +303,7 @@ Item {
             readonly property int visibleCount: Math.max(3, 2 * Math.round(height / (cardHeight * 1.4)) + 1)
 
             model: ScriptModel {
-                values: Wallpapers.filteredWallpaperList
+                values: root.filteredWallpapers
             }
             pathItemCount: wallpaperPath.visibleCount
             preferredHighlightBegin: 0.5
@@ -395,7 +390,7 @@ Item {
                             id: appliedText
                             anchors.centerIn: parent
                             text: "使用中"
-                            font.pixelSize: 11
+                            font.pixelSize: Config.appearance.fonts.size.tiny
                             color: Theme.onPrimary
                         }
                     }
@@ -437,7 +432,7 @@ Item {
             wallpaperPath.incrementCurrentIndex();
             event.accepted = true;
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-            const list = Wallpapers.filteredWallpaperList;
+            const list = root.filteredWallpapers;
             if (wallpaperPath.currentIndex >= 0 && wallpaperPath.currentIndex < list.length)
                 Wallpapers.setWallpaper(list[wallpaperPath.currentIndex]);
             event.accepted = true;
@@ -476,7 +471,7 @@ Item {
                 id: labelItem
 
                 text: schemeBtn.label
-                font.pixelSize: 12
+                font.pixelSize: Config.appearance.fonts.size.small
                 color: checked ? Theme.mauve : Theme.subtext1
             }
         }

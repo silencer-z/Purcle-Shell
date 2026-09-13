@@ -4,7 +4,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
-import Quickshell.Io
 
 Singleton {
     id: root
@@ -56,7 +55,6 @@ Singleton {
         if (activePlayer === player)
             return;
         activePlayer = player;
-        activePlayerChanged();
         trackChanged(player);
     }
 
@@ -88,9 +86,9 @@ Singleton {
             Component.onDestruction: {
                 if (root.activePlayer === modelData) {
                     root.activePlayer = null;
-                    // 选一个仍存在的播放器
-                    if (Mpris.players.count > 0)
-                        root.setActivePlayer(Mpris.players[0]);
+                    const rest = Mpris.players.values;
+                    if (rest && rest.length > 0)
+                        root.setActivePlayer(rest[0]);
                 }
             }
         }

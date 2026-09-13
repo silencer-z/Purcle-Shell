@@ -3,71 +3,64 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.Configs
 
 Singleton {
     id: root
 
-    property string filterText: ""
-    property string sortMode: "frequency"
-    property var hiddenApps:["electron34","CMake","electron37","btop++","键盘布局测试器","qv4l2","qvidcap","lstopo"]
+    property string sortMode: Config.apps.sortMode
 
     function escapeRegExp(str: string): string {
         return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
-    function getFilteredAndSortedApps() {
-        var apps = DesktopEntries.applications.values.filter(entry => {
-
-            if (root.hiddenApps.indexOf(entry.id) !== -1
-                || root.hiddenApps.indexOf(entry.name) !== -1) {
-                return false;
-            }
-
-            var searchText = filterText.toLowerCase();
-            if (searchText === "")
-                return true;
-
-            return entry.name.toLowerCase().indexOf(searchText) !== -1 
+    function matchesQuery(entry, searchText: string): bool {
+        if (searchText === "")
+            return true;
+        return entry.name.toLowerCase().indexOf(searchText) !== -1
             || entry.id.toLowerCase().indexOf(searchText) !== -1
-            || (entry.genericName && entry.genericName.toLowerCase().indexOf(searchText) !== -1) 
-            || (entry.comment && entry.comment.toLowerCase().indexOf(searchText) !== -1) 
+            || (entry.genericName && entry.genericName.toLowerCase().indexOf(searchText) !== -1)
+            || (entry.comment && entry.comment.toLowerCase().indexOf(searchText) !== -1)
             || (entry.keywords && entry.keywords.some(keyword => keyword.toLowerCase().indexOf(searchText) !== -1));
+    }
+
+    function getVisibleApps() {
+        const hidden = Config.apps.hiddenApps ?? [];
+        let apps = DesktopEntries.applications.values.filter(entry => {
+            return hidden.indexOf(entry.id) === -1 && hidden.indexOf(entry.name) === -1;
         });
 
-        if (sortMode === "name") {
+        if (sortMode === "name")
             apps.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortMode === "frequency") {
+        else if (sortMode === "frequency")
             apps = sortByFrequency(apps);
-        }
 
-        return apps.map(entry => {
-            var searchText = filterText.toLowerCase();
-            var highlightedName = entry.name;
-            if (searchText !== "") {
-                highlightedName = entry.name.replace(new RegExp(root.escapeRegExp(searchText), "ig"), `<span style="color: ${Theme.blue};">$&</span>`);
-            }
+        return apps.map(entry => ({
+            "id": entry.id,
+            "isHeader": false,
+            "name": entry.name,
+            "genericName": entry.genericName,
+            "comment": entry.comment,
+            "icon": entry.icon,
+            "categories": entry.categories,
+            "actions": entry.actions,
+            "entry": entry,
+        }));
+    }
 
-            return {
-                "id": entry.id,
-                "isHeader": false,
-                "name": entry.name,
-                "genericName": entry.genericName,
-                "comment": entry.comment,
-                "icon": entry.icon,
-                "categories": entry.categories,
-                "actions": entry.actions,
-                "highlightedName": highlightedName,
-                "entry": entry,
-            };
-        });
-        
+    function matching(query: string) {
+        const searchText = (query || "").toLowerCase();
+        const apps = root.appModel.values ?? [];
+        if (searchText === "")
+            return apps;
+        return apps.filter(item => root.matchesQuery(item.entry, searchText));
     }
 
     ScriptModel {
         id: model
         objectProp: "id"
         property int count: values ? values.length : 0
-        values: root.getFilteredAndSortedApps()
+        values: root.getVisibleApps()
     }
 
     readonly property alias appModel: model
@@ -76,7 +69,7 @@ Singleton {
 
     FileView {
         id: frequencyFile
-        path: Quickshell.cacheDir+ "/app_freq.json"
+        path: Quickshell.cacheDir + "/app_freq.json"
         watchChanges: false
         onFileChanged: reload()
         onAdapterUpdated: writeAdapter()
@@ -104,7 +97,6 @@ Singleton {
         }
     }
 
-    // 预热：面板懒加载，但应用列表应在首次打开前就绪（否则冷启动首帧高度只按空列表算）
     function warmUp(): int {
         return root.appModel.count;
     }

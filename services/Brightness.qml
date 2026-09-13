@@ -88,23 +88,27 @@ Singleton {
         stdout: SplitParser {
             splitMarker: "\n\n"
             onRead: data => {
-                if (data.startsWith("Display ")) {
-                    const lines = data.split("\n").map(l => l.trim());
-                    ddcProc.detected.push({
-                        model: lines.find(l => l.startsWith("Monitor:")).split(":")[2],
-                        busNum: lines.find(l => l.startsWith("I2C bus:")).split("/dev/i2c-")[1]
-                    });
-                }
+                if (!data.startsWith("Display "))
+                    return;
+                const lines = data.split("\n").map(l => l.trim());
+                const monitorLine = lines.find(l => l.startsWith("Monitor:"));
+                const busLine = lines.find(l => l.startsWith("I2C bus:"));
+                if (!monitorLine || !busLine)
+                    return;
+                const modelParts = monitorLine.split(":");
+                const busParts = busLine.split("/dev/i2c-");
+                if (modelParts.length < 3 || busParts.length < 2)
+                    return;
+                ddcProc.detected.push({
+                    model: modelParts[2],
+                    busNum: busParts[1]
+                });
             }
         }
         onExited: {
             root.ddcMonitors = ddcProc.detected;
             ddcProc.detected = [];
         }
-    }
-
-    Process {
-        id: setProc
     }
 
     component BrightnessMonitor: QtObject {
@@ -140,19 +144,27 @@ Singleton {
             command: isDdc ? ["ddcutil", "-b", busNum, "getvcp", "10", "--brief"] : ["sh", "-c", `echo "a b c $(brightnessctl g) $(brightnessctl m)"`]
             stdout: SplitParser {
                 onRead: data => {
-                    const [, , , current, max] = data.split(" ");
-                    monitor.realValue = parseInt(current) / parseInt(max);
+                    const parts = data.trim().split(" ");
+                    if (parts.length < 5)
+                        return;
+                    const current = parseInt(parts[3], 10);
+                    const max = parseInt(parts[4], 10);
+                    if (!max || isNaN(current) || isNaN(max))
+                        return;
+                    monitor.realValue = current / max;
                     monitor.applyRefreshed();
                 }
             }
         }
+
+        readonly property Process setProc: Process {}
 
         function setBrightness(value: real): void {
             value = Math.max(0.01, Math.min(1, value));
             const rounded = Math.round(value * 100);
             if (Math.round(brightness * 100) === rounded)
                 return;
-            brightness = value
+            brightness = value;
             setProc.command = isDdc ? ["ddcutil", "-b", busNum, "setvcp", "10", rounded] : ["brightnessctl", "s", `${rounded}%`, "--quiet"];
             setProc.startDetached();
         }

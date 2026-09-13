@@ -55,7 +55,7 @@ Singleton {
         command: ["nmcli", "monitor"]
         environment: root.cLocale
         stdout: SplitParser {
-            onRead: root.refresh()
+            onRead: refreshDebounce.restart()
         }
     }
 
@@ -69,15 +69,27 @@ Singleton {
         onTriggered: root.refresh()
     }
 
-    function refresh() {
-        if (!statusProc.running) {
-            statusProc.buffer = "";
-            statusProc.running = true;
+    Timer {
+        id: refreshDebounce
+
+        interval: 250
+        repeat: false
+        onTriggered: root.refreshNow()
+    }
+
+    function refresh(): void {
+        refreshDebounce.restart();
+    }
+
+    function refreshNow(): void {
+        if (statusProc.running || networksProc.running) {
+            refreshDebounce.restart();
+            return;
         }
-        if (!networksProc.running) {
-            networksProc.buffer = "";
-            networksProc.running = true;
-        }
+        statusProc.buffer = "";
+        statusProc.running = true;
+        networksProc.buffer = "";
+        networksProc.running = true;
     }
 
     // ==== 设备类型 + 连接状态 + 连通性 ====

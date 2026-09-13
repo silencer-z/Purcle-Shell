@@ -72,7 +72,7 @@ PanelWidget {
                     StyledText {
                         text: Network.wifiEnabled ? (Network.networkName && Network.networkName !== "lo" ? Network.networkName : qsTr("未连接")) : qsTr("WiFi 已关闭")
                         color: Theme.text
-                        font.pixelSize: 13
+                        font.pixelSize: Config.appearance.fonts.size.medium
                         font.bold: true
                         elide: Text.ElideRight
 
@@ -92,7 +92,7 @@ PanelWidget {
                             return qsTr("选择下方网络以连接");
                         }
                         color: Theme.subtext1
-                        font.pixelSize: 10
+                        font.pixelSize: Config.appearance.fonts.size.tiny
 
                         Layout.fillWidth: true
                     }
@@ -162,7 +162,7 @@ PanelWidget {
                         Layout.fillWidth: true
                         echoMode: TextInput.Password
                         placeholderText: qsTr("输入 \"%1\" 的密码").arg(root.pendingSsid)
-                        font.pixelSize: 12
+                        font.pixelSize: Config.appearance.fonts.size.small
 
                         onAccepted: {
                             Network.connectToNetwork(root.pendingSsid, text);
@@ -246,14 +246,14 @@ PanelWidget {
                             Layout.fillWidth: true
                             text: networkRow.modelData.ssid
                             color: Theme.text
-                            font.pixelSize: 12
+                            font.pixelSize: Config.appearance.fonts.size.small
                             elide: Text.ElideRight
                         }
 
                         StyledText {
                             text: networkRow.modelData.signal + "%"
                             color: Theme.overlay0
-                            font.pixelSize: 10
+                            font.pixelSize: Config.appearance.fonts.size.tiny
                         }
 
                         MaterialSymbol {
@@ -306,7 +306,7 @@ PanelWidget {
                         StyledText {
                             text: qsTr("重新扫描")
                             color: Theme.text
-                            font.pixelSize: 11
+                            font.pixelSize: Config.appearance.fonts.size.tiny
                         }
                     }
 
@@ -355,7 +355,7 @@ PanelWidget {
                     StyledText {
                         text: Bluetooth.enabled ? qsTr("蓝牙") : qsTr("蓝牙已关闭")
                         color: Theme.text
-                        font.pixelSize: 13
+                        font.pixelSize: Config.appearance.fonts.size.medium
                         font.bold: true
 
                         Layout.fillWidth: true
@@ -372,7 +372,7 @@ PanelWidget {
                             return qsTr("点击开关开启");
                         }
                         color: Theme.subtext1
-                        font.pixelSize: 10
+                        font.pixelSize: Config.appearance.fonts.size.tiny
 
                         Layout.fillWidth: true
                     }
@@ -460,7 +460,7 @@ PanelWidget {
                             StyledText {
                                 text: deviceRow.modelData?.name || deviceRow.modelData?.deviceName || qsTr("未知设备")
                                 color: Theme.text
-                                font.pixelSize: 12
+                                font.pixelSize: Config.appearance.fonts.size.small
                                 elide: Text.ElideRight
 
                                 Layout.fillWidth: true
@@ -469,7 +469,7 @@ PanelWidget {
                             StyledText {
                                 text: deviceRow.connected ? qsTr("已连接") : Bluetooth.isDeviceBusy(deviceRow.modelData) ? qsTr("连接中...") : qsTr("未连接")
                                 color: deviceRow.connected ? Theme.green : Theme.overlay0
-                                font.pixelSize: 10
+                                font.pixelSize: Config.appearance.fonts.size.tiny
                             }
                         }
 
@@ -507,7 +507,7 @@ PanelWidget {
                 visible: Bluetooth.pairedDevices.length === 0 && !Bluetooth.discovering
                 text: qsTr("暂无已配对设备")
                 color: Theme.overlay0
-                font.pixelSize: 11
+                font.pixelSize: Config.appearance.fonts.size.tiny
 
                 Layout.alignment: Qt.AlignHCenter
             }

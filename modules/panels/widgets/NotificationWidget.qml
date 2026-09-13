@@ -34,7 +34,7 @@ PanelWidget {
             StyledText {
                 text: qsTr("通知")
                 color: Theme.text
-                font.pixelSize: 15
+                font.pixelSize: Config.appearance.fonts.size.large
                 font.bold: true
             }
 
@@ -42,7 +42,7 @@ PanelWidget {
                 visible: Notifications.historyCount > 0
                 text: Notifications.historyCount
                 color: Theme.overlay0
-                font.pixelSize: 12
+                font.pixelSize: Config.appearance.fonts.size.small
             }
 
             Item {
@@ -142,7 +142,7 @@ PanelWidget {
                 horizontalAlignment: Text.AlignHCenter
                 text: Notifications.doNotDisturb ? qsTr("勿扰模式开启中") : qsTr("暂无通知")
                 color: Theme.overlay0
-                font.pixelSize: 13
+                font.pixelSize: Config.appearance.fonts.size.medium
             }
 
             Item {
@@ -242,7 +242,7 @@ PanelWidget {
                                 Layout.fillWidth: true
                                 text: historyCard.n.summary !== "" ? historyCard.n.summary : historyCard.n.appName
                                 color: Theme.text
-                                font.pixelSize: 13
+                                font.pixelSize: Config.appearance.fonts.size.medium
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
@@ -250,7 +250,7 @@ PanelWidget {
                             StyledText {
                                 text: historyCard.n.timeStr
                                 color: Theme.overlay0
-                                font.pixelSize: 11
+                                font.pixelSize: Config.appearance.fonts.size.tiny
                             }
                         }
 
@@ -259,7 +259,7 @@ PanelWidget {
                             Layout.fillWidth: true
                             text: historyCard.n.body
                             color: Theme.subtext1
-                            font.pixelSize: 12
+                            font.pixelSize: Config.appearance.fonts.size.small
                             wrapMode: Text.WordWrap
                             maximumLineCount: 4
                             elide: Text.ElideRight
@@ -294,7 +294,7 @@ PanelWidget {
                                         anchors.centerIn: parent
                                         text: histActionButton.modelData.label
                                         color: Theme.blue
-                                        font.pixelSize: 11
+                                        font.pixelSize: Config.appearance.fonts.size.tiny
                                     }
 
                                     HoverHandler {

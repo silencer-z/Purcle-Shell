@@ -1,11 +1,12 @@
 import QtQuick
 import QtQuick.Layouts
+import qs.Configs
 import qs.services
 
 Text {
     property real fill: 0
     property real truncatedFill: Math.round(fill * 100) / 100
-    property real size: 16
+    property real size: Config.appearance.fonts.size.large
 
     renderType: Text.NativeRendering
     verticalAlignment: Text.AlignVCenter
@@ -13,7 +14,7 @@ Text {
 
     font {
         hintingPreference: Font.PreferFullHinting
-        family: "Material Symbols Rounded"
+        family: Config.appearance.fonts.family.material
         pixelSize: size
         weight: Font.Normal + (Font.DemiBold - Font.Normal) * fill
         variableAxes: {

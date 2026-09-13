@@ -4,6 +4,7 @@ import qs.services
 import QtQuick
 import QtQuick.Shapes
 
+// 底边吸附面板：从底边框长出，两侧凹角连体（launcher / clipboard）
 ShapePath {
     id: root
 
@@ -15,7 +16,7 @@ ShapePath {
     readonly property real roundingY: flatten ? wrapper.height / 2 : rounding
 
     strokeWidth: -1
-    fillColor: root.surfaceColor
+    fillColor: root.wrapper.height > 0 ? root.surfaceColor : "transparent"
 
     PathArc {
         relativeX: root.rounding

@@ -31,7 +31,7 @@ Singleton {
     }
 
     function sortDevices(devices) {
-        return devices.sort((a, b) => {
+        return devices.slice().sort((a, b) => {
             var aName = a.name || a.deviceName || "";
             var bName = b.name || b.deviceName || "";
             

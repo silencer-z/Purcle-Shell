@@ -21,24 +21,24 @@ Singleton {
 
     Component.onCompleted: {
         Quickshell.execDetached(["mkdir", "-p", cacheDir])
-        loadPinsProc.running = true
         refresh()
     }
 
-    Process {
-        id: loadPinsProc
+    FileView {
+        id: pinsView
 
-        command: ["bash", "-c", `cat ${JSON.stringify(root.pinsFile)} 2>/dev/null || echo '[]'`]
-
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    root.pinnedIds = JSON.parse(data.trim())
-                } catch(e) {
-                    root.pinnedIds = []
-                }
+        path: root.pinsFile
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: {
+            try {
+                const parsed = JSON.parse(text().trim())
+                root.pinnedIds = Array.isArray(parsed) ? parsed : []
+            } catch (e) {
+                root.pinnedIds = []
             }
         }
+        onLoadFailed: root.pinnedIds = []
     }
 
     function savePinnedIds() {
@@ -63,6 +63,11 @@ Singleton {
     /* =================== API ================== */
 
     function refresh() {
+        root._cacheQueue = []
+        if (readProc.running) {
+            root._refreshQueued = true
+            return
+        }
         readProc.buffer = []
         readProc.running = true
     }
@@ -88,7 +93,7 @@ Singleton {
 
         Quickshell.execDetached([
             "bash", "-c",
-            `cliphist decode ${item.id} | wl-copy`
+            `cliphist decode ${JSON.stringify(String(item.id))} | wl-copy`
         ])
     }
 
@@ -123,6 +128,11 @@ Singleton {
         }
 
         onExited: (code) => {
+            if (root._refreshQueued) {
+                root._refreshQueued = false
+                root.refresh()
+                return
+            }
             if (code !== 0) return
             model.clear()
 
@@ -166,6 +176,7 @@ Singleton {
 
     // ---- 图片缓存队列（串行，避免大量并发进程） ----
     property var _cacheQueue: []
+    property bool _refreshQueued: false
 
     function processCacheQueue() {
         if (cacheProc.running || root._cacheQueue.length === 0)
@@ -190,9 +201,14 @@ Singleton {
         command: []
 
         onExited: (code) => {
-            if (code === 0 && cacheProc.targetIndex >= 0 && cacheProc.targetIndex < model.count) {
-                model.setProperty(cacheProc.targetIndex, "cached", true)
-                model.setProperty(cacheProc.targetIndex, "imagePath", "file://" + cacheProc.targetPath)
+            if (code === 0 && cacheProc.targetId !== "") {
+                for (let i = 0; i < model.count; i++) {
+                    if (model.get(i).id === cacheProc.targetId) {
+                        model.setProperty(i, "cached", true)
+                        model.setProperty(i, "imagePath", "file://" + cacheProc.targetPath)
+                        break
+                    }
+                }
             }
             cacheProc.targetId = ""
             cacheProc.targetPath = ""

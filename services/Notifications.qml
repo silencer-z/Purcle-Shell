@@ -147,6 +147,12 @@ Singleton {
     function track(notif: Notification, recovered: bool): void {
         if (!notif)
             return;
+
+        const wantPopup = !recovered && !doNotDisturb && !popupsDisabled;
+        const wantHistory = !notif.transient;
+        if (!wantPopup && !wantHistory)
+            return;
+
         notif.tracked = true;
 
         const wrapper = wrapperComponent.createObject(root, {
@@ -158,13 +164,9 @@ Singleton {
         }
         wrappers.push(wrapper);
 
-        // transient：只弹不进历史；DND / 恢复：不弹
-        const wantPopup = !recovered && !doNotDisturb && !popupsDisabled;
-        const wantHistory = !notif.transient;
-
         if (wantPopup)
             showPopup(wrapper);
-        else if (wantHistory)
+        else
             addToHistory(wrapper);
     }
 

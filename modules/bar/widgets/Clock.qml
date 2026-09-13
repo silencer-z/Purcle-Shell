@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import qs.Configs
 import qs.components as Components
 
 Components.BarWidget {
@@ -25,7 +26,7 @@ Components.BarWidget {
 
         anchors.fill: parent
         anchors.bottomMargin: 2
-        font.pixelSize: 18
+        font.pixelSize: Config.appearance.fonts.size.larger
         text: time
 
         Components.StyledTooltip {

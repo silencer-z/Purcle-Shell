@@ -1,6 +1,7 @@
 import "../widgets"
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import Quickshell.Widgets
 import qs.components
 import qs.services
@@ -19,6 +20,7 @@ ClippingRectangle {
     color: "transparent"
 
     property int currentIndex: 0
+    property string filterText: ""
 
     readonly property int intrinsicHeight: calculateContentHeight()
 
@@ -31,7 +33,7 @@ ClippingRectangle {
     function close() {
         root.currentIndex = 0;
         searchField.clear();
-        AppModel.filterText = "";
+        root.filterText = "";
         Visibilities.launcher = false;
     }
 
@@ -48,12 +50,12 @@ ClippingRectangle {
 
     function calculateContentHeight() {
         var totalHeight = 90;
-        var itemCount = AppModel.appModel.count;
+        var itemCount = filteredApps.count;
         if (itemCount === 0)
             return 90;
 
         for (var i = 0; i < itemCount; i++) {
-            var item = AppModel.appModel.values[i];
+            var item = filteredApps.values[i];
             if (item && item.isHeader)
                 totalHeight += 32;
             else if (item)
@@ -82,24 +84,34 @@ ClippingRectangle {
             }
             event.accepted = true;
         } else if (event.key === Qt.Key_Down) {
-            if (root.currentIndex < AppModel.appModel.count - 1) {
+            if (root.currentIndex < filteredApps.count - 1) {
                 root.currentIndex++;
                 listView.currentIndex = root.currentIndex;
                 listView.positionViewAtIndex(root.currentIndex, ListView.Contain);
             }
             event.accepted = true;
         } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-            if (root.currentIndex >= 0 && root.currentIndex < AppModel.appModel.count) {
-                var entry = AppModel.appModel.values[root.currentIndex];
+            if (root.currentIndex >= 0 && root.currentIndex < filteredApps.count) {
+                var entry = filteredApps.values[root.currentIndex];
                 root.executeApp(entry.entry);
             }
             event.accepted = true;
         }
     }
 
+    ScriptModel {
+        id: filteredApps
+
+        objectProp: "id"
+        property int count: values ? values.length : 0
+        values: AppModel.matching(root.filterText)
+    }
+
     AppListView {
         id: listView
 
+        model: filteredApps
+        searchQuery: root.filterText
         currentIndex: root.currentIndex
         onExecuteApp: (entry) => {
             return root.executeApp(entry);
@@ -166,11 +178,11 @@ ClippingRectangle {
 
                 focus: true
                 Layout.fillWidth: true
-                font.pixelSize: 14
+                font.pixelSize: Config.appearance.fonts.size.normal
                 color: Theme.text
-                onTextChanged: {
-                    AppModel.filterText = text;
-                }
+                    onTextChanged: {
+                        root.filterText = text;
+                    }
             }
         }
     }

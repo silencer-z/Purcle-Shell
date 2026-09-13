@@ -10,13 +10,14 @@ import qs.components
 ListView {
     id: listView
 
+    property string searchQuery: ""
+
     signal executeApp(var entry)
     signal executeAction(var action)
     signal indexChanged(int index)
 
     clip: true
     spacing: 2
-    model: Service.AppModel.appModel
     currentIndex: 0
 
     highlight: Rectangle {
@@ -29,6 +30,13 @@ ListView {
 
     onCurrentIndexChanged: indexChanged(currentIndex)
 
+    function highlightedName(name: string): string {
+        const searchText = listView.searchQuery.toLowerCase();
+        if (searchText === "")
+            return name;
+        return name.replace(new RegExp(Service.AppModel.escapeRegExp(searchText), "ig"), `<span style="color: ${Theme.blue};">$&</span>`);
+    }
+
     delegate: Item {
         id: listViewDelegate
         required property var modelData
@@ -36,7 +44,7 @@ ListView {
         property bool selected: index === ListView.view.currentIndex
         property bool hovered: itemHover.hovered
         width: listView.width
-        height: modelData.isHeader?32:60
+        height: modelData.isHeader ? 32 : 60
 
         property bool showActions: true
         opacity: 0
@@ -68,7 +76,6 @@ ListView {
             visible: modelData.isHeader
             color: "transparent"
 
-            // scale: appMouseArea.containsMouse ? 1.02 : 1.0
             Behavior on scale {
                 NumberAnimation {
                     duration: 150
@@ -82,13 +89,12 @@ ListView {
                     easing.type: Easing.OutCubic
                 }
             }
-            /* 应用名称 */
             StyledText {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: 12
                 text: modelData.name || "Other"
-                font.pixelSize: 15
+                font.pixelSize: Config.appearance.fonts.size.large
                 antialiasing: true
                 color: Theme.text
             }
@@ -107,7 +113,7 @@ ListView {
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins:4
+                    anchors.margins: 4
                     spacing: 12
 
                     Image {
@@ -131,8 +137,8 @@ ListView {
 
                         StyledText {
                             width: parent.width
-                            text: listViewDelegate.modelData.highlightedName
-                            font.pixelSize: 16
+                            text: listView.highlightedName(listViewDelegate.modelData.name)
+                            font.pixelSize: Config.appearance.fonts.size.large
                             elide: Text.ElideRight
                             textFormat: TextEdit.RichText
                             color: listViewDelegate.selected ? Theme.mantle : listViewDelegate.hovered ? Theme.mauve : Theme.text
@@ -145,7 +151,7 @@ ListView {
                         StyledText {
                             width: parent.width
                             text: listViewDelegate.modelData.genericName || listViewDelegate.modelData.comment
-                            font.pixelSize: 12
+                            font.pixelSize: Config.appearance.fonts.size.small
                             elide: Text.ElideRight
                             visible: text.length > 0
                             color: listViewDelegate.selected ? Theme.mantle : Theme.subtext1

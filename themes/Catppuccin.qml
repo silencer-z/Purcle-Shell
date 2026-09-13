@@ -5,7 +5,7 @@ pragma Singleton
 
 // 预设：Catppuccin Mocha
 Singleton {
-    // ==== 元数据（供 Theme 枚举与壁纸绑定，key 与 Config.colors.themeWallpapers 一致） ====
+    // ==== 元数据（供 Theme 枚举与壁纸绑定，presetId 即 themeWallpapers 的 key） ====
     readonly property string presetId: "catppuccin"
     readonly property string displayName: "Catppuccin"
     readonly property bool dark: true

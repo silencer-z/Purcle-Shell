@@ -18,36 +18,40 @@ Singleton {
     readonly property string scheme: Config.colors.scheme
     readonly property string presetName: Config.colors.presetName
 
-    // 单例创建顺序问题：binding 初次求值时 qs.themes 单例尚未就绪且不会重试，
-    // 用 generation 在创建完成后强制重求值
-    property int generation: 0
+    // 不用 binding 直接读 qs.themes 单例：初次求值时对方可能尚未就绪且不会重试。
+    // Color 与 Theme 同模块，作为启动兜底；onCompleted / 方案变化时再切到真实 palette。
+    property var presets: []
+    property QtObject palette: Color
 
-    // 预设元数据（UI 枚举用；壁纸绑定 key = presetId）
-    readonly property var presets: {
-        generation;
-        return [Catppuccin, Gruvbox, Dracula, Oxocarbon];
+    readonly property bool isDarkMode: palette?.dark ?? true
+
+    function presetList(): var {
+        return [Catppuccin, Gruvbox, Dracula, Oxocarbon].filter(p => !!p);
     }
 
-    readonly property QtObject palette: {
-        generation;
+    function currentPalette(): QtObject {
         if (scheme === "matugen" || scheme === "pywal")
             return Color;
-        return presetByName(presetName) ?? Catppuccin;
+        return presetByName(presetName) || presetList()[0] || Color;
     }
 
-    readonly property bool isDarkMode: palette.dark
+    function refreshPalette(): void {
+        root.presets = presetList();
+        root.palette = currentPalette();
+    }
 
     function presetByName(name: string): QtObject {
-        for (let i = 0; i < presets.length; i++) {
-            if (presets[i].presetId === name)
-                return presets[i];
+        const list = root.presets.length ? root.presets : presetList();
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].presetId === name)
+                return list[i];
         }
         return null;
     }
 
-    Component.onCompleted: {
-        root.generation++;
-    }
+    Component.onCompleted: root.refreshPalette()
+    onSchemeChanged: root.refreshPalette()
+    onPresetNameChanged: root.refreshPalette()
 
     // ==== 方案切换 ====
     function usePreset(name: string): void {
@@ -56,7 +60,6 @@ Singleton {
             return;
         Config.colors.scheme = "preset";
         Config.colors.presetName = name;
-        // 预设绑定了壁纸时一并应用（主题 → 壁纸）
         const wp = presetWallpaper(name);
         if (wp)
             Wallpapers.setWallpaper(wp);
@@ -71,41 +74,17 @@ Singleton {
         Config.colors.scheme = "pywal";
     }
 
-    // ==== 预设的壁纸绑定 ====
+    // themeWallpapers 是 { presetId: path } map，加主题不必再改 switch
     function presetWallpaper(name: string): string {
-        const tw = Config.colors.themeWallpapers;
-        switch (name) {
-        case "catppuccin":
-            return tw.catppuccin;
-        case "gruvbox":
-            return tw.gruvbox;
-        case "dracula":
-            return tw.dracula;
-        case "oxocarbon":
-            return tw.oxocarbon;
-        default:
-            return "";
-        }
+        return Config.colors.themeWallpapers[name] ?? "";
     }
 
     function assignWallpaperToPreset(name: string, path: string): void {
-        if (!presetByName(name))
+        if (!name)
             return;
-        const tw = Config.colors.themeWallpapers;
-        switch (name) {
-        case "catppuccin":
-            tw.catppuccin = path;
-            break;
-        case "gruvbox":
-            tw.gruvbox = path;
-            break;
-        case "dracula":
-            tw.dracula = path;
-            break;
-        case "oxocarbon":
-            tw.oxocarbon = path;
-            break;
-        }
+        const next = Object.assign({}, Config.colors.themeWallpapers);
+        next[name] = path ?? "";
+        Config.colors.themeWallpapers = next;
     }
 
     function assignCurrentWallpaperToPreset(name: string): void {

@@ -16,29 +16,17 @@ Singleton {
     }
     readonly property string currentWallpaperFile: Paths.currentWallpaperFile
 
-    property string searchQuery: ""
-    property string debouncedSearchQuery: ""
-
     property var wallpaperList: []
-    property var filteredWallpaperList: {
-        if (root.debouncedSearchQuery === "")
-            return root.wallpaperList;
 
-        const q = root.debouncedSearchQuery.toLowerCase();
+    function matching(query: string) {
+        if (!query)
+            return root.wallpaperList;
+        const q = query.toLowerCase();
         return root.wallpaperList.filter(path => {
             const fileName = path.split('/').pop().toLowerCase();
             return fileName.includes(q);
         });
     }
-
-    // 搜索防抖
-    Timer {
-        id: searchDebounce
-        interval: 300
-        repeat: false
-        onTriggered: root.debouncedSearchQuery = root.searchQuery
-    }
-    onSearchQueryChanged: searchDebounce.restart()
 
     FolderListModel {
         id: wallpaperFolder
@@ -72,20 +60,20 @@ Singleton {
         });
     }
 
-    function setRandom(): void {
-        const list = root.filteredWallpaperList;
-        if (list.length === 0)
+    function setRandom(list): void {
+        const pool = list ?? root.wallpaperList;
+        if (!pool || pool.length === 0)
             return;
-        const pick = list[Math.floor(Math.random() * list.length)];
+        const pick = pool[Math.floor(Math.random() * pool.length)];
         root.setWallpaper(pick);
     }
 
-    function setRelative(delta: int): void {
-        const list = root.filteredWallpaperList;
-        if (list.length === 0)
+    function setRelative(delta: int, list): void {
+        const pool = list ?? root.wallpaperList;
+        if (!pool || pool.length === 0)
             return;
-        const idx = list.indexOf(root.currentWallpaper);
-        const next = (idx + delta + list.length) % list.length;
-        root.setWallpaper(list[next]);
+        const idx = pool.indexOf(root.currentWallpaper);
+        const next = (idx + delta + pool.length) % pool.length;
+        root.setWallpaper(pool[next]);
     }
 }

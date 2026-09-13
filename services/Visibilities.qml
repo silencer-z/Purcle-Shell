@@ -42,6 +42,10 @@ QtObject {
         }
     }
 
+    function isOpen(name: string): bool {
+        return !!root[name];
+    }
+
     function hideAll(): void {
         root.launcher = false;
         root.clipboard = false;

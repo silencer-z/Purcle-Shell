@@ -25,11 +25,14 @@ JsonObject {
 
     component FontSize: JsonObject {
         property real scale: 1.0
+        readonly property real tiny: 11 * scale
         readonly property real small: 12 * scale
         readonly property real medium: 13 * scale
         readonly property real normal: 14 * scale
         readonly property real large: 16 * scale
         readonly property real larger: 18 * scale
+        readonly property real title: 20 * scale
+        readonly property real icon: 22 * scale
         readonly property real extraLarge: 30 * scale
     }
 

@@ -3,14 +3,14 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 
-import qs.services
-
-Singleton{
+Singleton {
     id: root
 
     property alias appearance: adapter.appearance
     property alias colors: adapter.colors
     property alias wallpaper: adapter.wallpaper
+    property alias apps: adapter.apps
+    property alias battery: adapter.battery
     property alias widgets: adapter.widgets
 
     FileView {
@@ -34,6 +34,8 @@ Singleton{
             property ConfigAppearance appearance: ConfigAppearance {}
             property ConfigColor colors: ConfigColor {}
             property ConfigWallpaper wallpaper: ConfigWallpaper {}
+            property ConfigApps apps: ConfigApps {}
+            property ConfigBattery battery: ConfigBattery {}
             property var widgets: [
                 {}
             ]

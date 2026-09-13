@@ -63,7 +63,7 @@ PanelWidget {
             StyledText {
                 text: SysInfo.userName || qsTr("User")
                 color: Theme.text
-                font.pixelSize: 14
+                font.pixelSize: Config.appearance.fonts.size.normal
                 font.bold: true
                 elide: Text.ElideRight
 
@@ -73,7 +73,7 @@ PanelWidget {
             StyledText {
                 text: `${SysInfo.hostName || qsTr("未知主机")} · ${qsTr("开机")} ${SysInfo.uptime || "—"}`
                 color: Theme.subtext1
-                font.pixelSize: 11
+                font.pixelSize: Config.appearance.fonts.size.tiny
                 elide: Text.ElideRight
 
                 Layout.fillWidth: true

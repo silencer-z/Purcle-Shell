@@ -7,11 +7,7 @@
     "os",
     "kernel",
     "title",
-    "uptime",
     "packages",
-    "memory",
-    "swap",
-    "disk",
     "localip"
   ]
 }

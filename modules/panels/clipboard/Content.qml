@@ -86,13 +86,13 @@ ClippingRectangle {
                 Text {
                     anchors.centerIn: parent
                     text: "📋"
-                    font.pixelSize: 20
+                    font.pixelSize: Config.appearance.fonts.size.title
                 }
             }
 
             Text {
                 text: "Clipboard"
-                font.pixelSize: 20
+                font.pixelSize: Config.appearance.fonts.size.title
                 font.bold: true
                 color: Theme.text
                 Layout.alignment: Qt.AlignVCenter
@@ -147,7 +147,7 @@ ClippingRectangle {
                     Layout.fillWidth: true
                     focus: true
                     color: Theme.text
-                    font.pixelSize: 14
+                    font.pixelSize: Config.appearance.fonts.size.normal
                     verticalAlignment: Text.AlignVCenter
                     onTextChanged: {
                         searchText = text
@@ -250,7 +250,7 @@ ClippingRectangle {
 
                         Text {
                             anchors.centerIn: parent
-                            font.pixelSize: 18
+                            font.pixelSize: Config.appearance.fonts.size.larger
                             text: {
                                 switch(model.type) {
                                     case "image": return "🖼️";
@@ -277,7 +277,7 @@ ClippingRectangle {
                                 return model.preview
                             }
                             color: Theme.text
-                            font.pixelSize: 14
+                            font.pixelSize: Config.appearance.fonts.size.normal
                             elide: Text.ElideRight
                             verticalAlignment: Text.AlignVCenter
                             maximumLineCount: 2
@@ -310,7 +310,7 @@ ClippingRectangle {
                              MaterialSymbol {
                                  text: model.pinned ? "push_pin" : "push_pin_off"
                                  anchors.centerIn: parent
-                                 font.pixelSize: 16
+                                 font.pixelSize: Config.appearance.fonts.size.large
                                  color: model.pinned ? Theme.onPrimary : Theme.text
                              }
                              MouseArea {
@@ -340,7 +340,7 @@ ClippingRectangle {
                 anchors.centerIn: parent
                 text: searchText ? "No results found" : "No clipboard history"
                 color: Theme.overlay0
-                font.pixelSize: 14
+                font.pixelSize: Config.appearance.fonts.size.normal
             }
         }
     }

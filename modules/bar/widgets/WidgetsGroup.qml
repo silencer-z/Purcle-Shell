@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import qs.Configs
 import qs.components
 import qs.services
 
@@ -24,7 +25,7 @@ BarWidget {
         MaterialSymbol {
             id: volumeIcon
             property bool hovered: audioHoverHandler.hovered
-            font.pixelSize: 22
+            font.pixelSize: Config.appearance.fonts.size.icon
             text: {
                 if (!Audio.sink || !Audio.sink.audio)
                     return "volume_off";
@@ -62,7 +63,7 @@ BarWidget {
             property bool hovered: brightnessHoverHandler.hovered
 
             text: monitor?.iconName ?? "brightness_6"
-            font.pixelSize: 22
+            font.pixelSize: Config.appearance.fonts.size.icon
 
             StyledTooltip {
                 content: "亮度: " + Math.round((monitor?.brightness ?? 0) * 100) + "%"
@@ -89,7 +90,7 @@ BarWidget {
             id: netIcon
             property bool hovered: networkHoverHandler.hovered
             text: Network.materialSymbol
-            font.pixelSize: 22
+            font.pixelSize: Config.appearance.fonts.size.icon
             StyledTooltip {
                 content: ""+Network.networkName + ":"+ Network.networkStrength + "%"
             }
@@ -108,7 +109,7 @@ BarWidget {
             property bool hovered: blueToothHoverHandler.hovered
 
             text: Bluetooth.getIcon()
-            font.pixelSize: 22
+            font.pixelSize: Config.appearance.fonts.size.icon
             visible: Bluetooth.available
 
             StyledTooltip {
@@ -130,7 +131,7 @@ BarWidget {
             property bool hovered: batteryHoverHandler.hovered
 
             text: Battery.iconName()
-            font.pixelSize: 22
+            font.pixelSize: Config.appearance.fonts.size.icon
 
             StyledTooltip {
                 content: "电量: " + Math.round(Battery.percentage * 100) + "%"

@@ -73,7 +73,7 @@ PanelWidget {
                 Layout.preferredWidth: 34
                 text: Audio.volumePercent + "%"
                 color: Theme.subtext1
-                font.pixelSize: 11
+                font.pixelSize: Config.appearance.fonts.size.tiny
                 horizontalAlignment: Text.AlignRight
             }
 
@@ -107,7 +107,7 @@ PanelWidget {
             StyledText {
                 text: qsTr("输出设备")
                 color: Theme.overlay0
-                font.pixelSize: 10
+                font.pixelSize: Config.appearance.fonts.size.tiny
             }
 
             Repeater {
@@ -124,7 +124,7 @@ PanelWidget {
             StyledText {
                 text: qsTr("输入设备")
                 color: Theme.overlay0
-                font.pixelSize: 10
+                font.pixelSize: Config.appearance.fonts.size.tiny
 
                 Layout.topMargin: Config.appearance.spacing.small / 2
             }
@@ -191,7 +191,7 @@ PanelWidget {
                 Layout.preferredWidth: 34
                 text: Math.round((Brightness.focusedMonitor?.brightness ?? 0) * 100) + "%"
                 color: Theme.subtext1
-                font.pixelSize: 11
+                font.pixelSize: Config.appearance.fonts.size.tiny
                 horizontalAlignment: Text.AlignRight
             }
 
@@ -237,7 +237,7 @@ PanelWidget {
                 Layout.fillWidth: true
                 text: radioRow.label
                 color: radioRow.checked ? Theme.onPrimary : Theme.text
-                font.pixelSize: 12
+                font.pixelSize: Config.appearance.fonts.size.small
                 elide: Text.ElideRight
             }
         }

@@ -68,7 +68,7 @@ Rectangle {
             id: label
 
             Layout.fillWidth: true
-            font.pixelSize: 14
+            font.pixelSize: Config.appearance.fonts.size.normal
             color: root.checked ? Theme.onPrimary : Theme.text
         }
 

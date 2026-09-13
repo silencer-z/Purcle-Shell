@@ -1,4 +1,5 @@
 import QtQuick
+import qs.Configs
 import qs.components as Components
 import qs.services
 
@@ -16,7 +17,7 @@ Components.BarWidget {
         id: icon
         anchors.centerIn: parent
         text: "planet"
-        font.pixelSize: 21
+        font.pixelSize: Config.appearance.fonts.size.icon
         opacity: root.hovered ? 1 : 0.75
 
         Behavior on opacity {

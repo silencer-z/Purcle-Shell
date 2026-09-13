@@ -174,12 +174,31 @@ Singleton {
             return colors.color1;
         case "on_primary":
             return special.background;
+        case "green":
+            return colors.color2;
+        case "yellow":
+            return colors.color3;
+        case "peach":
+            return colors.color9 ?? colors.color1;
+        case "pink":
+            return colors.color5;
+        case "sky":
+        case "teal":
+            return colors.color6;
+        case "lavender":
+            return colors.color4;
         default:
             return null;
         }
     }
 
     // ==== M3 色相派生（matugen 无独立色相槽，用 HCT 从源色固定色相生成） ====
+    function accent(slot: string, h: real, chroma: real, tone: real, fallback: string): color {
+        if (Config.colors.scheme === "pywal")
+            return c(slot, fallback);
+        return hue(h, chroma, tone);
+    }
+
     function hue(h: real, chroma: real, tone: real): color {
         return hctToRgb(h, chroma, tone);
     }
@@ -236,14 +255,14 @@ Singleton {
     // ==== 强调色 ====
     readonly property color mauve: c("primary", "#cba6f7")
     readonly property color blue: c("tertiary", "#89b4fa")
-    readonly property color sky: hue(205, 52, 75)
-    readonly property color green: hue(140, 48, 70)
-    readonly property color teal: hue(175, 48, 68)
-    readonly property color yellow: hue(90, 60, 78)
-    readonly property color peach: hue(45, 70, 72)
+    readonly property color sky: accent("sky", 205, 52, 75, "#89dceb")
+    readonly property color green: accent("green", 140, 48, 70, "#a6e3a1")
+    readonly property color teal: accent("teal", 175, 48, 68, "#94e2d5")
+    readonly property color yellow: accent("yellow", 90, 60, 78, "#f9e2af")
+    readonly property color peach: accent("peach", 45, 70, 72, "#fab387")
     readonly property color red: c("error", "#f38ba8")
-    readonly property color pink: hue(340, 55, 75)
-    readonly property color lavender: hue(270, 38, 82)
+    readonly property color pink: accent("pink", 340, 55, 75, "#f5c2e7")
+    readonly property color lavender: accent("lavender", 270, 38, 82, "#b4befe")
 
     // ==== 功能色 ====
     readonly property color danger: c("error", "#f38ba8")

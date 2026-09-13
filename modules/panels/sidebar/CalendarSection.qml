@@ -71,7 +71,7 @@ PanelWidget {
                 Layout.fillWidth: true
                 text: qsTr("%1 %2").arg(Qt.locale().monthName(root.viewMonth, Locale.LongFormat)).arg(root.viewYear)
                 color: Theme.text
-                font.pixelSize: 13
+                font.pixelSize: Config.appearance.fonts.size.medium
                 font.bold: true
             }
 
@@ -164,7 +164,7 @@ PanelWidget {
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
                     text: Qt.locale().dayName((Qt.locale().firstDayOfWeek + index) % 7, Locale.ShortFormat)
-                    font.pixelSize: 11
+                    font.pixelSize: Config.appearance.fonts.size.tiny
                     font.bold: true
                     color: Theme.subtext1
                 }
@@ -203,7 +203,7 @@ PanelWidget {
                         text: modelData.day
                         color: modelData.today ? Theme.onPrimary : Theme.text
                         opacity: modelData.inMonth ? 1 : 0.35
-                        font.pixelSize: 12
+                        font.pixelSize: Config.appearance.fonts.size.small
                         font.bold: modelData.today
                     }
                 }

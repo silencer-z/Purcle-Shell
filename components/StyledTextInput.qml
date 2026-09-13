@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import qs.Configs
 import qs.services
 
 TextInput {
@@ -13,8 +14,8 @@ TextInput {
     selectionColor: Theme.mauve
 
     font {
-        family: "更纱终端书呆简体-黑"
-        pixelSize: 18
+        family: Config.appearance.fonts.family.sans
+        pixelSize: Config.appearance.fonts.size.larger
         hintingPreference: Font.PreferFullHinting
     }
 
@@ -27,5 +28,4 @@ TextInput {
         verticalAlignment: root.verticalAlignment
         elide: Text.ElideRight
     }
-
 }

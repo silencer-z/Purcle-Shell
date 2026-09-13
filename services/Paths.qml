@@ -26,7 +26,7 @@ Singleton {
 
     readonly property string rootDir: Quickshell.shellDir
     readonly property string configDir: Quickshell.env("XDG_CONFIG_HOME") || `${home}/.config`
-    readonly property string shellDir: `${configDir}/quickshell`
+    readonly property string shellDir: Quickshell.shellDir
     readonly property string stateDir: Quickshell.env("XDG_STATE_HOME") || `${home}/.local/state`
 
     readonly property string cacheDir: Quickshell.env("XDG_CACHE_HOME") || `${home}/.cache`

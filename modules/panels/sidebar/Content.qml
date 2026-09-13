@@ -2,14 +2,12 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Widgets
-
-import "../widgets"
 import qs.Configs
 import qs.components
 import qs.services
+import "../widgets"
 
-// 右侧面板：三边连接（bar/右缘/底边框），左上左下凹角过渡（同 Popouts 连体模式）
+// 右侧面板内容（表面由 drawers/RightPanelPath 绘制）
 Item {
     id: root
 
@@ -29,41 +27,6 @@ Item {
     implicitWidth: root.filletSize + root.bodyWidth + root.contentPadding * 2
     implicitHeight: root.maxHeight
 
-    // 左上凹角：接 bar 底缘
-    RoundCorner {
-        corner: RoundCorner.CornerEnum.TopRight
-        size: root.filletSize
-        color: Theme.base
-    }
-
-    // 左下凹角：接屏幕底边框
-    RoundCorner {
-        corner: RoundCorner.CornerEnum.BottomRight
-        size: root.filletSize
-        color: Theme.base
-
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-    }
-
-    // 主体：四边方角
-    ClippingRectangle {
-        x: root.filletSize
-        width: parent.width - root.filletSize
-        height: parent.height
-
-        topLeftRadius: 0
-        topRightRadius: 0
-        bottomLeftRadius: 0
-        bottomRightRadius: 0
-        color: Theme.base
-
-        Behavior on color {
-            ColorAnim {}
-        }
-    }
-
-    // 区块纵排
     ColumnLayout {
         anchors.fill: parent
         anchors.leftMargin: root.filletSize + root.contentPadding

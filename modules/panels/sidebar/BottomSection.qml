@@ -79,7 +79,7 @@ PanelWidget {
                     StyledText {
                         text: Math.round(Battery.percentage * 100) + "%"
                         color: Theme.text
-                        font.pixelSize: 13
+                        font.pixelSize: Config.appearance.fonts.size.medium
                         font.bold: true
                     }
 
