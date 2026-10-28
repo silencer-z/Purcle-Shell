@@ -77,7 +77,14 @@ Components.BarWidget {
                     MouseArea {
                         cursorShape: Qt.PointingHandCursor
                         anchors.fill: parent
-                        onClicked: Hyprland.dispatch("hl.dsp.focus({ workspace = " + workspaceId + " })")
+                        acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+                        onClicked: mouse => {
+                            if (mouse.button === Qt.MiddleButton) {
+                                Visibilities.togglePanel("task");
+                                return;
+                            }
+                            Hyprland.dispatch("hl.dsp.focus({ workspace = " + workspaceId + " })");
+                        }
                     }
                     Behavior on width {
                         NumberAnimation {

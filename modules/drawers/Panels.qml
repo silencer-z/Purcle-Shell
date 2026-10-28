@@ -5,6 +5,7 @@ import qs.modules.panels.launcher as Launcher
 import qs.modules.panels.clipboard as Clipboard
 import qs.modules.panels.wallpaper as Wallpaper
 import qs.modules.panels.sidebar as Sidebar
+import qs.modules.panels.task as Task
 import qs.Configs
 import qs.services
 import QtQuick
@@ -22,6 +23,7 @@ Item {
     readonly property alias clipboard: clipboard
     readonly property alias wallpaper: wallpaper
     readonly property alias sidebar: sidebar
+    readonly property alias task: task
 
     anchors.fill: parent
     anchors.margins: root.borderThickness
@@ -111,5 +113,24 @@ Item {
         }
 
         anchors.top: parent.top
+    }
+
+    PanelWrapper {
+        id: task
+
+        panelName: "task"
+        edge: "bottom"
+        fullBleed: true
+        maxHeight: parent.height - Config.appearance.padding.large
+        contentComponent: Component {
+            Task.Content {
+                maxHeight: task.maxHeight
+                panelWidth: root.width
+            }
+        }
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
     }
 }

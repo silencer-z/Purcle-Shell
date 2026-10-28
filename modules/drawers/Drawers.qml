@@ -4,6 +4,7 @@ import qs.Configs
 import qs.modules.bar
 import qs.modules.bar.popouts as BarPopouts
 import qs.modules.drawers
+import qs.modules.osd as OsdUi
 import qs.services
 import Quickshell
 import Quickshell.Hyprland
@@ -28,7 +29,7 @@ Variants {
 
             readonly property int barHeight: bar.height
             readonly property int borderThickness: Config.appearance.border.thickness
-            readonly property bool needsKeyboard: Visibilities.launcher || Visibilities.clipboard || Visibilities.wallpaper || Visibilities.sidebar || popouts.hasCurrent
+            readonly property bool needsKeyboard: Visibilities.launcher || Visibilities.clipboard || Visibilities.wallpaper || Visibilities.sidebar || Visibilities.task || popouts.hasCurrent
             // Exclusive 与 FocusGrab 同时生效会立刻 cleared、面板秒关；错开一拍再抓
             property bool grabArmed: false
 
@@ -106,7 +107,7 @@ Variants {
             Variants {
                 id: panelRegions
 
-                model: [panels.launcher, panels.clipboard, panels.wallpaper, panels.sidebar]
+                model: [panels.launcher, panels.clipboard, panels.task, panels.wallpaper, panels.sidebar]
 
                 Region {
                     required property Item modelData
@@ -137,6 +138,7 @@ Variants {
                     Visibilities.clipboard = false;
                     Visibilities.wallpaper = false;
                     Visibilities.sidebar = false;
+                    Visibilities.task = false;
                     popouts.close();
                 }
             }
@@ -162,6 +164,11 @@ Variants {
 
                 function onSidebarChanged() {
                     if (Visibilities.sidebar)
+                        popouts.close();
+                }
+
+                function onTaskChanged() {
+                    if (Visibilities.task)
                         popouts.close();
                 }
             }
@@ -195,6 +202,11 @@ Variants {
                 id: notificationPopups
 
                 barHeight: win.barHeight
+            }
+
+            OsdUi.OSDOverlay {
+                barHeight: win.barHeight
+                screen: scope.modelData
             }
 
             Bar {

@@ -32,6 +32,12 @@ Singleton {
     readonly property string trackArtUrl: activePlayer?.trackArtUrl ?? ""
     readonly property string identity: activePlayer?.identity ?? qsTr("Unknown Player")
 
+    readonly property bool hasPlayer: activePlayer !== null
+    readonly property real position: activePlayer?.position ?? 0
+    readonly property real length: activePlayer?.length ?? 0
+    readonly property real progress: length > 0 ? position / length : 0
+    readonly property bool canSeek: !!activePlayer && activePlayer.canSeek
+
     // === 信号 ===
     signal trackChanged(MprisPlayer player)
     signal playbackStateChanged(MprisPlayer player, bool playing)
@@ -44,6 +50,16 @@ Singleton {
 
     function next()       { if (activePlayer?.canGoNext) activePlayer.next() }
     function previous()   { if (activePlayer?.canGoPrevious) activePlayer.previous() }
+
+    function seekTo(fraction: real): void {
+        if (!activePlayer?.canSeek || length <= 0)
+            return;
+        activePlayer.position = Math.max(0, Math.min(length, fraction * length));
+    }
+
+    function refreshPosition(): void {
+        activePlayer?.positionChanged();
+    }
 
     // === 音量 / 循环 / 随机 ===
     function setVolume(v) { if (canChangeVolume) activePlayer.volume = v }

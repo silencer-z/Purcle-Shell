@@ -9,9 +9,8 @@ import qs.services
 import qs.themes
 
 // 统一配色门面：所有消费方继续使用 Theme.xxx 语义色，不感知底层方案。
-// scheme = "preset"  → themes/ 预设调色板，切换主题时自动应用该主题绑定的壁纸
-// scheme = "matugen" → 壁纸变化时 Color 单例自动提取色板（壁纸 → 颜色）
-// scheme = "pywal"   → 监听 wal 缓存（外部 wal -i 驱动颜色与壁纸）
+// scheme = "preset"  → themes/ 预设调色板（不改壁纸）
+// scheme = "matugen" → Color 单例；着色关闭时随壁纸取色，打开时冻结上次色板
 Singleton {
     id: root
 
@@ -30,7 +29,7 @@ Singleton {
     }
 
     function currentPalette(): QtObject {
-        if (scheme === "matugen" || scheme === "pywal")
+        if (scheme === "matugen")
             return Color;
         return presetByName(presetName) || presetList()[0] || Color;
     }
@@ -55,6 +54,10 @@ Singleton {
     }
 
     Component.onCompleted: {
+        if (Config.colors.scheme === "pywal") {
+            Config.colors.scheme = "preset";
+            Config.wallpaper.recolor = true;
+        }
         root.refreshPresetList();
         root.refreshPalette();
     }
@@ -64,42 +67,17 @@ Singleton {
             root.palette = currentPalette();
     }
 
-    // ==== 方案切换 ====
     function usePreset(name: string): void {
         const preset = presetByName(name);
         if (!preset)
             return;
         Config.colors.scheme = "preset";
         Config.colors.presetName = name;
-        const wp = presetWallpaper(name);
-        if (wp)
-            Wallpapers.setWallpaper(wp);
     }
 
     function useMatugen(): void {
         Config.colors.scheme = "matugen";
-        Color.regenerate();
-    }
-
-    function usePywal(): void {
-        Config.colors.scheme = "pywal";
-    }
-
-    // themeWallpapers 是 { presetId: path } map，加主题不必再改 switch
-    function presetWallpaper(name: string): string {
-        return Config.colors.themeWallpapers[name] ?? "";
-    }
-
-    function assignWallpaperToPreset(name: string, path: string): void {
-        if (!name)
-            return;
-        const next = Object.assign({}, Config.colors.themeWallpapers);
-        next[name] = path ?? "";
-        Config.colors.themeWallpapers = next;
-    }
-
-    function assignCurrentWallpaperToPreset(name: string): void {
-        root.assignWallpaperToPreset(name, Paths.currentWallpaper);
+        Color.regenerate(false);
     }
 
     // ==== 语义色代理（保持原有 API 不变） ====

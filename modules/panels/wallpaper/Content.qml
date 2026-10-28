@@ -70,6 +70,38 @@ Item {
                 Layout.fillWidth: true
             }
 
+            RowLayout {
+                id: recolorRow
+
+                spacing: Config.appearance.spacing.smaller
+
+                MaterialSymbol {
+                    text: "format_color_fill"
+                    size: Config.appearance.fonts.size.small
+                    color: Config.wallpaper.recolor ? Theme.mauve : Theme.overlay0
+                }
+                StyledText {
+                    text: "着色"
+                    font.pixelSize: Config.appearance.fonts.size.small
+                    color: Config.wallpaper.recolor ? Theme.mauve : Theme.subtext1
+                }
+                StyledSwitch {
+                    checked: Config.wallpaper.recolor
+                    onToggled: next => Config.wallpaper.recolor = next
+                }
+
+                HoverHandler {
+                    id: recolorHover
+                }
+
+                StyledTooltip {
+                    content: Config.wallpaper.recolor
+                        ? "按当前主题着色壁纸。动态主题会冻结上次提取的颜色。"
+                        : "关闭后使用原图。动态主题会从壁纸重新取色。"
+                    alternativeVisibleCondition: recolorHover.hovered
+                }
+            }
+
             // 随机按钮
             Rectangle {
                 Layout.preferredWidth: randomRow.implicitWidth + Config.appearance.padding.normal * 2
@@ -181,7 +213,7 @@ Item {
             }
         }
 
-        // ==== 配色方案（两行：模式切换 + 预设列表） ====
+        // ==== 配色：预设与动态主题并列，始终展开 ====
         ColumnLayout {
             Layout.fillWidth: true
             spacing: Config.appearance.spacing.small
@@ -202,29 +234,8 @@ Item {
                     color: Theme.overlay0
                 }
 
-                RowLayout {
-                    spacing: Config.appearance.spacing.smaller
-
-                    SchemeButton {
-                        label: "预设"
-                        icon: "style"
-                        checked: Theme.scheme === "preset"
-                        onClicked: Theme.usePreset(Theme.presetName)
-                    }
-
-                    SchemeButton {
-                        label: "动态"
-                        icon: "auto_awesome"
-                        checked: Theme.scheme === "matugen"
-                        onClicked: Theme.useMatugen()
-                    }
-
-                    SchemeButton {
-                        label: "Pywal"
-                        icon: "terminal"
-                        checked: Theme.scheme === "pywal"
-                        onClicked: Theme.usePywal()
-                    }
+                Item {
+                    Layout.fillWidth: true
                 }
 
                 Rectangle {
@@ -267,30 +278,31 @@ Item {
                         ColorAnim {}
                     }
                 }
-
-                Item {
-                    Layout.fillWidth: true
-                }
             }
 
-            ListView {
-                id: presetList
-
-                visible: Theme.scheme === "preset"
+            Flow {
                 Layout.fillWidth: true
-                Layout.preferredHeight: visible ? Config.appearance.sizes.chipRow : 0
-                orientation: ListView.Horizontal
                 spacing: Config.appearance.spacing.small
-                clip: true
-                interactive: contentWidth > width
-                boundsBehavior: Flickable.StopAtBounds
-                model: Theme.presets
 
-                delegate: PresetChip {
-                    required property QtObject modelData
+                Repeater {
+                    model: Theme.presets
 
-                    height: presetList.height
-                    preset: modelData
+                    ThemeChip {
+                        required property QtObject modelData
+
+                        label: modelData.displayName
+                        accent: modelData.mauve
+                        active: Theme.scheme === "preset" && Theme.presetName === modelData.presetId
+                        onClicked: Theme.usePreset(modelData.presetId)
+                    }
+                }
+
+                ThemeChip {
+                    label: "动态"
+                    icon: "auto_awesome"
+                    accent: Color.mauve
+                    active: Theme.scheme === "matugen"
+                    onClicked: Theme.useMatugen()
                 }
             }
         }
@@ -501,70 +513,22 @@ Item {
         }
     }
 
-    // 方案切换按钮
-    component SchemeButton: Rectangle {
-        id: schemeBtn
+    component ThemeChip: Rectangle {
+        id: chip
 
         property string label: ""
         property string icon: ""
-        property bool checked: false
+        property color accent: Theme.mauve
+        property bool active: false
 
         signal clicked()
-
-        implicitWidth: schemeRow.implicitWidth + Config.appearance.padding.normal * 2
-        implicitHeight: Config.appearance.sizes.chipRow
-        radius: Config.appearance.rounding.small
-        color: checked ? Qt.alpha(Theme.mauve, 0.18) : schemeBtnArea.containsMouse ? Theme.surface1 : Theme.surface0
-        border.width: checked ? 1 : 0
-        border.color: Qt.alpha(Theme.mauve, 0.5)
-
-        RowLayout {
-            id: schemeRow
-
-            anchors.centerIn: parent
-            spacing: Config.appearance.spacing.smaller
-
-            MaterialSymbol {
-                text: schemeBtn.icon
-                size: Config.appearance.fonts.size.small
-                color: checked ? Theme.mauve : Theme.subtext1
-            }
-            StyledText {
-                text: schemeBtn.label
-                font.pixelSize: Config.appearance.fonts.size.small
-                color: checked ? Theme.mauve : Theme.subtext1
-            }
-        }
-
-        MouseArea {
-            id: schemeBtnArea
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: schemeBtn.clicked()
-        }
-
-        Behavior on color {
-            ColorAnim {}
-        }
-    }
-
-    // 预设 chip：色点 + 名称，hover 时可把当前壁纸绑定给该主题
-    component PresetChip: Rectangle {
-        id: chip
-
-        required property QtObject preset
-
-        readonly property bool active: Theme.presetName === chip.preset.presetId
-        readonly property string assignedWallpaper: Theme.presetWallpaper(chip.preset.presetId)
 
         implicitWidth: chipRow.implicitWidth + Config.appearance.padding.normal * 2
         implicitHeight: Config.appearance.sizes.chipRow
         radius: Config.appearance.rounding.small
-        color: active ? Qt.alpha(chip.preset.mauve, 0.18) : chipArea.containsMouse ? Theme.surface1 : Theme.surface0
+        color: active ? Qt.alpha(chip.accent, 0.18) : chipArea.containsMouse ? Theme.surface1 : Theme.surface0
         border.width: active ? 1 : 0
-        border.color: Qt.alpha(chip.preset.mauve, 0.5)
+        border.color: Qt.alpha(chip.accent, 0.5)
 
         RowLayout {
             id: chipRow
@@ -572,50 +536,25 @@ Item {
             anchors.centerIn: parent
             spacing: Config.appearance.spacing.smaller
 
+            MaterialSymbol {
+                visible: chip.icon !== ""
+                text: chip.icon
+                size: Config.appearance.fonts.size.small
+                color: chip.active ? chip.accent : Theme.subtext1
+            }
+
             Rectangle {
+                visible: chip.icon === ""
                 width: Config.appearance.spacing.normal
                 height: Config.appearance.spacing.normal
                 radius: Config.appearance.spacing.normal / 2
-                color: chip.preset.mauve
+                color: chip.accent
             }
 
             StyledText {
-                text: chip.preset.displayName
+                text: chip.label
                 font.pixelSize: Config.appearance.fonts.size.small
-                color: active ? chip.preset.mauve : Theme.subtext1
-            }
-
-            Rectangle {
-                width: Config.appearance.sizes.iconInner
-                height: Config.appearance.sizes.iconInner
-                radius: Config.appearance.rounding.small / 2
-                color: pinArea.containsMouse ? Theme.surface1 : "transparent"
-
-                MaterialSymbol {
-                    anchors.centerIn: parent
-                    text: chip.assignedWallpaper !== "" ? "photo_library" : "add_photo_alternate"
-                    size: Config.appearance.fonts.size.small
-                    color: pinArea.containsMouse ? Theme.mauve : Theme.overlay0
-                }
-
-                MouseArea {
-                    id: pinArea
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        if (Paths.currentWallpaper)
-                            Theme.assignCurrentWallpaperToPreset(chip.preset.presetId);
-                    }
-                }
-
-                StyledTooltip {
-                    content: chip.assignedWallpaper !== ""
-                        ? "已绑定：" + (chip.assignedWallpaper.split('/').pop() || "壁纸") + "，点击用当前壁纸替换"
-                        : "把当前壁纸绑定给该主题"
-                    alternativeVisibleCondition: pinArea.containsMouse
-                }
+                color: chip.active ? chip.accent : Theme.subtext1
             }
         }
 
@@ -625,11 +564,7 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                if (pinArea.containsMouse)
-                    return;
-                Theme.usePreset(chip.preset.presetId);
-            }
+            onClicked: chip.clicked()
         }
 
         Behavior on color {

@@ -43,6 +43,10 @@ Item {
             Layout.fillWidth: true
         }
 
+        MediaSection {
+            Layout.fillWidth: true
+        }
+
         ConnectSection {
             Layout.fillWidth: true
         }

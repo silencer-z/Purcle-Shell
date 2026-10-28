@@ -34,6 +34,11 @@ Shape {
         startY: root.panels.launcher.height > 0 ? root.panels.launcher.y : root.height
     }
 
+    BottomFullBleedPanelPath {
+        wrapper: root.panels.task
+        surfaceColor: root.surfaceColor
+    }
+
     LeftPanelPath {
         wrapper: root.panels.wallpaper
         surfaceColor: root.surfaceColor

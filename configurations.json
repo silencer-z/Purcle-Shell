@@ -193,7 +193,8 @@
     },
     "colors": {
         "isDarkMode": true,
-        "presetName": "catppuccin",
+        "matugenSource": "/home/orz/Pictures/Wallpapers/purple_leaves.png",
+        "presetName": "oxocarbon",
         "scheme": "matugen",
         "themeWallpapers": {
             "catppuccin": "/home/orz/Pictures/Wallpapers/purple_leaves.png",
@@ -204,6 +205,7 @@
     },
     "wallpaper": {
         "enabledWallpaper": true,
+        "recolor": false,
         "transition": "circle",
         "transitionDuration": 500,
         "transitionLowPerfMode": false,

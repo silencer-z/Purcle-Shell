@@ -7,8 +7,14 @@ import Quickshell.Hyprland
 ShellRoot {
     id: root
 
-    // 预热应用数据（面板懒加载，但服务状态应在启动时就绪）
-    Component.onCompleted: AppModel.warmUp()
+    // 预热：应用数据、IPC 注册、OSD 监听
+    Component.onCompleted: {
+        AppModel.warmUp();
+        ShellIPC;
+        OSD;
+        HyprlandData;
+        SystemTheme;
+    }
 
     Drawers {}
 
@@ -41,6 +47,14 @@ ShellRoot {
         description: qsTr("Start a wallpaper selector")
         onPressed: {
             Visibilities.togglePanel("wallpaper");
+        }
+    }
+
+    GlobalShortcut {
+        name: "taskview"
+        description: qsTr("Toggle task view (workspace previews)")
+        onPressed: {
+            Visibilities.togglePanel("task");
         }
     }
 }

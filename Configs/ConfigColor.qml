@@ -1,15 +1,18 @@
 import Quickshell.Io
 
 // 统一配色方案配置
-// scheme:     "preset"  预设方案（themeWallpapers 为 presetId → 壁纸路径，切换主题时自动应用）
-//             "matugen" 动态方案（壁纸变化时自动从壁纸提取色板）
-//             "pywal"   外部 pywal 驱动（监听 ~/.cache/wal/colors.json，颜色与壁纸均由 wal 管理）
-// presetName: 预设 id，见 themes/*.qml 的 presetId
-// isDarkMode: 仅作用于 matugen（-m dark|light）
+// scheme:        "preset"  预设方案（themes/*.qml）
+//                "matugen" 动态方案（从提取源壁纸跑 matugen；着色打开时冻结上次色板）
+// presetName:    预设 id，见 themes/*.qml 的 presetId
+// isDarkMode:    仅作用于 matugen（-m dark|light）
+// matugenSource: 上次用于提取的壁纸路径；着色模式下暗亮切换仍针对该图
+// applySystem:   把当前 Theme 色板同步到 Hyprland / GTK / Qt / Zen
 JsonObject {
     property string scheme: "preset"
     property string presetName: "catppuccin"
     property bool isDarkMode: true
+    property bool applySystem: true
+    property string matugenSource: ""
     property var themeWallpapers: ({
         "catppuccin": "",
         "gruvbox": "",

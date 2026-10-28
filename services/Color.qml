@@ -8,30 +8,52 @@ import Quickshell.Io
 import qs.Configs
 import qs.services
 
-// 动态配色提供者：当 Config.colors.scheme 为 "matugen" 或 "pywal" 时，
+// 动态配色提供者：当 Config.colors.scheme 为 "matugen" 时，
 // Theme 会把本单例作为调色板使用。暴露与 themes/*.qml 预设完全相同的语义属性集。
 //
-// matugen：壁纸变化时自动运行 matugen 生成 ~/.cache/PurcleShell/matugen-colors.json，
-//          FileView 监听该文件热更新（壁纸 → 颜色）。
-// pywal：  监听 ~/.cache/wal/colors.json（颜色 → 壁纸，颜色与壁纸均由外部 wal 管理）。
+// 默认：壁纸变化时自动运行 matugen 生成 ~/.cache/PurcleShell/matugen-colors.json。
+// 着色（Config.wallpaper.recolor）打开时冻结上次提取的色板，不再随当前壁纸重跑；
+// 暗亮切换仍对提取源壁纸（matugenSource）生效。
 Singleton {
     id: root
 
-    readonly property bool available: Config.colors.scheme === "matugen" ? m3Data !== null : walData !== null
+    readonly property bool available: m3Data !== null
     property bool dark: Config.colors.isDarkMode
+    readonly property bool recolor: Config.wallpaper.recolor
 
-    // 当前壁纸（依赖 Paths 的 FileView 版本号以响应变化；同目录单例免 import）
     readonly property string wallpaper: {
         Paths.currentWallpaper; // eslint-disable-line
         return Paths.currentWallpaper;
     }
-    onWallpaperChanged: root.regenerate()
-    onDarkChanged: root.regenerate()
-    Component.onCompleted: root.regenerate()
 
-    // ==== matugen 生成（防抖：等 awww 过渡稳定后再提取） ====
-    function regenerate(): void {
-        if (Config.colors.scheme !== "matugen" || !root.wallpaper)
+    onWallpaperChanged: root.regenerate(false)
+    onDarkChanged: root.regenerate(true)
+    onRecolorChanged: {
+        if (root.recolor) {
+            generateTimer.stop();
+            if (matugenProc.running)
+                matugenProc.running = false;
+            if (Config.colors.scheme === "matugen" && !Config.colors.matugenSource && root.wallpaper)
+                Config.colors.matugenSource = root.wallpaper;
+            return;
+        }
+        root.regenerate(false);
+    }
+    Component.onCompleted: root.regenerate(false)
+
+    function extractSource(): string {
+        if (root.recolor && Config.colors.matugenSource)
+            return Config.colors.matugenSource;
+        return root.wallpaper;
+    }
+
+    // force=true：着色模式下仍跑（暗亮切换、色板文件缺失）
+    function regenerate(force): void {
+        if (Config.colors.scheme !== "matugen")
+            return;
+        if (root.recolor && force !== true)
+            return;
+        if (!root.extractSource())
             return;
         generateTimer.restart();
     }
@@ -42,10 +64,15 @@ Singleton {
         interval: 500
         repeat: false
         onTriggered: {
+            const src = root.extractSource();
+            if (!src)
+                return;
+            if (Config.colors.matugenSource !== src)
+                Config.colors.matugenSource = src;
             matugenProc.command = [
                 "matugen",
                 "image",
-                root.wallpaper,
+                src,
                 "--config",
                 Paths.shellDir + "/assets/matugen/config.toml",
                 "-m",
@@ -70,33 +97,20 @@ Singleton {
 
         path: Paths.cacheDir + "/PurcleShell/matugen-colors.json"
         watchChanges: true
-        // 仅 matugen 模式加载，避免其它模式下报缺失警告
         blockLoading: Config.colors.scheme !== "matugen"
         onFileChanged: reload()
         onLoadFailed: err => {
+            if (err === FileViewError.FileNotFound && Config.colors.scheme === "matugen") {
+                if (!matugenProc.running && !generateTimer.running)
+                    root.regenerate(true);
+                return;
+            }
             if (err !== FileViewError.FileNotFound)
                 console.warn("[matugen] 读取配色文件失败");
         }
     }
 
-    // ==== pywal 缓存 ====
-    FileView {
-        id: walFile
-
-        // 未启用 pywal 时不设路径，避免对不存在文件的加载警告
-        path: Config.colors.scheme === "pywal" ? Paths.cacheDir + "/wal/colors.json" : ""
-        watchChanges: true
-        blockLoading: Config.colors.scheme !== "pywal"
-        onFileChanged: reload()
-        onLoadFailed: err => {
-            if (err !== FileViewError.FileNotFound)
-                console.warn("[pywal] 读取配色文件失败");
-        }
-    }
-
-    // ==== 解析（JSON 异常时退回 null，由语义属性兜底为中性深色调） ====
     property int _matugenVersion: 0
-    property int _walVersion: 0
     readonly property var m3Data: {
         root._matugenVersion;
         try {
@@ -105,16 +119,7 @@ Singleton {
             return null;
         }
     }
-    readonly property var walData: {
-        root._walVersion;
-        try {
-            return JSON.parse(walFile.text());
-        } catch (e) {
-            return null;
-        }
-    }
 
-    // FileView 加载成功后推进版本号触发重绑定
     Connections {
         target: matugenFile
 
@@ -123,79 +128,43 @@ Singleton {
         }
     }
 
-    Connections {
-        target: walFile
-
-        function onLoaded(): void {
-            root._walVersion++;
+    readonly property var recolorHexes: {
+        const map = root.m3Data;
+        if (!map)
+            return [];
+        const keys = [
+            "background", "surface_container_lowest", "surface_container_low",
+            "surface_container", "on_background", "on_surface_variant",
+            "primary", "primary_container", "secondary", "secondary_container",
+            "tertiary", "error", "source_color"
+        ];
+        const out = [];
+        const seen = {};
+        for (let i = 0; i < keys.length; i++) {
+            const e = map[keys[i]];
+            const v = (e && e.startsWith("#")) ? e : (e && e.rgba ? e.rgba : e);
+            if (!v || typeof v !== "string" || !v.startsWith("#"))
+                continue;
+            const hex = v.slice(0, 7).toLowerCase();
+            if (seen[hex])
+                continue;
+            seen[hex] = true;
+            out.push(hex);
         }
+        return out;
     }
 
     function c(name: string, fallback: string): color {
-        const map = Config.colors.scheme === "pywal" ? root.walData : root.m3Data;
+        const map = root.m3Data;
         if (!map)
             return fallback;
-        let v;
-        if (Config.colors.scheme === "pywal") {
-            v = root.walLookup(map, name);
-        } else {
-            const e = map[name];
-            v = (e && e.startsWith("#")) ? e : (e && e.rgba ? e.rgba : e);
-        }
+        const e = map[name];
+        const v = (e && e.startsWith("#")) ? e : (e && e.rgba ? e.rgba : e);
         return v ? v : fallback;
-    }
-
-    // pywal 模式下：把 matugen 式语义键映射到 wal 调色板槽位
-    function walLookup(map: var, name: string): var {
-        const special = map.special ?? {};
-        const colors = map.colors ?? {};
-        switch (name) {
-        case "surface_container_low":
-            return special.background;
-        case "surface_dim":
-        case "surface_container_lowest":
-            return colors.color0;
-        case "surface_container":
-        case "surface_container_high":
-        case "surface_container_highest":
-            return colors.color8;
-        case "on_background":
-            return special.foreground;
-        case "on_surface_variant":
-            return colors.color7;
-        case "outline":
-        case "outline_variant":
-            return colors.color8;
-        case "primary":
-            return colors.color13 ?? colors.color5;
-        case "tertiary":
-            return colors.color12 ?? colors.color4;
-        case "error":
-            return colors.color1;
-        case "on_primary":
-            return special.background;
-        case "green":
-            return colors.color2;
-        case "yellow":
-            return colors.color3;
-        case "peach":
-            return colors.color9 ?? colors.color1;
-        case "pink":
-            return colors.color5;
-        case "sky":
-        case "teal":
-            return colors.color6;
-        case "lavender":
-            return colors.color4;
-        default:
-            return null;
-        }
     }
 
     // ==== M3 色相派生（matugen 无独立色相槽，用 HCT 从源色固定色相生成） ====
     function accent(slot: string, h: real, chroma: real, tone: real, fallback: string): color {
-        if (Config.colors.scheme === "pywal")
-            return c(slot, fallback);
         return hue(h, chroma, tone);
     }
 
@@ -236,7 +205,6 @@ Singleton {
 
     // ================= 语义色（与 themes/*.qml 属性集一致，缺数据时回退中性深色） =================
 
-    // ==== 背景 / 表面 ====
     readonly property color base: c("surface_container_low", "#1e1e2e")
     readonly property color mantle: c("surface_dim", "#181825")
     readonly property color crust: c("surface_container_lowest", "#11111b")
@@ -244,7 +212,6 @@ Singleton {
     readonly property color surface1: c("surface_container_high", "#45475a")
     readonly property color surface2: c("surface_container_highest", "#585b70")
 
-    // ==== 文字 ====
     readonly property color text: c("on_background", "#cdd6f4")
     readonly property color subtext1: c("on_surface_variant", "#a6adc8")
     readonly property color subtext0: c("on_surface_variant", "#a6adc8")
@@ -252,7 +219,6 @@ Singleton {
     readonly property color overlay1: c("outline", "#7f849c")
     readonly property color overlay0: c("outline_variant", "#6c7086")
 
-    // ==== 强调色 ====
     readonly property color mauve: c("primary", "#cba6f7")
     readonly property color blue: c("tertiary", "#89b4fa")
     readonly property color sky: accent("sky", 205, 52, 75, "#89dceb")
@@ -264,7 +230,6 @@ Singleton {
     readonly property color pink: accent("pink", 340, 55, 75, "#f5c2e7")
     readonly property color lavender: accent("lavender", 270, 38, 82, "#b4befe")
 
-    // ==== 功能色 ====
     readonly property color danger: c("error", "#f38ba8")
     readonly property color warning: yellow
     readonly property color success: green

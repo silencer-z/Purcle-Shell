@@ -15,6 +15,7 @@ Item {
     required property string edge
     required property Component contentComponent
     property int maxHeight: parent?.height ?? 0
+    property bool fullBleed: false
 
     readonly property bool shouldBeActive: Visibilities.isOpen(root.panelName)
     readonly property int intrinsicHeight: content.item?.intrinsicHeight ?? 0
@@ -41,7 +42,9 @@ Item {
 
     visible: root.edge === "bottom" ? height > 0 : true
     clip: root.edge === "bottom"
-    implicitWidth: content.item?.implicitWidth ?? 0
+    implicitWidth: root.fullBleed && root.edge === "bottom"
+        ? (parent?.width ?? content.item?.implicitWidth ?? 0)
+        : (content.item?.implicitWidth ?? 0)
     implicitHeight: 0
     height: root.edge === "bottom" ? implicitHeight : root.maxHeight
 
@@ -162,10 +165,10 @@ Item {
         id: content
 
         anchors.top: parent.top
-        anchors.left: root.edge === "bottom" ? undefined : parent.left
-        anchors.right: root.edge === "bottom" ? undefined : parent.right
+        anchors.left: root.edge === "bottom" && !root.fullBleed ? undefined : parent.left
+        anchors.right: root.edge === "bottom" && !root.fullBleed ? undefined : parent.right
         anchors.bottom: root.edge === "bottom" ? undefined : parent.bottom
-        anchors.horizontalCenter: root.edge === "bottom" ? parent.horizontalCenter : undefined
+        anchors.horizontalCenter: root.edge === "bottom" && !root.fullBleed ? parent.horizontalCenter : undefined
 
         active: false
         sourceComponent: root.contentComponent

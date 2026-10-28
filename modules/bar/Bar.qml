@@ -67,8 +67,8 @@ Item {
                     Layout.alignment: Qt.AlignCenter
                     Layout.fillWidth: false
                     Layout.fillHeight: true
-                    Layout.topMargin: 3
-                    Layout.bottomMargin: 3
+                    Layout.topMargin: 2
+                    Layout.bottomMargin: 2
                 }
 
             }

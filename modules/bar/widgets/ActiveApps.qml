@@ -64,7 +64,7 @@ BarWidget {
 
         RowLayout {
             id: appRowLayout
-            spacing: 15
+            spacing: 12
             Layout.alignment: Qt.AlignVCenter
 
             Repeater {
@@ -145,8 +145,8 @@ BarWidget {
             property var activeItem: root.activeIndex !== -1 ? appRepeater.itemAt(root.activeIndex) : activeApp
             readonly property real targetWidth: activeItem ? activeItem.width * 0.9 : 0
             x: activeItem ? activeItem.x + (activeItem.width - targetWidth) / 2 : 0
-            y: parent.height - height + 2
-            height: 3
+            y: parent.height - height + 1
+            height: 2
             radius: 1.5
             color: Theme.mauve
             width: targetWidth

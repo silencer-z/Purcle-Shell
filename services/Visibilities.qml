@@ -11,6 +11,7 @@ QtObject {
     property bool clipboard: false
     property bool wallpaper: false
     property bool sidebar: false
+    property bool task: false
 
     // 面板互斥：显式写入
     function togglePanel(name: string): void {
@@ -20,24 +21,35 @@ QtObject {
             root.clipboard = false;
             root.wallpaper = false;
             root.sidebar = false;
+            root.task = false;
             break;
         case "clipboard":
             root.clipboard = !root.clipboard;
             root.launcher = false;
             root.wallpaper = false;
             root.sidebar = false;
+            root.task = false;
             break;
         case "wallpaper":
             root.wallpaper = !root.wallpaper;
             root.launcher = false;
             root.clipboard = false;
             root.sidebar = false;
+            root.task = false;
             break;
         case "sidebar":
             root.sidebar = !root.sidebar;
             root.launcher = false;
             root.clipboard = false;
             root.wallpaper = false;
+            root.task = false;
+            break;
+        case "task":
+            root.task = !root.task;
+            root.launcher = false;
+            root.clipboard = false;
+            root.wallpaper = false;
+            root.sidebar = false;
             break;
         }
     }
@@ -51,5 +63,6 @@ QtObject {
         root.clipboard = false;
         root.wallpaper = false;
         root.sidebar = false;
+        root.task = false;
     }
 }
